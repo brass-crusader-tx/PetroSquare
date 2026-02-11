@@ -3,3 +3,8 @@ export * from './PageContainer';
 export * from './SectionHeader';
 export * from './DataPanel';
 export * from './InlineMetricBlock';
+export * from './Badge';
+export * from './NavItem';
+export * from './IconButton';
+export * from './Drawer';
+export * from './Inspector';

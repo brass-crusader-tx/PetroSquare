@@ -45,3 +45,51 @@ export interface User {
     notifications: boolean;
   };
 }
+
+/**
+ * System Health Status
+ */
+export interface SystemHealth {
+  status: 'ok' | 'degraded' | 'down';
+  timestamp: string;
+  env: string;
+}
+
+/**
+ * System Metadata
+ */
+export interface SystemMeta {
+  version: string;
+  build: string;
+  commit: string;
+  region: string;
+}
+
+/**
+ * Module Capability Definition
+ */
+export interface ModuleDefinition {
+  id: string;
+  name: string;
+  description: string;
+  status: 'active' | 'beta' | 'deprecated' | 'planned';
+  path: string;
+  category: 'upstream' | 'midstream' | 'downstream' | 'finance' | 'esg';
+}
+
+/**
+ * Capability Layer Definition
+ */
+export interface CapabilityLayer {
+  name: string;
+  description: string;
+  modules: ModuleDefinition[];
+}
+
+/**
+ * Overall System Capabilities
+ */
+export interface Capability {
+  domain: string;
+  layers: CapabilityLayer[];
+}
