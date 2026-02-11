@@ -9,7 +9,11 @@
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "next": ">=13"
+  },
+  "dependencies": {
+    "@petrosquare/types": "workspace:*"
   },
   "devDependencies": {
     "@petrosquare/config": "workspace:*",
@@ -17,6 +21,7 @@
     "@types/react-dom": "latest",
     "typescript": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "next": "latest"
   }
 }
