@@ -15,6 +15,22 @@ PetroSquare is a vendor-neutral digital operating system for oil and gas enterpr
 - **Responsibility**: Exposes RESTful APIs, handles authentication, and orchestrates data flow.
 - **Contracts**: Defined in `packages/types` to ensure type safety across frontend and backend.
 
+#### API Philosophy & Boundaries
+The API layer acts as the **Platform Contract**. It decouples the frontend from the underlying data and processing services. It is designed to be:
+- **Stateless**: Scaling horizontally via Docker/Kubernetes.
+- **Type-Safe**: Sharing contracts with the frontend via `@petrosquare/types`.
+- **Modular**: Routing requests to specific domain modules (Production, Market, GIS, etc.).
+
+#### Core Endpoints
+- `GET /health`: Service health, timestamp, and environment.
+- `GET /meta`: Build version, commit SHA, and deployment region.
+- `GET /capabilities`: Dynamically declares supported domains and AI/ML readiness.
+
+#### Extension Points
+Future domain services (e.g., `services/production`, `services/market`) will plug into the API layer. The API Gateway (this layer) will route requests or aggregate data from these microservices.
+- **New Domains**: Added to `PlatformDomain` type and exposed via `/capabilities`.
+- **New Modules**: Registered in the API routing layer.
+
 ### 3. Processing & Analytics Layer (Future)
 - **Responsibility**: Distributed compute engines (Spark, K8s) for physics-based models and ML.
 

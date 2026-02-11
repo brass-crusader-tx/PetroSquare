@@ -45,3 +45,58 @@ export interface User {
     notifications: boolean;
   };
 }
+
+/**
+ * API Health Response
+ */
+export interface HealthResponse {
+  status: 'ok' | 'degraded' | 'down';
+  timestamp: string;
+  environment: string;
+}
+
+/**
+ * API Meta Response
+ */
+export interface MetaResponse {
+  version: string;
+  buildId: string;
+  commit: string;
+  region?: string;
+}
+
+/**
+ * Platform Domain
+ */
+export type PlatformDomain =
+  | 'PRODUCTION'
+  | 'MARKET'
+  | 'GIS'
+  | 'COST'
+  | 'RISK'
+  | 'INTELLIGENCE';
+
+/**
+ * Platform Layer
+ */
+export type PlatformLayer =
+  | 'PRESENTATION'
+  | 'API_INTEGRATION'
+  | 'PROCESSING_ANALYTICS'
+  | 'DATA_STORAGE_MANAGEMENT'
+  | 'AI_ML'
+  | 'SECURITY_COMPLIANCE';
+
+/**
+ * API Capabilities Response
+ */
+export interface CapabilitiesResponse {
+  domains: PlatformDomain[];
+  layers: PlatformLayer[];
+  modules: string[];
+  features: {
+    aiReady: boolean;
+    analyticsReady: boolean;
+    realtimeReady: boolean;
+  };
+}
