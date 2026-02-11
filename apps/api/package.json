@@ -1,0 +1,24 @@
+{
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w & nodemon dist/index.js",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "cors": "latest",
+    "express": "latest",
+    "helmet": "latest"
+  },
+  "devDependencies": {
+    "@petrosquare/config": "workspace:*",
+    "@petrosquare/types": "workspace:*",
+    "@types/cors": "latest",
+    "@types/express": "latest",
+    "@types/node": "latest",
+    "nodemon": "latest",
+    "typescript": "latest"
+  }
+}
