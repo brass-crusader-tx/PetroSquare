@@ -32,6 +32,9 @@ importers:
       helmet:
         specifier: latest
         version: 8.1.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@petrosquare/config':
         specifier: workspace:*

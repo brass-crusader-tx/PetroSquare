@@ -10,7 +10,8 @@
   "dependencies": {
     "cors": "latest",
     "express": "latest",
-    "helmet": "latest"
+    "helmet": "latest",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@petrosquare/config": "workspace:*",
