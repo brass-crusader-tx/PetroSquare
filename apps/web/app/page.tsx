@@ -1,60 +1,92 @@
-import { Button } from "@petrosquare/ui";
-import { Activity, Database, Server } from "lucide-react";
+import {
+  PageContainer,
+  SectionHeader,
+  DataPanel,
+  InlineMetricBlock,
+} from "@petrosquare/ui";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24 bg-background">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-border bg-surface/50 pb-6 pt-8 backdrop-blur-2xl lg:static lg:w-auto lg:rounded-xl lg:border lg:p-4">
-          PetroSquare Platform&nbsp;
-          <code className="font-mono font-bold">v0.1.0</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-background via-background lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <div className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0">
-             <span className="text-muted">System Status:</span> <span className="text-green-500">OPERATIONAL</span>
+    <main className="min-h-screen bg-background text-text">
+      <PageContainer>
+        {/* Hero Section */}
+        <div className="mb-20 pt-10">
+          <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl font-sans mb-6">
+            PetroSquare
+          </h1>
+          <p className="text-xl text-muted font-mono max-w-2xl">
+            Vendor-neutral petroleum intelligence platform.
+          </p>
+        </div>
+
+        {/* System Intent Section */}
+        <section className="mb-20">
+          <SectionHeader
+            title="System Intent"
+            description="Enterprise-grade digital operating system."
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <DataPanel title="Data Fabric">
+              Unified ingestion pipelines for real-time streams (SCADA, IoT) and batch sources, normalized into a canonical model.
+            </DataPanel>
+            <DataPanel title="Analytics Engine">
+              Distributed compute layers supporting physics-based simulations, decline curve analysis, and financial modeling.
+            </DataPanel>
+            <DataPanel title="Modular Architecture">
+              Service-oriented design ensuring independent scalability of domain modules and rapid integration of new capabilities.
+            </DataPanel>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-to-br before:from-transparent before:to-blue-700 before:opacity-10 before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-to-t after:from-sky-900 after:via-sky-900 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <h1 className="text-6xl font-bold tracking-tighter text-center">
-          PetroSquare
-        </h1>
-      </div>
+        {/* Platform Modules Overview */}
+        <section className="mb-20">
+          <SectionHeader
+            title="Platform Modules"
+            description="Functional domains for upstream operations."
+          />
+          <div className="space-y-4">
+            <DataPanel>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+                 <InlineMetricBlock label="01" value="Production" trend="neutral" />
+                 <InlineMetricBlock label="02" value="Markets" trend="neutral" />
+                 <InlineMetricBlock label="03" value="Economics" trend="neutral" />
+                 <InlineMetricBlock label="04" value="GIS/Asset" trend="neutral" />
+                 <InlineMetricBlock label="05" value="Risk/Reg" trend="neutral" />
+              </div>
+            </DataPanel>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+               <DataPanel title="Production & Reserves">
+                 Decline curve analysis, reservoir modeling, and ultimate recovery estimation.
+               </DataPanel>
+               <DataPanel title="Market & Trading">
+                 Real-time pricing, benchmarks, derivatives analytics, and arbitrage opportunities.
+               </DataPanel>
+               <DataPanel title="Cost & Economics">
+                 CAPEX/OPEX modeling, cash flow analysis, and project economics (NPV, IRR).
+               </DataPanel>
+               <DataPanel title="GIS & Asset Intelligence">
+                 Spatial analytics, infrastructure mapping, and geological overlays.
+               </DataPanel>
+               <DataPanel title="Risk & Regulatory">
+                 Geopolitical risk scoring, compliance tracking, and environmental monitoring.
+               </DataPanel>
+            </div>
+          </div>
+        </section>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left gap-4">
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className={`mb-3 text-2xl font-semibold flex items-center gap-2`}>
-            <Database className="w-6 h-6" /> Ingestion
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Real-time streams & batch sources via unified pipelines.
-          </p>
-        </div>
-
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className={`mb-3 text-2xl font-semibold flex items-center gap-2`}>
-            <Server className="w-6 h-6" /> Processing
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Distributed compute engines for analytics & AI workloads.
-          </p>
-        </div>
-
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className={`mb-3 text-2xl font-semibold flex items-center gap-2`}>
-            <Activity className="w-6 h-6" /> Analytics
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Interactive dashboards, decline curves & financial models.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex gap-4">
-        <Button variant="primary">Launch Portal</Button>
-        <Button variant="secondary">Documentation</Button>
-      </div>
+        {/* Architecture Statement */}
+        <section>
+           <SectionHeader title="Architecture" />
+           <DataPanel>
+             <p className="leading-relaxed text-muted">
+               PetroSquare adopts a layered, microservices-based architecture to deliver high availability and vendor neutrality.
+               By decoupling data ingestion, storage, processing, and presentation, the platform ensures that critical
+               engineering workflows remain uninterrupted by backend updates. Security is enforced at every layer through
+               Role-Based Access Control (RBAC) and encryption, complying with strict industry standards for data sovereignty and integrity.
+             </p>
+           </DataPanel>
+        </section>
+      </PageContainer>
     </main>
   );
 }
