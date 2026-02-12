@@ -1,30 +1,9 @@
 "use client";
 
 import React from 'react';
-import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge } from '@petrosquare/ui';
+import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
-import { MarketBenchmark, FuturesCurve, CrackSpread, MarketSummary } from '@petrosquare/types';
-import { useDensity } from '../../../context/DensityContext';
-
-function BenchmarkCard({ benchmark }: { benchmark: MarketBenchmark }) {
-  const isUp = benchmark.change >= 0;
-  return (
-    <div className="bg-surface-highlight/20 p-4 rounded border border-border flex justify-between items-center">
-      <div>
-        <div className="text-xs text-muted font-mono">{benchmark.symbol}</div>
-        <div className="text-sm font-bold text-white">{benchmark.name}</div>
-      </div>
-      <div className="text-right">
-        <div className="text-lg font-mono text-white">
-          {benchmark.price.toFixed(2)} <span className="text-xs text-muted">{benchmark.unit}</span>
-        </div>
-        <div className={`text-xs font-mono ${isUp ? 'text-data-positive' : 'text-data-critical'}`}>
-          {isUp ? '▲' : '▼'} {Math.abs(benchmark.change).toFixed(2)} ({benchmark.change_percent.toFixed(2)}%)
-        </div>
-      </div>
-    </div>
-  );
-}
+import { FuturesCurve, CrackSpread, MarketSummary } from '@petrosquare/types';
 
 function SimpleLineChart({ data, width = 300, height = 150 }: { data: { x: string, y: number }[], width?: number, height?: number }) {
   if (!data || data.length === 0) return null;
@@ -59,83 +38,114 @@ function SimpleLineChart({ data, width = 300, height = 150 }: { data: { x: strin
 }
 
 export default function MarketsPage() {
-  const { density } = useDensity();
-  const { data: summary, loading: loadingSummary } = useData<MarketSummary>('/api/markets/summary');
-  const { data: curve, loading: loadingCurve } = useData<FuturesCurve>('/api/markets/curve?symbol=CL=F');
-  const { data: spreads, loading: loadingSpreads } = useData<CrackSpread[]>('/api/markets/spreads');
-
-  const padding = density === 'compact' ? 'p-4' : 'p-6';
+  const { data: summary, loading: loadingSummary, error: errorSummary } = useData<MarketSummary>('/api/markets/summary');
+  const { data: curve, loading: loadingCurve, error: errorCurve } = useData<FuturesCurve>('/api/markets/curve?symbol=CL=F');
+  const { data: spreads, loading: loadingSpreads, error: errorSpreads } = useData<CrackSpread[]>('/api/markets/spreads');
 
   return (
-    <main className="min-h-screen bg-background text-text">
-      <PageContainer>
-        <SectionHeader
+    <PageContainer>
+        <PageHeader
             title="Markets & Trading Analytics"
             description="Global crude and product benchmarks, futures curves, and arbitrage spreads."
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-            {/* Left Column: Benchmarks */}
-            <div className="lg:col-span-1 space-y-6">
-                <DataPanel title="Key Benchmarks" className={padding} loading={loadingSummary}>
-                    <div className="space-y-4">
-                        {summary?.benchmarks.map(b => (
-                            <BenchmarkCard key={b.symbol} benchmark={b} />
-                        ))}
-                    </div>
-                </DataPanel>
+        <FilterBar lastUpdated={new Date().toLocaleTimeString()}>
+            {/* Stub filters */}
+            <select className="bg-surface-inset border border-border rounded px-3 py-1 text-sm text-white focus:outline-none">
+                <option>Global Benchmarks</option>
+                <option>Regional Spot</option>
+            </select>
+            <select className="bg-surface-inset border border-border rounded px-3 py-1 text-sm text-white focus:outline-none">
+                <option>Last 24 Hours</option>
+                <option>Last 7 Days</option>
+            </select>
+        </FilterBar>
 
-                <DataPanel title="Market Pulse" className={padding} loading={loadingSummary}>
-                     <div className="prose prose-invert prose-sm">
-                         <p className="text-muted text-sm leading-relaxed">
-                             {summary?.pulse_summary}
-                         </p>
-                     </div>
-                </DataPanel>
-            </div>
-
-            {/* Middle Column: Futures Curve */}
-            <div className="lg:col-span-2 space-y-6">
-                <DataPanel title="Futures Curve (WTI)" className={padding} loading={loadingCurve}>
-                    <div className="h-64 w-full bg-surface-highlight/10 rounded flex items-center justify-center p-4">
-                        {curve && (
-                            <div className="w-full h-full">
-                                <SimpleLineChart
-                                    data={curve.points.map(p => ({ x: p.month, y: p.price }))}
-                                    width={600}
-                                    height={200}
-                                />
-                                <div className="flex justify-between mt-2 text-xs text-muted font-mono">
-                                    {curve.points.filter((_, i) => i % 3 === 0).map(p => (
-                                        <span key={p.month}>{p.month}</span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </DataPanel>
-
-                <DataPanel title="Crack Spreads" className={padding} loading={loadingSpreads}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {spreads?.map(spread => (
-                            <div key={spread.name} className="bg-surface-highlight/20 p-4 rounded border border-border">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h4 className="text-sm font-bold text-white">{spread.name}</h4>
-                                    <Badge status={spread.trend === 'up' ? 'live' : 'declared'}>{spread.trend.toUpperCase()}</Badge>
-                                </div>
-                                <div className="text-2xl font-mono text-white">
-                                    ${spread.value.toFixed(2)} <span className="text-xs text-muted">{spread.unit}</span>
-                                </div>
-                                <div className="mt-2 text-xs text-muted">
-                                    Components: {spread.components.join(' / ')}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </DataPanel>
-            </div>
+        {/* KPI Strip */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {loadingSummary && [...Array(4)].map((_, i) => <KpiCard key={i} title="Loading..." value="" loading />)}
+            {summary?.benchmarks.map(b => (
+                <KpiCard
+                    key={b.symbol}
+                    title={b.name}
+                    value={b.price.toFixed(2)}
+                    unit={b.unit}
+                    change={b.change_percent}
+                    changeLabel="24h"
+                    status="neutral"
+                />
+            ))}
         </div>
-      </PageContainer>
-    </main>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Futures Curve */}
+            <DataPanel
+                title="Futures Curve (WTI)"
+                subtitle="Forward pricing curve for West Texas Intermediate"
+                loading={loadingCurve}
+                error={errorCurve ? "Failed to load futures data" : undefined}
+                footer={<DataMeta source="CME Group" lastUpdated="Live" unit="USD/bbl" />}
+                className="lg:col-span-2"
+            >
+                 <div className="h-64 w-full bg-surface-inset/10 rounded flex items-center justify-center p-4">
+                    {curve && (
+                        <div className="w-full h-full">
+                            <SimpleLineChart
+                                data={curve.points.map(p => ({ x: p.month, y: p.price }))}
+                                width={800}
+                                height={200}
+                            />
+                            <div className="flex justify-between mt-2 text-xs text-muted font-mono">
+                                {curve.points.filter((_, i) => i % 3 === 0).map(p => (
+                                    <span key={p.month}>{p.month}</span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </DataPanel>
+
+            {/* Market Pulse */}
+             <DataPanel
+                title="Market Pulse"
+                subtitle="AI-generated market commentary"
+                loading={loadingSummary}
+                error={errorSummary ? "Failed to load pulse" : undefined}
+                footer={<DataMeta source="PetroSquare AI" lastUpdated="Just now" />}
+            >
+                <div className="prose prose-invert prose-sm">
+                    <p className="text-muted text-sm leading-relaxed">
+                        {summary?.pulse_summary || "No commentary available."}
+                    </p>
+                </div>
+            </DataPanel>
+
+            {/* Crack Spreads */}
+            <DataPanel
+                title="Crack Spreads"
+                subtitle="Refining margin indicators"
+                loading={loadingSpreads}
+                error={errorSpreads ? "Failed to load spreads" : undefined}
+                footer={<DataMeta source="Platts" lastUpdated="15m delay" unit="USD/bbl" />}
+            >
+                <div className="space-y-4">
+                    {spreads?.map(spread => (
+                        <div key={spread.name} className="flex justify-between items-center border-b border-border/50 pb-2 last:border-0">
+                            <div>
+                                <div className="text-sm font-bold text-white">{spread.name}</div>
+                                <div className="text-xs text-muted">Components: {spread.components.join(' / ')}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-lg font-mono text-white">${spread.value.toFixed(2)}</div>
+                                <div className={`text-xs font-mono ${spread.trend === 'up' ? 'text-success' : 'text-warning'}`}>
+                                    {spread.trend.toUpperCase()}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </DataPanel>
+        </div>
+    </PageContainer>
   );
 }
