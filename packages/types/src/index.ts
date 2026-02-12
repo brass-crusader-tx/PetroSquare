@@ -80,3 +80,44 @@ export interface ModuleDefinition {
   outputs: string[];
   assumptions: string[];
 }
+
+// --- Data & Connector Types ---
+
+export interface Provenance {
+  sourceName: string;
+  sourceUrl: string;
+  retrievedAt: string;
+  license?: string;
+}
+
+export interface DataPoint {
+  value: number;
+  unit: string;
+  timestamp: string;
+}
+
+export interface MarketData {
+  symbol: string;
+  price: number;
+  unit: string;
+  currency: string;
+  provenance: Provenance;
+}
+
+export interface WeatherContext {
+  location: string;
+  temperature: number;
+  unit: 'F' | 'C';
+  condition: string;
+  windSpeed: number;
+  windDirection: string; // Cardinal direction (N, NE, etc.) or degrees
+  provenance: Provenance;
+}
+
+export interface ConnectorStatus {
+  id: string;
+  name: string;
+  status: 'ok' | 'error' | 'maintenance';
+  lastSuccess?: string;
+  message?: string;
+}

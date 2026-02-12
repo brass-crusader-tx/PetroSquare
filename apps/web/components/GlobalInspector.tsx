@@ -11,6 +11,7 @@ export function GlobalInspector() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [meta, setMeta] = useState<MetaResponse | null>(null);
   const [capabilities, setCapabilities] = useState<Capability[]>([]);
+  const [dataHealth, setDataHealth] = useState<{ eia: string; noaa: string }>({ eia: 'unknown', noaa: 'unknown' });
   const pathname = usePathname();
   const { density, inspectMode } = useDensity();
 
@@ -19,14 +20,28 @@ export function GlobalInspector() {
       fetch('/api/health').then(r => r.json()).then(setHealth).catch(console.error);
       fetch('/api/meta').then(r => r.json()).then(setMeta).catch(console.error);
       fetch('/api/capabilities').then(r => r.json()).then(setCapabilities).catch(console.error);
+
+       // Data Health Check
+      fetch('/api/data/market/benchmark')
+        .then(r => r.json())
+        .then(d => setDataHealth(h => ({ ...h, eia: d.meta?.errors ? 'error' : (d.data?.length > 0 ? 'ok' : 'warning') })))
+        .catch(() => setDataHealth(h => ({ ...h, eia: 'error' })));
+
+      fetch('/api/data/context/weather')
+        .then(r => r.json())
+        .then(d => setDataHealth(h => ({ ...h, noaa: d.error ? 'error' : 'ok' })))
+        .catch(() => setDataHealth(h => ({ ...h, noaa: 'error' })));
     }
   }, [isOpen]);
 
-  // Open automatically if inspectMode is on? No, that would be annoying.
-  // But inspectMode might show inline details. The Drawer is separate.
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+  };
+
+  const getBadgeStatus = (status: string): 'live' | 'error' | 'declared' => {
+    if (status === 'ok') return 'live';
+    if (status === 'error') return 'error';
+    return 'declared';
   };
 
   return (
@@ -91,6 +106,21 @@ export function GlobalInspector() {
             ) : (
               <div className="text-xs text-muted italic">Loading...</div>
             )}
+          </section>
+
+           {/* Data Health */}
+           <section>
+            <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">Data Feed Health</h3>
+             <div className="space-y-2">
+               <div className="bg-surface-highlight/10 p-2 rounded border border-border flex items-center justify-between">
+                 <span className="text-xs text-white">EIA (Energy)</span>
+                 <Badge status={getBadgeStatus(dataHealth.eia)} className="scale-75 origin-right" />
+               </div>
+               <div className="bg-surface-highlight/10 p-2 rounded border border-border flex items-center justify-between">
+                 <span className="text-xs text-white">NOAA (Weather)</span>
+                 <Badge status={getBadgeStatus(dataHealth.noaa)} className="scale-75 origin-right" />
+               </div>
+             </div>
           </section>
 
           {/* Metadata */}
