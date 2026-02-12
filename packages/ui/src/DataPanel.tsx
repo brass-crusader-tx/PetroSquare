@@ -1,9 +1,9 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 
 export interface DataPanelProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
-  title?: React.ReactNode;
+  title?: ReactNode;
 }
 
 export function DataPanel({ children, className, title }: DataPanelProps) {
