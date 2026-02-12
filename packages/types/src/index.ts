@@ -45,3 +45,38 @@ export interface User {
     notifications: boolean;
   };
 }
+
+// --- Platform Contract Types ---
+
+export interface HealthResponse {
+  status: 'ok' | 'error';
+  timestamp: string;
+  version: string;
+}
+
+export interface MetaResponse {
+  version: string;
+  commit: string;
+  environment: string;
+  timestamp: string;
+}
+
+export type CapabilityStatus = 'live' | 'declared' | 'beta';
+
+export interface Capability {
+  id: string;
+  title: string;
+  description: string;
+  status: CapabilityStatus;
+  href: string;
+}
+
+export interface ModuleDefinition {
+  id: string;
+  title: string;
+  description: string;
+  status: 'declared' | 'connected';
+  inputs: string[];
+  outputs: string[];
+  assumptions: string[];
+}
