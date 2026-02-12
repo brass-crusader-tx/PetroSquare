@@ -80,3 +80,74 @@ export interface ModuleDefinition {
   outputs: string[];
   assumptions: string[];
 }
+
+// --- Production & Reserves Types ---
+
+export type RegionKind = 'US_STATE' | 'CA_PROVINCE';
+
+export interface RegionRef {
+  kind: RegionKind;
+  code: string;
+  name: string;
+}
+
+export interface TimeSeriesPoint {
+  period: string; // ISO month (YYYY-MM) or year (YYYY)
+  value: number;
+}
+
+export interface Provenance {
+  source_name: string;
+  source_url: string;
+  retrieved_at: string;
+  units?: string; // Sometimes units are part of provenance or top level
+  notes?: string;
+  cache_policy?: string;
+  request_fingerprint?: string;
+}
+
+export interface ProductionSeriesResponse {
+  region: RegionRef;
+  commodity: 'CRUDE_OIL';
+  series: TimeSeriesPoint[];
+  units: string;
+  frequency: string;
+  provenance: Provenance;
+}
+
+export interface ReservesSeriesResponse {
+  region: RegionRef;
+  commodity: 'CRUDE_OIL';
+  series: TimeSeriesPoint[];
+  units: string;
+  frequency: string;
+  provenance: Provenance;
+}
+
+export interface TopProducerRow {
+  region: RegionRef;
+  latest_period: string;
+  latest_value: number;
+  units: string;
+  rank?: number; // Added rank field for UI
+}
+
+export interface TopProducersResponse {
+  kind: RegionKind;
+  commodity: 'CRUDE_OIL';
+  latest_period: string; // The period for which ranking is done
+  units: string;
+  rows: TopProducerRow[];
+  provenance: Provenance;
+}
+
+export interface DataEnvelope<T> {
+  status: 'ok' | 'degraded';
+  data: T | null;
+  error?: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
+  provenance?: Provenance;
+}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Drawer, IconButton, Badge } from '@petrosquare/ui';
+import { Drawer, IconButton, Badge, Button } from '@petrosquare/ui';
 import type { HealthResponse, MetaResponse, Capability } from '@petrosquare/types';
 import { useDensity } from '../context/DensityContext';
 
@@ -11,6 +11,8 @@ export function GlobalInspector() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [meta, setMeta] = useState<MetaResponse | null>(null);
   const [capabilities, setCapabilities] = useState<Capability[]>([]);
+  const [lastEiaFetch, setLastEiaFetch] = useState<string | null>(null);
+  const [lastCerFetch, setLastCerFetch] = useState<string | null>(null);
   const pathname = usePathname();
   const { density, inspectMode } = useDensity();
 
@@ -19,6 +21,11 @@ export function GlobalInspector() {
       fetch('/api/health').then(r => r.json()).then(setHealth).catch(console.error);
       fetch('/api/meta').then(r => r.json()).then(setMeta).catch(console.error);
       fetch('/api/capabilities').then(r => r.json()).then(setCapabilities).catch(console.error);
+
+      const eia = localStorage.getItem('petrosquare-eia-last-fetch');
+      if (eia) setLastEiaFetch(eia);
+      const cer = localStorage.getItem('petrosquare-cer-last-fetch');
+      if (cer) setLastCerFetch(cer);
     }
   }, [isOpen]);
 
@@ -138,7 +145,27 @@ export function GlobalInspector() {
           </section>
 
           <section className="pt-4 border-t border-border">
-             <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">API Contracts</h3>
+             <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">Production & Reserves</h3>
+             <div className="space-y-2 mb-4">
+                <div className="flex justify-between items-center text-xs">
+                   <span className="text-muted">EIA Last Fetch</span>
+                   <span className="text-white font-mono">{lastEiaFetch ? new Date(lastEiaFetch).toLocaleTimeString() : 'N/A'}</span>
+                </div>
+                 <div className="flex justify-between items-center text-xs">
+                   <span className="text-muted">CER Last Fetch</span>
+                   <span className="text-white font-mono">{lastCerFetch ? new Date(lastCerFetch).toLocaleTimeString() : 'N/A'}</span>
+                </div>
+             </div>
+             <div className="grid grid-cols-2 gap-2">
+                  <Button variant="secondary" className="text-[10px] px-2 py-1 h-auto" onClick={() => copyToClipboard('/api/data/production-reserves/regions')}>Copy Regions API</Button>
+                  <Button variant="secondary" className="text-[10px] px-2 py-1 h-auto" onClick={() => copyToClipboard('/api/data/production-reserves/top-producers?kind=US_STATE')}>Copy Top Prod API</Button>
+                  <Button variant="secondary" className="text-[10px] px-2 py-1 h-auto" onClick={() => copyToClipboard('/api/data/production-reserves/production?kind=US_STATE&code=TX')}>Copy Prod API</Button>
+                  <Button variant="secondary" className="text-[10px] px-2 py-1 h-auto" onClick={() => copyToClipboard('/api/data/production-reserves/reserves?kind=US_STATE&code=TX')}>Copy Resv API</Button>
+              </div>
+          </section>
+
+          <section className="pt-4 border-t border-border">
+             <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">System Contracts</h3>
              <div className="space-y-2">
                 <a href="/api/health" target="_blank" className="block text-xs font-mono text-primary hover:underline">GET /api/health</a>
                 <a href="/api/meta" target="_blank" className="block text-xs font-mono text-primary hover:underline">GET /api/meta</a>
