@@ -3,14 +3,31 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Drawer, IconButton, Badge } from '@petrosquare/ui';
-import type { HealthResponse, MetaResponse, Capability } from '@petrosquare/types';
+import type { HealthResponse, MetaResponse, Capability, ApiResponse } from '@petrosquare/types';
 import { useDensity } from '../context/DensityContext';
+
+interface ConnectorStatus {
+  status: 'ok' | 'degraded' | 'unknown';
+  retrievedAt: string;
+}
 
 export function GlobalInspector() {
   const [isOpen, setIsOpen] = useState(false);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [meta, setMeta] = useState<MetaResponse | null>(null);
   const [capabilities, setCapabilities] = useState<Capability[]>([]);
+
+  // Data Health State
+  const [dataHealth, setDataHealth] = useState<{
+    eia: ConnectorStatus;
+    openweather: ConnectorStatus;
+    sec: ConnectorStatus;
+  }>({
+    eia: { status: 'unknown', retrievedAt: '-' },
+    openweather: { status: 'unknown', retrievedAt: '-' },
+    sec: { status: 'unknown', retrievedAt: '-' },
+  });
+
   const pathname = usePathname();
   const { density, inspectMode } = useDensity();
 
@@ -19,11 +36,42 @@ export function GlobalInspector() {
       fetch('/api/health').then(r => r.json()).then(setHealth).catch(console.error);
       fetch('/api/meta').then(r => r.json()).then(setMeta).catch(console.error);
       fetch('/api/capabilities').then(r => r.json()).then(setCapabilities).catch(console.error);
+
+      // Check Data Health
+      // EIA
+      fetch('/api/data/market/benchmark').then(r => r.json()).then((res: ApiResponse<any>) => {
+         setDataHealth(prev => ({
+           ...prev,
+           eia: {
+             status: res.status as any,
+             retrievedAt: res.provenance?.retrieved_at || new Date().toISOString()
+           }
+         }));
+      }).catch(() => setDataHealth(prev => ({ ...prev, eia: { status: 'degraded', retrievedAt: 'Error' } })));
+
+      // OpenWeather
+      fetch('/api/data/context/weather?lat=29.7604&lon=-95.3698').then(r => r.json()).then((res: ApiResponse<any>) => {
+         setDataHealth(prev => ({
+           ...prev,
+           openweather: {
+             status: res.status as any,
+             retrievedAt: res.provenance?.retrieved_at || new Date().toISOString()
+           }
+         }));
+      }).catch(() => setDataHealth(prev => ({ ...prev, openweather: { status: 'degraded', retrievedAt: 'Error' } })));
+
+      // SEC
+      fetch('/api/data/regulatory/filings?limit=1').then(r => r.json()).then((res: ApiResponse<any>) => {
+         setDataHealth(prev => ({
+           ...prev,
+           sec: {
+             status: res.status as any,
+             retrievedAt: res.provenance?.retrieved_at || new Date().toISOString()
+           }
+         }));
+      }).catch(() => setDataHealth(prev => ({ ...prev, sec: { status: 'degraded', retrievedAt: 'Error' } })));
     }
   }, [isOpen]);
-
-  // Open automatically if inspectMode is on? No, that would be annoying.
-  // But inspectMode might show inline details. The Drawer is separate.
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -77,7 +125,7 @@ export function GlobalInspector() {
             {health ? (
                <div className="bg-black/30 p-3 rounded border border-border space-y-2">
                  <div className="flex justify-between items-center">
-                   <span className="text-xs text-muted">Status</span>
+                   <span className="text-xs text-muted">System</span>
                    <Badge status={health.status === 'ok' ? 'live' : 'error'} />
                  </div>
                  <div className="flex justify-between items-center">
@@ -91,6 +139,28 @@ export function GlobalInspector() {
             ) : (
               <div className="text-xs text-muted italic">Loading...</div>
             )}
+          </section>
+
+          {/* Data Health */}
+          <section>
+            <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">Data Connectors</h3>
+            <div className="space-y-2 bg-black/30 p-3 rounded border border-border">
+               <div className="flex justify-between items-center">
+                 <span className="text-xs text-muted">EIA (Energy)</span>
+                 <Badge status={dataHealth.eia.status === 'ok' ? 'live' : (dataHealth.eia.status === 'unknown' ? 'beta' : 'error')} />
+               </div>
+               <div className="flex justify-between items-center">
+                 <span className="text-xs text-muted">OpenWeather</span>
+                 <Badge status={dataHealth.openweather.status === 'ok' ? 'live' : (dataHealth.openweather.status === 'unknown' ? 'beta' : 'error')} />
+               </div>
+               <div className="flex justify-between items-center">
+                 <span className="text-xs text-muted">SEC (Filings)</span>
+                 <Badge status={dataHealth.sec.status === 'ok' ? 'live' : (dataHealth.sec.status === 'unknown' ? 'beta' : 'error')} />
+               </div>
+               <div className="text-[10px] text-muted pt-2 border-t border-dashed border-border mt-2 font-mono">
+                 Last Sync: {dataHealth.eia.retrievedAt !== '-' ? new Date(dataHealth.eia.retrievedAt).toLocaleTimeString() : '-'}
+               </div>
+            </div>
           </section>
 
           {/* Metadata */}
@@ -140,9 +210,41 @@ export function GlobalInspector() {
           <section className="pt-4 border-t border-border">
              <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">API Contracts</h3>
              <div className="space-y-2">
-                <a href="/api/health" target="_blank" className="block text-xs font-mono text-primary hover:underline">GET /api/health</a>
-                <a href="/api/meta" target="_blank" className="block text-xs font-mono text-primary hover:underline">GET /api/meta</a>
-                <a href="/api/capabilities" target="_blank" className="block text-xs font-mono text-primary hover:underline">GET /api/capabilities</a>
+                <div className="flex justify-between items-center group">
+                  <a href="/api/health" target="_blank" className="text-xs font-mono text-primary hover:underline">GET /api/health</a>
+                  <IconButton size="sm" variant="ghost" onClick={() => copyToClipboard('/api/health')} className="opacity-0 group-hover:opacity-100">
+                    <span className="text-[10px]">COPY</span>
+                  </IconButton>
+                </div>
+
+                <div className="flex justify-between items-center group">
+                  <a href="/api/data/market/benchmark" target="_blank" className="text-xs font-mono text-primary hover:underline">GET /api/data/market/benchmark</a>
+                  <IconButton size="sm" variant="ghost" onClick={() => copyToClipboard('/api/data/market/benchmark')} className="opacity-0 group-hover:opacity-100">
+                    <span className="text-[10px]">COPY</span>
+                  </IconButton>
+                </div>
+
+                <div className="flex justify-between items-center group">
+                  <a href="/api/data/market/inventory" target="_blank" className="text-xs font-mono text-primary hover:underline">GET /api/data/market/inventory</a>
+                   <IconButton size="sm" variant="ghost" onClick={() => copyToClipboard('/api/data/market/inventory')} className="opacity-0 group-hover:opacity-100">
+                    <span className="text-[10px]">COPY</span>
+                  </IconButton>
+                </div>
+
+                <div className="flex justify-between items-center group">
+                  <a href="/api/data/context/weather?lat=29.76&lon=-95.36" target="_blank" className="text-xs font-mono text-primary hover:underline">GET /api/data/context/weather</a>
+                   <IconButton size="sm" variant="ghost" onClick={() => copyToClipboard('/api/data/context/weather?lat=29.76&lon=-95.36')} className="opacity-0 group-hover:opacity-100">
+                    <span className="text-[10px]">COPY</span>
+                  </IconButton>
+                </div>
+
+                <div className="flex justify-between items-center group">
+                  <a href="/api/data/regulatory/filings" target="_blank" className="text-xs font-mono text-primary hover:underline">GET /api/data/regulatory/filings</a>
+                   <IconButton size="sm" variant="ghost" onClick={() => copyToClipboard('/api/data/regulatory/filings')} className="opacity-0 group-hover:opacity-100">
+                    <span className="text-[10px]">COPY</span>
+                  </IconButton>
+                </div>
+
              </div>
           </section>
 
