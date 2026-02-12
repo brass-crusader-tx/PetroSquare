@@ -8,15 +8,15 @@
     "dev": "tsc -w"
   },
   "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@petrosquare/config": "workspace:*",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "typescript": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "@types/react": "18.2.61",
+    "@types/react-dom": "18.2.19",
+    "typescript": "5.3.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   }
 }

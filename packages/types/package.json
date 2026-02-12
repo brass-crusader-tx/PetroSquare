@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "@petrosquare/config": "workspace:*",
-    "typescript": "latest"
+    "typescript": "5.3.3"
   }
 }

@@ -9,13 +9,21 @@
     "clean": "rm -rf node_modules **/*/node_modules"
   },
   "devDependencies": {
-    "turbo": "latest",
-    "prettier": "latest",
-    "typescript": "latest",
-    "@types/node": "latest"
+    "turbo": "1.12.4",
+    "prettier": "3.2.5",
+    "typescript": "5.3.3",
+    "@types/node": "20.11.24"
   },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@9.0.0",
+  "pnpm": {
+    "overrides": {
+      "react": "18.2.0",
+      "react-dom": "18.2.0",
+      "@types/react": "18.2.61",
+      "@types/react-dom": "18.2.19"
+    }
+  }
 }
