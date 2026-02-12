@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge, IconButton, DetailDrawer } from '@petrosquare/ui';
+import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge, IconButton, DetailDrawer, getStandardTabs, InsightCard } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { TopProducersResponse } from '@petrosquare/types';
 import Link from 'next/link';
@@ -57,17 +57,7 @@ export default function ProductionPage() {
         </SectionHeader>
 
         {/* AI Insight */}
-        {insight && (
-            <div className="mb-6 p-4 bg-surface-highlight/10 rounded border border-purple-500/30 flex items-start space-x-4">
-                <div className="shrink-0 pt-1">
-                    <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse block"></span>
-                </div>
-                <div>
-                    <h4 className="text-xs font-bold text-purple-400 uppercase mb-1">AI Executive Summary</h4>
-                    <p className="text-sm text-muted leading-relaxed">{insight}</p>
-                </div>
-            </div>
-        )}
+        <InsightCard insight={insight} loading={loadingInsight} className="mb-6" />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Left Column: Regional Production */}
@@ -136,11 +126,7 @@ export default function ProductionPage() {
             subtitle="Basin Analysis"
             source="Production DB"
             timestamp={new Date().toLocaleTimeString()}
-            tabs={[
-                { id: 'overview', label: 'Overview', content: <div className="text-muted text-sm p-4">Detailed production metrics for {selectedBasin}.</div> },
-                { id: 'decline', label: 'Decline Curve', content: <div className="text-muted text-sm p-4">DCA analysis visualization.</div> },
-                { id: 'reserves', label: 'Reserves', content: <div className="text-muted text-sm p-4">P1/P2/P3 reserves estimation.</div> }
-            ]}
+            tabs={getStandardTabs({ name: selectedBasin, value: '5.8M', units: 'bbl/d' })}
         />
     </PageContainer>
   );

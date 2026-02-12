@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { PageContainer, SectionHeader, DataPanel, Badge, DetailDrawer } from '@petrosquare/ui';
+import { PageContainer, SectionHeader, DataPanel, Badge, DetailDrawer, getStandardTabs, InsightCard } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { RiskEvent, RiskAlert, MapOverlay } from '@petrosquare/types';
 
@@ -40,17 +40,7 @@ export default function RiskPage() {
         />
 
         {/* AI Insight */}
-        {insight && (
-            <div className="mb-6 p-4 bg-surface-highlight/10 rounded border border-purple-500/30 flex items-start space-x-4">
-                <div className="shrink-0 pt-1">
-                    <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse block"></span>
-                </div>
-                <div>
-                    <h4 className="text-xs font-bold text-purple-400 uppercase mb-1">AI Risk Assessment</h4>
-                    <p className="text-sm text-muted leading-relaxed">{insight}</p>
-                </div>
-            </div>
-        )}
+        <InsightCard insight={insight} loading={!insight && !events} className="mb-6" />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
 
@@ -134,11 +124,7 @@ export default function RiskPage() {
             subtitle={selectedEvent?.source || 'Source Unknown'}
             source="Global Risk Intelligence"
             timestamp={selectedEvent?.date}
-            tabs={[
-                { id: 'impact', label: 'Impact Analysis', content: <div className="text-muted text-sm p-4">{selectedEvent?.description}</div> },
-                { id: 'assets', label: 'Exposed Assets', content: <div className="text-muted text-sm p-4">List of assets in {selectedEvent?.affected_regions.join(', ')}.</div> },
-                { id: 'response', label: 'Response Plan', content: <div className="text-muted text-sm p-4">Recommended mitigation steps.</div> }
-            ]}
+            tabs={getStandardTabs(selectedEvent, null, 'Risk Event')}
         />
     </PageContainer>
   );

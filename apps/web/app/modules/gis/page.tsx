@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Badge, DetailDrawer } from '@petrosquare/ui';
+import { Badge, DetailDrawer, getStandardTabs } from '@petrosquare/ui';
 import { Basin, GISAsset, MapOverlay, AISummary } from '@petrosquare/types';
 import FilterPanel from './components/FilterPanel';
 import AISummaryPanel from './components/AISummary';
@@ -173,46 +173,7 @@ export default function GISPage() {
               subtitle={selectedAsset?.type || 'Unknown Type'}
               source="Internal GIS DB + Real-time Telemetry"
               timestamp={new Date().toISOString()}
-              tabs={[
-                  {
-                      id: 'overview',
-                      label: 'Overview',
-                      content: (
-                          <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                  <div className="p-3 bg-surface-highlight/10 rounded border border-border">
-                                      <div className="text-xs text-muted uppercase">Status</div>
-                                      <div className="text-lg font-mono text-white">{selectedAsset?.status}</div>
-                                  </div>
-                                  <div className="p-3 bg-surface-highlight/10 rounded border border-border">
-                                      <div className="text-xs text-muted uppercase">Operator</div>
-                                      <div className="text-sm font-mono text-white truncate">{selectedAsset?.operator_id}</div>
-                                  </div>
-                              </div>
-                              <div className="p-3 bg-surface-highlight/10 rounded border border-border">
-                                  <div className="text-xs text-muted uppercase mb-1">Coordinates</div>
-                                  <div className="text-sm font-mono text-white">{selectedAsset?.latitude.toFixed(4)}, {selectedAsset?.longitude.toFixed(4)}</div>
-                              </div>
-                              {selectedAsset?.metadata && (
-                                  <div className="p-3 bg-surface-highlight/10 rounded border border-border">
-                                      <div className="text-xs text-muted uppercase mb-1">Metadata</div>
-                                      <pre className="text-[10px] font-mono text-muted whitespace-pre-wrap">{JSON.stringify(selectedAsset.metadata, null, 2)}</pre>
-                                  </div>
-                              )}
-                          </div>
-                      )
-                  },
-                  {
-                      id: 'production',
-                      label: 'Production',
-                      content: <div className="text-sm text-muted">Production data visualization would go here.</div>
-                  },
-                  {
-                      id: 'risk',
-                      label: 'Risk',
-                      content: <div className="text-sm text-muted">Risk assessment matrix.</div>
-                  }
-              ]}
+              tabs={getStandardTabs(selectedAsset, null, 'Asset')}
            />
        </div>
     </main>

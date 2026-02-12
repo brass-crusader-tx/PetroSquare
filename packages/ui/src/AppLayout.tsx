@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { LeftNav } from './LeftNav';
 import { TopHeader } from './TopHeader';
+import { Footer } from './Footer';
 
 export interface AppLayoutProps {
   children: ReactNode;
@@ -13,8 +14,11 @@ export function AppLayout({ children, currentPath }: AppLayoutProps) {
       <LeftNav currentPath={currentPath} />
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
         <TopHeader />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
-             {children}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
+             <div className="flex-1 flex flex-col">
+                {children}
+             </div>
+             <Footer />
         </main>
       </div>
     </div>

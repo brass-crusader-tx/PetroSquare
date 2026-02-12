@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge, DetailDrawer } from '@petrosquare/ui';
+import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge, DetailDrawer, getStandardTabs, InsightCard } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { MarketBenchmark, FuturesCurve, CrackSpread, MarketSummary } from '@petrosquare/types';
 import { useDensity } from '../../../context/DensityContext';
@@ -85,14 +85,7 @@ export default function MarketsPage() {
                     </div>
                 </DataPanel>
 
-                <DataPanel title="AI Market Pulse" className={`border-l-4 border-l-purple-500 ${padding}`} loading={!insight}>
-                     <div className="prose prose-invert prose-sm">
-                         <p className="text-white text-sm leading-relaxed">
-                             {insight || summary?.pulse_summary}
-                         </p>
-                         <div className="text-[10px] text-muted uppercase tracking-wider mt-2">Powered by Gemini</div>
-                     </div>
-                </DataPanel>
+                <InsightCard insight={insight || summary?.pulse_summary || null} loading={!insight && !summary} />
             </div>
 
             {/* Middle Column: Futures Curve */}
@@ -144,11 +137,7 @@ export default function MarketsPage() {
             subtitle={selectedItem?.symbol || 'Market Instrument'}
             source="Market Data Feed"
             timestamp={new Date().toLocaleTimeString()}
-            tabs={[
-                { id: 'overview', label: 'Overview', content: <div className="text-muted text-sm p-4">Historical price action and volume analysis.</div> },
-                { id: 'technical', label: 'Technical', content: <div className="text-muted text-sm p-4">RSI, MACD, and Moving Averages.</div> },
-                { id: 'news', label: 'News', content: <div className="text-muted text-sm p-4">Recent headlines affecting this instrument.</div> }
-            ]}
+            tabs={getStandardTabs(selectedItem, null, 'Market')}
         />
     </PageContainer>
   );

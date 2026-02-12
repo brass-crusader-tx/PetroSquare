@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Button } from '@petrosquare/ui';
+import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Button, InsightCard } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { EconScenario, EconResult, PortfolioItem } from '@petrosquare/types';
 import {
@@ -220,16 +220,7 @@ export default function EconomicsPage() {
                 </div>
 
                 {/* AI Insight */}
-                {insight && (
-                    <DataPanel title="AI Scenario Analysis" className="border-l-4 border-l-purple-500">
-                        <div className="prose prose-invert prose-sm">
-                            <p className="text-white text-sm leading-relaxed">{insight}</p>
-                            <div className="flex items-center space-x-2 mt-2">
-                                <span className="text-[10px] text-muted uppercase tracking-wider">Powered by Gemini</span>
-                            </div>
-                        </div>
-                    </DataPanel>
-                )}
+                <InsightCard insight={insight} loading={loadingInsight} className="mb-6" />
 
                 {/* Cash Flow Chart */}
                 <DataPanel title="Cash Flow Forecast" loading={running} className="min-h-[300px]">

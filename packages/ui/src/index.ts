@@ -12,3 +12,5 @@ export * from './LeftNav';
 export * from './TopHeader';
 export * from './KpiCard';
 export * from './DetailDrawer';
+export * from './StandardDrawerContent';
+export * from './InsightCard';

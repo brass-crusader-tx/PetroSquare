@@ -7,6 +7,16 @@ import { GlobalInspector } from "../components/GlobalInspector";
 export const metadata: Metadata = {
   title: "PetroSquare Platform",
   description: "Vendor-neutral digital operating system for oil & gas",
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/logo/petrosquare-mark.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({
