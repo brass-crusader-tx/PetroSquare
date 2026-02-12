@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { PageContainer, SectionHeader, DataPanel, Badge } from '@petrosquare/ui';
+import React, { useState, useEffect } from 'react';
+import { PageContainer, SectionHeader, DataPanel, Badge, DetailDrawer } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { RiskEvent, RiskAlert, MapOverlay } from '@petrosquare/types';
 
@@ -10,13 +10,47 @@ export default function RiskPage() {
   const { data: alerts, loading: loadingAlerts } = useData<RiskAlert[]>('/api/risk/alerts');
   const { data: overlays, loading: loadingOverlays } = useData<MapOverlay[]>('/api/risk/overlays');
 
+  const [insight, setInsight] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<RiskEvent | null>(null);
+
+  useEffect(() => {
+      if (events && !insight) {
+          fetchInsight(events);
+      }
+  }, [events]);
+
+  const fetchInsight = async (data: RiskEvent[]) => {
+      try {
+          const highRisk = data.filter(e => e.severity === 'CRITICAL' || e.severity === 'HIGH');
+          const prompt = `Analyze these risk events:
+          ${highRisk.map(e => `${e.title} (${e.severity}): ${e.description}`).join('\n')}
+          Provide a concise risk assessment and recommended watch items.`;
+
+          const res = await fetch('/api/ai/insight', { method: 'POST', body: JSON.stringify({ prompt }) });
+          const json = await res.json();
+          if (json.text) setInsight(json.text);
+      } catch(e) { console.error(e); }
+  }
+
   return (
-    <main className="min-h-screen bg-background text-text">
-      <PageContainer>
+    <PageContainer>
         <SectionHeader
             title="Risk & Regulatory"
             description="Monitor geopolitical events, regulatory changes, and operational alerts."
         />
+
+        {/* AI Insight */}
+        {insight && (
+            <div className="mb-6 p-4 bg-surface-highlight/10 rounded border border-purple-500/30 flex items-start space-x-4">
+                <div className="shrink-0 pt-1">
+                    <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse block"></span>
+                </div>
+                <div>
+                    <h4 className="text-xs font-bold text-purple-400 uppercase mb-1">AI Risk Assessment</h4>
+                    <p className="text-sm text-muted leading-relaxed">{insight}</p>
+                </div>
+            </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
 
@@ -63,7 +97,11 @@ export default function RiskPage() {
                 <DataPanel title="Regulatory & Geopolitical Feed" loading={loadingEvents}>
                     <div className="space-y-6">
                         {events?.map(event => (
-                            <div key={event.id} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                            <div
+                                key={event.id}
+                                className="border-b border-border pb-4 last:border-0 last:pb-0 cursor-pointer hover:bg-surface-highlight/5 p-2 rounded transition-colors"
+                                onClick={() => setSelectedEvent(event)}
+                            >
                                 <div className="flex justify-between items-start mb-2">
                                     <Badge status={event.severity === 'HIGH' || event.severity === 'CRITICAL' ? 'error' : 'live'}>
                                         {event.severity}
@@ -72,7 +110,7 @@ export default function RiskPage() {
                                 </div>
                                 <h4 className="text-base font-bold text-white mb-1">{event.title}</h4>
                                 <div className="text-xs text-primary mb-2 uppercase tracking-wide">{event.source}</div>
-                                <p className="text-sm text-muted leading-relaxed">
+                                <p className="text-sm text-muted leading-relaxed line-clamp-2">
                                     {event.description}
                                 </p>
                                 <div className="mt-3 flex space-x-2">
@@ -88,7 +126,20 @@ export default function RiskPage() {
                 </DataPanel>
             </div>
         </div>
-      </PageContainer>
-    </main>
+
+        <DetailDrawer
+            isOpen={!!selectedEvent}
+            onClose={() => setSelectedEvent(null)}
+            title={selectedEvent?.title || 'Event Details'}
+            subtitle={selectedEvent?.source || 'Source Unknown'}
+            source="Global Risk Intelligence"
+            timestamp={selectedEvent?.date}
+            tabs={[
+                { id: 'impact', label: 'Impact Analysis', content: <div className="text-muted text-sm p-4">{selectedEvent?.description}</div> },
+                { id: 'assets', label: 'Exposed Assets', content: <div className="text-muted text-sm p-4">List of assets in {selectedEvent?.affected_regions.join(', ')}.</div> },
+                { id: 'response', label: 'Response Plan', content: <div className="text-muted text-sm p-4">Recommended mitigation steps.</div> }
+            ]}
+        />
+    </PageContainer>
   );
 }

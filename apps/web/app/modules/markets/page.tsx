@@ -1,15 +1,26 @@
 "use client";
 
-import React from 'react';
-import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge } from '@petrosquare/ui';
+import React, { useState, useEffect } from 'react';
+import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge, DetailDrawer } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { MarketBenchmark, FuturesCurve, CrackSpread, MarketSummary } from '@petrosquare/types';
 import { useDensity } from '../../../context/DensityContext';
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    Tooltip,
+    ResponsiveContainer
+} from 'recharts';
 
-function BenchmarkCard({ benchmark }: { benchmark: MarketBenchmark }) {
+function BenchmarkCard({ benchmark, onClick }: { benchmark: MarketBenchmark, onClick: () => void }) {
   const isUp = benchmark.change >= 0;
   return (
-    <div className="bg-surface-highlight/20 p-4 rounded border border-border flex justify-between items-center">
+    <div
+        className="bg-surface-highlight/20 p-4 rounded border border-border flex justify-between items-center cursor-pointer hover:border-primary/50 transition-colors"
+        onClick={onClick}
+    >
       <div>
         <div className="text-xs text-muted font-mono">{benchmark.symbol}</div>
         <div className="text-sm font-bold text-white">{benchmark.name}</div>
@@ -26,49 +37,38 @@ function BenchmarkCard({ benchmark }: { benchmark: MarketBenchmark }) {
   );
 }
 
-function SimpleLineChart({ data, width = 300, height = 150 }: { data: { x: string, y: number }[], width?: number, height?: number }) {
-  if (!data || data.length === 0) return null;
-
-  const maxY = Math.max(...data.map(d => d.y));
-  const minY = Math.min(...data.map(d => d.y));
-  const rangeY = maxY - minY || 1;
-
-  const points = data.map((d, i) => {
-    const x = (i / (data.length - 1)) * width;
-    const y = height - ((d.y - minY) / rangeY) * height;
-    return `${x},${y}`;
-  }).join(' ');
-
-  return (
-    <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
-      <polyline
-        fill="none"
-        stroke="#10B981"
-        strokeWidth="2"
-        points={points}
-      />
-      {data.map((d, i) => {
-         const x = (i / (data.length - 1)) * width;
-         const y = height - ((d.y - minY) / rangeY) * height;
-         return (
-             <circle key={i} cx={x} cy={y} r="3" fill="#1E293B" stroke="#10B981" />
-         );
-      })}
-    </svg>
-  );
-}
-
 export default function MarketsPage() {
   const { density } = useDensity();
   const { data: summary, loading: loadingSummary } = useData<MarketSummary>('/api/markets/summary');
   const { data: curve, loading: loadingCurve } = useData<FuturesCurve>('/api/markets/curve?symbol=CL=F');
   const { data: spreads, loading: loadingSpreads } = useData<CrackSpread[]>('/api/markets/spreads');
 
+  const [insight, setInsight] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+
+  useEffect(() => {
+      if (summary && !insight) {
+          fetchInsight(summary);
+      }
+  }, [summary]);
+
+  const fetchInsight = async (data: MarketSummary) => {
+      try {
+          const prompt = `Generate a market pulse update based on:
+          Top movers: ${data.top_movers.map(m => `${m.name} ${m.change_percent}%`).join(', ')}.
+          Benchmarks: ${data.benchmarks.map(b => `${b.name} $${b.price}`).join(', ')}.
+          Keep it brief and actionable.`;
+
+          const res = await fetch('/api/ai/insight', { method: 'POST', body: JSON.stringify({ prompt }) });
+          const json = await res.json();
+          if (json.text) setInsight(json.text);
+      } catch(e) { console.error(e); }
+  }
+
   const padding = density === 'compact' ? 'p-4' : 'p-6';
 
   return (
-    <main className="min-h-screen bg-background text-text">
-      <PageContainer>
+    <PageContainer>
         <SectionHeader
             title="Markets & Trading Analytics"
             description="Global crude and product benchmarks, futures curves, and arbitrage spreads."
@@ -80,16 +80,17 @@ export default function MarketsPage() {
                 <DataPanel title="Key Benchmarks" className={padding} loading={loadingSummary}>
                     <div className="space-y-4">
                         {summary?.benchmarks.map(b => (
-                            <BenchmarkCard key={b.symbol} benchmark={b} />
+                            <BenchmarkCard key={b.symbol} benchmark={b} onClick={() => setSelectedItem(b)} />
                         ))}
                     </div>
                 </DataPanel>
 
-                <DataPanel title="Market Pulse" className={padding} loading={loadingSummary}>
+                <DataPanel title="AI Market Pulse" className={`border-l-4 border-l-purple-500 ${padding}`} loading={!insight}>
                      <div className="prose prose-invert prose-sm">
-                         <p className="text-muted text-sm leading-relaxed">
-                             {summary?.pulse_summary}
+                         <p className="text-white text-sm leading-relaxed">
+                             {insight || summary?.pulse_summary}
                          </p>
+                         <div className="text-[10px] text-muted uppercase tracking-wider mt-2">Powered by Gemini</div>
                      </div>
                 </DataPanel>
             </div>
@@ -97,20 +98,16 @@ export default function MarketsPage() {
             {/* Middle Column: Futures Curve */}
             <div className="lg:col-span-2 space-y-6">
                 <DataPanel title="Futures Curve (WTI)" className={padding} loading={loadingCurve}>
-                    <div className="h-64 w-full bg-surface-highlight/10 rounded flex items-center justify-center p-4">
+                    <div className="h-64 w-full">
                         {curve && (
-                            <div className="w-full h-full">
-                                <SimpleLineChart
-                                    data={curve.points.map(p => ({ x: p.month, y: p.price }))}
-                                    width={600}
-                                    height={200}
-                                />
-                                <div className="flex justify-between mt-2 text-xs text-muted font-mono">
-                                    {curve.points.filter((_, i) => i % 3 === 0).map(p => (
-                                        <span key={p.month}>{p.month}</span>
-                                    ))}
-                                </div>
-                            </div>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={curve.points.map(p => ({ month: p.month, price: p.price }))}>
+                                    <XAxis dataKey="month" stroke="#94A3B8" tick={{fontSize: 10}} />
+                                    <YAxis domain={['auto', 'auto']} stroke="#94A3B8" tick={{fontSize: 10}} />
+                                    <Tooltip contentStyle={{ backgroundColor: '#1E293B', borderColor: '#334155', color: '#fff' }} />
+                                    <Line type="monotone" dataKey="price" stroke="#10B981" strokeWidth={2} dot={{fill: '#1E293B', stroke: '#10B981'}} />
+                                </LineChart>
+                            </ResponsiveContainer>
                         )}
                     </div>
                 </DataPanel>
@@ -118,7 +115,11 @@ export default function MarketsPage() {
                 <DataPanel title="Crack Spreads" className={padding} loading={loadingSpreads}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {spreads?.map(spread => (
-                            <div key={spread.name} className="bg-surface-highlight/20 p-4 rounded border border-border">
+                            <div
+                                key={spread.name}
+                                className="bg-surface-highlight/20 p-4 rounded border border-border cursor-pointer hover:border-primary/50 transition-colors"
+                                onClick={() => setSelectedItem(spread)}
+                            >
                                 <div className="flex justify-between items-start mb-2">
                                     <h4 className="text-sm font-bold text-white">{spread.name}</h4>
                                     <Badge status={spread.trend === 'up' ? 'live' : 'declared'}>{spread.trend.toUpperCase()}</Badge>
@@ -135,7 +136,20 @@ export default function MarketsPage() {
                 </DataPanel>
             </div>
         </div>
-      </PageContainer>
-    </main>
+
+        <DetailDrawer
+            isOpen={!!selectedItem}
+            onClose={() => setSelectedItem(null)}
+            title={selectedItem?.name || 'Details'}
+            subtitle={selectedItem?.symbol || 'Market Instrument'}
+            source="Market Data Feed"
+            timestamp={new Date().toLocaleTimeString()}
+            tabs={[
+                { id: 'overview', label: 'Overview', content: <div className="text-muted text-sm p-4">Historical price action and volume analysis.</div> },
+                { id: 'technical', label: 'Technical', content: <div className="text-muted text-sm p-4">RSI, MACD, and Moving Averages.</div> },
+                { id: 'news', label: 'News', content: <div className="text-muted text-sm p-4">Recent headlines affecting this instrument.</div> }
+            ]}
+        />
+    </PageContainer>
   );
 }
