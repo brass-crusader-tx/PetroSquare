@@ -235,3 +235,124 @@ export interface AISummary {
   model_version: string;
   sources: string[];
 }
+
+// --- Markets & Trading Types ---
+
+export interface MarketBenchmark {
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  change_percent: number;
+  currency: string;
+  unit: string;
+  last_updated: string;
+}
+
+export interface FuturesCurvePoint {
+  month: string; // MMM-YY
+  price: number;
+}
+
+export interface FuturesCurve {
+  symbol: string;
+  name: string;
+  points: FuturesCurvePoint[];
+  last_updated: string;
+}
+
+export interface CrackSpread {
+  name: string;
+  components: string[]; // e.g. ["WTI", "Gasoline", "Diesel"]
+  value: number; // Spread value
+  unit: string;
+  trend: 'up' | 'down' | 'flat';
+}
+
+export interface MarketSummary {
+  benchmarks: MarketBenchmark[];
+  top_movers: MarketBenchmark[];
+  pulse_summary: string; // AI generated text
+}
+
+// --- Economics Types ---
+
+export interface EconScenario {
+  id: string;
+  name: string;
+  created_at: string;
+  inputs: {
+    oil_price_base: number;
+    opex_per_bbl: number;
+    capex_initial: number;
+    royalty_rate: number; // percentage
+    discount_rate: number; // percentage
+  };
+}
+
+export interface EconResult {
+  scenario_id: string;
+  npv: number;
+  irr: number;
+  payback_period: number; // years
+  breakeven_oil_price: number;
+  cash_flow_series: TimeSeriesPoint[];
+}
+
+export interface PortfolioItem {
+  asset_id: string;
+  asset_name: string;
+  npv: number;
+  roi: number;
+  status: 'positive' | 'negative' | 'neutral';
+}
+
+// --- Market Intelligence Types ---
+
+export interface IntelDeal {
+  id: string;
+  buyer: string;
+  seller: string;
+  value_usd_m: number;
+  asset_type: string;
+  date: string;
+  description: string;
+}
+
+export interface IntelInfrastructure {
+  id: string;
+  name: string;
+  type: 'PIPELINE' | 'TERMINAL' | 'REFINERY';
+  status: 'OPERATIONAL' | 'MAINTENANCE' | 'PLANNED';
+  capacity: number;
+  unit: string;
+  location: string;
+}
+
+export interface IntelRigCount {
+  region: string;
+  count: number;
+  change_weekly: number;
+  date: string;
+}
+
+// --- Risk & Regulatory Types ---
+
+export interface RiskEvent {
+  id: string;
+  title: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  date: string;
+  source: string;
+  description: string;
+  affected_regions: string[];
+}
+
+export interface RiskAlert {
+  id: string;
+  type: 'POLITICAL' | 'ENVIRONMENTAL' | 'REGULATORY';
+  message: string;
+  asset_ids: string[];
+  timestamp: string;
+  acknowledged: boolean;
+}
