@@ -14,7 +14,8 @@
     "react-dom": "18.2.0",
     "lucide-react": "0.344.0",
     "@petrosquare/ui": "workspace:*",
-    "@petrosquare/types": "workspace:*"
+    "@petrosquare/types": "workspace:*",
+    "@petrosquare/connectors": "workspace:*"
   },
   "devDependencies": {
     "@petrosquare/config": "workspace:*",
