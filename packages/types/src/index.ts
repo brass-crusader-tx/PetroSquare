@@ -151,3 +151,87 @@ export interface DataEnvelope<T> {
   };
   provenance?: Provenance;
 }
+
+// --- GIS & Asset Intelligence Types ---
+
+export type ReserveClass = 'P1' | 'P2' | 'P3';
+export type RegulatoryStatus = 'COMPLIANT' | 'WARNING' | 'VIOLATION';
+export type AssetRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface GeoPoint {
+  type: 'Point';
+  coordinates: [number, number]; // [longitude, latitude]
+}
+
+export interface GeoPolygon {
+  type: 'Polygon';
+  coordinates: number[][][]; // [longitude, latitude]
+}
+
+export type Geometry = GeoPoint | GeoPolygon;
+
+/**
+ * Enhanced Asset Model for GIS Module.
+ * Extends the base Asset with financial, risk, and production metrics.
+ */
+export interface GISAsset extends Asset {
+  operator_id: string;
+  basin_id: string;
+  jurisdiction_id: string;
+  geometry: Geometry; // More precise geometry than just lat/long
+
+  // Production & Reserves
+  production_profile_id?: string;
+  current_production?: number; // bbl/d
+  reserve_class?: ReserveClass;
+
+  // Economics
+  breakeven_price?: number; // USD/bbl
+  roi?: number; // percentage
+
+  // Risk & Compliance
+  carbon_intensity?: number; // kgCO2e/bbl
+  regulatory_status?: RegulatoryStatus;
+  risk_score?: number; // 0-100
+  risk_level?: AssetRiskLevel;
+
+  // Infrastructure Advantage
+  infra_distance_pipeline?: number; // km
+  infra_distance_refinery?: number; // km
+}
+
+export interface Basin {
+  id: string;
+  name: string;
+  code: string;
+  geometry: Geometry;
+  center: [number, number]; // [lat, lng]
+  description?: string;
+  metrics: {
+    total_production: number; // bbl/d
+    active_rig_count: number;
+    avg_breakeven: number; // USD
+  };
+}
+
+export type OverlayType = 'INFRASTRUCTURE' | 'HEATMAP_ECONOMICS' | 'HEATMAP_CARBON' | 'REGULATORY_BOUNDARIES';
+
+export interface MapOverlay {
+  id: string;
+  name: string;
+  type: OverlayType;
+  visible: boolean;
+  opacity: number;
+  legend?: { label: string; color: string; value?: string }[];
+  data_endpoint?: string; // URL to fetch GeoJSON or Tile layer
+}
+
+export interface AISummary {
+  context_id: string; // basin_id or asset_id
+  context_type: 'BASIN' | 'ASSET';
+  summary_markdown: string;
+  confidence_score: number; // 0-1
+  generated_at: string;
+  model_version: string;
+  sources: string[];
+}
