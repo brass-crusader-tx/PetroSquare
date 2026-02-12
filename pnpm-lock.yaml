@@ -7,8 +7,8 @@ settings:
 overrides:
   react: 18.2.0
   react-dom: 18.2.0
-  '@types/react': 18.2.61
-  '@types/react-dom': 18.2.19
+  '@types/react': 18.2.79
+  '@types/react-dom': 18.2.25
 
 importers:
 
@@ -17,6 +17,9 @@ importers:
       '@types/node':
         specifier: 20.11.24
         version: 20.11.24
+      '@types/scheduler':
+        specifier: 0.16.2
+        version: 0.16.2
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -89,11 +92,11 @@ importers:
         specifier: 20.11.24
         version: 20.11.24
       '@types/react':
-        specifier: 18.2.61
-        version: 18.2.61
+        specifier: 18.2.79
+        version: 18.2.79
       '@types/react-dom':
-        specifier: 18.2.19
-        version: 18.2.19
+        specifier: 18.2.25
+        version: 18.2.25
       autoprefixer:
         specifier: 10.4.17
         version: 10.4.17(postcss@8.4.35)
@@ -140,11 +143,11 @@ importers:
         specifier: workspace:*
         version: link:../config
       '@types/react':
-        specifier: 18.2.61
-        version: 18.2.61
+        specifier: 18.2.79
+        version: 18.2.79
       '@types/react-dom':
-        specifier: 18.2.19
-        version: 18.2.19
+        specifier: 18.2.25
+        version: 18.2.25
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -349,14 +352,14 @@ packages:
   '@types/range-parser@1.2.7':
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
 
-  '@types/react-dom@18.2.19':
-    resolution: {integrity: sha512-aZvQL6uUbIJpjZk4U8JZGbau9KDeAwMfmhyWorxgBkqDIEf6ROjRozcmPIicqsUwPUjbkDfHKgGee1Lq65APcA==}
+  '@types/react-dom@18.2.25':
+    resolution: {integrity: sha512-o/V48vf4MQh7juIKZU2QGDfli6p1+OOi5oXx36Hffpc9adsHeXjVp8rHuPkjd8VT8sOJ2Zp05HR7CdpGTIUFUA==}
 
-  '@types/react@18.2.61':
-    resolution: {integrity: sha512-NURTN0qNnJa7O/k4XUkEW2yfygA+NxS0V5h1+kp9jPwhzZy95q3ADoGMP0+JypMhrZBTTgjKAUlTctde1zzeQA==}
+  '@types/react@18.2.79':
+    resolution: {integrity: sha512-RwGAGXPl9kSXwdNTafkOEuFrTBD5SA2B3iEB96xi8+xu5ddUa/cpvyVCSNn+asgLCTHkb5ZxN8gbuibYJi4s1w==}
 
-  '@types/scheduler@0.26.0':
-    resolution: {integrity: sha512-WFHp9YUJQ6CKshqoC37iOlHnQSmxNc795UhB26CyBBttrN9svdIrUjl/NjnNmfcwtncN0h/0PPAFWv9ovP8mLA==}
+  '@types/scheduler@0.16.2':
+    resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
 
   '@types/send@1.2.1':
     resolution: {integrity: sha512-arsCikDvlU99zl1g69TcAB3mzZPpxgw0UQnaHeC1Nwb015xp8bknZv5rIfri9xTOcMuaVgvabfIRA7PSZVuZIQ==}
@@ -2323,17 +2326,16 @@ snapshots:
 
   '@types/range-parser@1.2.7': {}
 
-  '@types/react-dom@18.2.19':
+  '@types/react-dom@18.2.25':
     dependencies:
-      '@types/react': 18.2.61
+      '@types/react': 18.2.79
 
-  '@types/react@18.2.61':
+  '@types/react@18.2.79':
     dependencies:
       '@types/prop-types': 15.7.15
-      '@types/scheduler': 0.26.0
       csstype: 3.2.3
 
-  '@types/scheduler@0.26.0': {}
+  '@types/scheduler@0.16.2': {}
 
   '@types/send@1.2.1':
     dependencies:
