@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { PageContainer, Badge, Drawer } from '@petrosquare/ui';
-import { Basin, GISAsset, MapOverlay, AISummary, DataEnvelope } from '@petrosquare/types';
+import { PageHeader, StatusPill } from '@petrosquare/ui';
+import { Basin, GISAsset, MapOverlay, AISummary } from '@petrosquare/types';
 import FilterPanel from './components/FilterPanel';
 import AssetDetails from './components/AssetDetails';
 import AISummaryPanel from './components/AISummary';
@@ -102,25 +102,22 @@ export default function GISPage() {
   const center: [number, number] | undefined = selectedBasin ? selectedBasin.center : undefined;
 
   return (
-    <main className="h-screen w-screen bg-background text-text flex flex-col overflow-hidden">
-       {/* Header */}
-       <header className="border-b border-border bg-surface sticky top-0 z-20 h-16 shrink-0">
-         <div className="container mx-auto px-4 h-full flex items-center justify-between">
-           <div className="flex items-center space-x-4">
-             <Link href="/" className="text-muted hover:text-white font-mono">←</Link>
-             <h1 className="text-lg font-bold text-white font-sans">GIS & Asset Intelligence</h1>
-             <Badge status="live">Live</Badge>
-           </div>
-           <div className="flex items-center space-x-4 text-xs font-mono text-muted">
-              <span>Assets: {assets.length}</span>
-              <span className="h-4 w-px bg-border"></span>
-              <span>Latency: 12ms</span>
-           </div>
-         </div>
-       </header>
+    <div className="flex flex-col h-full">
+       <PageHeader
+            title="GIS & Asset Intelligence"
+            description="Geospatial analysis of assets, basins, and infrastructure."
+            actions={
+                <div className="flex items-center space-x-4 text-xs font-mono text-muted">
+                    <StatusPill status="success">Live</StatusPill>
+                    <span>Assets: {assets.length}</span>
+                    <span className="h-4 w-px bg-border"></span>
+                    <span>Latency: 12ms</span>
+                </div>
+            }
+       />
 
        {/* Main Workspace */}
-       <div className="flex-1 flex relative">
+       <div className="flex-1 flex relative overflow-hidden border-t border-border">
 
            {/* Left Panel - Filters */}
            <div className="w-80 bg-surface border-r border-border flex flex-col z-10 p-4 space-y-4 overflow-y-auto shrink-0">
@@ -142,7 +139,7 @@ export default function GISPage() {
            </div>
 
            {/* Center - Map */}
-           <div className="flex-1 relative bg-black">
+           <div className="flex-1 relative bg-black min-h-[500px]">
                <GISMap
                   basins={basins}
                   assets={assets}
@@ -169,6 +166,6 @@ export default function GISPage() {
                />
            )}
        </div>
-    </main>
+    </div>
   );
 }
