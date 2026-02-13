@@ -58,9 +58,11 @@ export function Footer() {
                     <li><a href="/terms" className="hover:text-primary transition-colors">Terms of Use</a></li>
                     <li><a href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</a></li>
                 </ul>
-                <div className="mt-6 text-xs text-muted/50">
-                    &copy; {currentYear} PetroSquare.<br/>All rights reserved.
-                </div>
+            </div>
+
+            {/* Copyright Row */}
+            <div className="col-span-full border-t border-border mt-8 pt-8 text-center text-xs text-muted/50 font-mono">
+                &copy; {currentYear} PetroSquare. All rights reserved. V1.0.0
             </div>
         </div>
     </footer>

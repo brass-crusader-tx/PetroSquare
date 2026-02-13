@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Badge, DetailDrawer, getStandardTabs } from '@petrosquare/ui';
-import { Basin, GISAsset, MapOverlay, AISummary } from '@petrosquare/types';
+import { Basin, GISAsset, AISummary } from '@petrosquare/types';
 import FilterPanel from './components/FilterPanel';
 import AISummaryPanel from './components/AISummary';
 
@@ -16,7 +16,6 @@ export default function GISPage() {
   // --- State ---
   const [basins, setBasins] = useState<Basin[]>([]);
   const [assets, setAssets] = useState<GISAsset[]>([]);
-  const [overlays, setOverlays] = useState<MapOverlay[]>([]);
 
   const [selectedBasinId, setSelectedBasinId] = useState<string>('b-permian');
   const [selectedAsset, setSelectedAsset] = useState<GISAsset | null>(null);
@@ -28,6 +27,8 @@ export default function GISPage() {
   // Layer Toggles
   const [showWells, setShowWells] = useState(true);
   const [showPipelines, setShowPipelines] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showCarbon, setShowCarbon] = useState(false);
 
   // --- Effects ---
 
@@ -35,13 +36,8 @@ export default function GISPage() {
   useEffect(() => {
     async function init() {
       try {
-        const [basinsRes, overlaysRes] = await Promise.all([
-          fetch('/api/gis/basins').then(r => r.json()),
-          fetch('/api/gis/overlays').then(r => r.json())
-        ]);
-
+        const basinsRes = await fetch('/api/gis/basins').then(r => r.json());
         if (basinsRes.status === 'ok') setBasins(basinsRes.data);
-        if (overlaysRes.status === 'ok') setOverlays(overlaysRes.data);
       } catch (e) {
         console.error("Failed to init GIS module", e);
       }
@@ -103,16 +99,6 @@ export default function GISPage() {
              <Badge status="live">Live</Badge>
            </div>
            <div className="flex items-center space-x-4">
-              {/* Layer Toggles in Header for easy access */}
-              <div className="flex space-x-2 mr-4">
-                  <button onClick={() => setShowWells(!showWells)} className={`px-2 py-1 text-xs font-mono rounded border ${showWells ? 'bg-emerald-900/30 text-emerald-300 border-emerald-900' : 'bg-surface text-muted border-border'}`}>
-                      WELLS
-                  </button>
-                  <button onClick={() => setShowPipelines(!showPipelines)} className={`px-2 py-1 text-xs font-mono rounded border ${showPipelines ? 'bg-amber-900/30 text-amber-300 border-amber-900' : 'bg-surface text-muted border-border'}`}>
-                      PIPELINES
-                  </button>
-              </div>
-
               <div className="flex items-center space-x-4 text-xs font-mono text-muted">
                   <span>Assets: {assets.length}</span>
                   <span className="h-4 w-px bg-border"></span>
@@ -130,9 +116,16 @@ export default function GISPage() {
                   basins={basins}
                   selectedBasinId={selectedBasinId}
                   onSelectBasin={setSelectedBasinId}
-                  overlays={overlays}
-                  onToggleOverlay={(id) => setOverlays(prev => prev.map(o => o.id === id ? { ...o, visible: !o.visible } : o))}
                   onRefresh={() => setSelectedBasinId(selectedBasinId)}
+
+                  showWells={showWells}
+                  setShowWells={setShowWells}
+                  showPipelines={showPipelines}
+                  setShowPipelines={setShowPipelines}
+                  showHeatmap={showHeatmap}
+                  setShowHeatmap={setShowHeatmap}
+                  showCarbon={showCarbon}
+                  setShowCarbon={setShowCarbon}
                />
 
                <AISummaryPanel
@@ -148,13 +141,15 @@ export default function GISPage() {
                <GISMap
                   basins={basins}
                   assets={assets}
-                  overlays={overlays}
                   selectedAssetId={selectedAsset?.id}
                   onAssetSelect={setSelectedAsset}
                   center={center}
                   zoom={selectedBasinId === 'b-permian' ? 6 : 5}
+
                   showWells={showWells}
                   showPipelines={showPipelines}
+                  showHeatmap={showHeatmap}
+                  showCarbon={showCarbon}
                />
 
                {/* Overlay Loading State */}

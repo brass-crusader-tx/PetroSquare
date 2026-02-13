@@ -17,7 +17,7 @@ export function KpiCard({ label, value, trend, onClick, className }: KpiCardProp
   return (
     <div
         onClick={onClick}
-        className={`bg-surface border border-border rounded-lg p-4 ${onClick ? 'cursor-pointer hover:border-primary/50' : ''} transition-colors flex flex-col justify-between ${className || ''}`}
+        className={`bg-surface border border-border rounded-lg p-5 ${onClick ? 'cursor-pointer hover:border-primary/50' : ''} transition-colors flex flex-col justify-between ${className || ''}`}
     >
       <div className="flex justify-between items-start">
         <span className="text-xs font-medium text-muted uppercase tracking-wider font-sans">{label}</span>

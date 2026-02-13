@@ -158,10 +158,10 @@ export function TopHeader() {
                  <span className="text-xs font-mono text-muted">SYSTEM ONLINE</span>
             </div>
             <div className="h-6 w-px bg-border mx-2 hidden md:block"></div>
-            <IconButton variant="ghost" size="sm">
+            <IconButton variant="ghost" size="sm" onClick={() => alert("No new notifications.")}>
                 <Bell size={18} />
             </IconButton>
-            <IconButton variant="ghost" size="sm">
+            <IconButton variant="ghost" size="sm" onClick={() => alert("Settings are restricted.")}>
                 <Settings size={18} />
             </IconButton>
         </div>

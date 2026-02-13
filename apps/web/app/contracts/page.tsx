@@ -1,82 +1,47 @@
-import Link from "next/link";
-import { PageContainer, SectionHeader, DataPanel, Badge } from "@petrosquare/ui";
+"use client";
+
+import { AppLayout, PageContainer, SectionHeader, DataPanel } from "@petrosquare/ui";
 
 export default function ContractsPage() {
   return (
-    <main className="min-h-screen bg-background text-text">
-       <nav className="border-b border-border bg-surface/50 backdrop-blur sticky top-0 z-30">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold tracking-tight text-white font-sans">
-            PetroSquare
-          </Link>
-          <div className="flex space-x-6">
-            <Link href="/capabilities" className="text-sm font-medium text-muted hover:text-white transition-colors">
-              Capabilities
-            </Link>
-            <Link href="/architecture" className="text-sm font-medium text-muted hover:text-white transition-colors">
-              Architecture
-            </Link>
-            <Link href="/contracts" className="text-sm font-medium text-white transition-colors">
-              Contracts
-            </Link>
-          </div>
-        </div>
-      </nav>
-
+    <AppLayout currentPath="/contracts">
       <PageContainer>
-        <SectionHeader title="Platform Contracts" description="Public API contracts and data models." />
-
-        <div className="space-y-6">
-           <DataPanel title="Live Endpoints">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <a href="/api/health" target="_blank" className="bg-surface-highlight/10 p-4 rounded border border-border hover:border-primary transition-colors group">
-                 <div className="flex justify-between items-center mb-2">
-                   <span className="font-mono text-sm text-primary group-hover:underline">GET /api/health</span>
-                   <Badge status="live">200 OK</Badge>
-                 </div>
-                 <p className="text-xs text-muted">Returns system health status, version, and timestamp.</p>
-               </a>
-
-               <a href="/api/meta" target="_blank" className="bg-surface-highlight/10 p-4 rounded border border-border hover:border-primary transition-colors group">
-                 <div className="flex justify-between items-center mb-2">
-                   <span className="font-mono text-sm text-primary group-hover:underline">GET /api/meta</span>
-                   <Badge status="live">200 OK</Badge>
-                 </div>
-                 <p className="text-xs text-muted">Returns build metadata, commit hash, and environment info.</p>
-               </a>
-
-               <a href="/api/capabilities" target="_blank" className="bg-surface-highlight/10 p-4 rounded border border-border hover:border-primary transition-colors group">
-                 <div className="flex justify-between items-center mb-2">
-                   <span className="font-mono text-sm text-primary group-hover:underline">GET /api/capabilities</span>
-                   <Badge status="live">200 OK</Badge>
-                 </div>
-                 <p className="text-xs text-muted">Returns list of available modules and their status.</p>
-               </a>
-             </div>
-           </DataPanel>
-
-           <DataPanel title="Data Models">
-              <p className="text-muted text-sm mb-4">
-                Canonical types exported via <code>@petrosquare/types</code>.
-              </p>
-              <div className="bg-black/30 p-4 rounded border border-border font-mono text-xs text-muted overflow-x-auto">
-                <pre>{`interface HealthResponse {
-  status: 'ok' | 'error';
-  timestamp: string;
-  version: string;
-}
-
-interface Capability {
-  id: string;
-  title: string;
-  description: string;
-  status: 'live' | 'declared' | 'beta';
-  href: string;
-}`}</pre>
-              </div>
-           </DataPanel>
-        </div>
+        <SectionHeader
+          title="Contract API"
+          description="Live programmatic access to platform metadata and health status."
+        />
+        <DataPanel>
+          <div className="prose prose-invert max-w-none">
+            <p className="text-muted">
+              PetroSquare exposes a fully typed contract API for external integrations.
+            </p>
+            <h3 className="text-lg font-bold text-white mt-6 mb-2">Available Endpoints</h3>
+            <ul className="text-muted space-y-4 font-mono text-sm">
+              <li className="p-3 bg-surface-highlight/10 rounded border border-border">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-primary font-bold">GET</span>
+                  <span className="text-white">/api/health</span>
+                </div>
+                <div className="text-xs">System health and uptime metrics.</div>
+              </li>
+              <li className="p-3 bg-surface-highlight/10 rounded border border-border">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-primary font-bold">GET</span>
+                  <span className="text-white">/api/meta</span>
+                </div>
+                <div className="text-xs">Platform metadata and version info.</div>
+              </li>
+              <li className="p-3 bg-surface-highlight/10 rounded border border-border">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-primary font-bold">GET</span>
+                  <span className="text-white">/api/capabilities</span>
+                </div>
+                <div className="text-xs">List of enabled modules and features.</div>
+              </li>
+            </ul>
+          </div>
+        </DataPanel>
       </PageContainer>
-    </main>
+    </AppLayout>
   );
 }
