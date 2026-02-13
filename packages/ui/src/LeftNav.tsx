@@ -41,8 +41,8 @@ export function LeftNav({ currentPath }: LeftNavProps) {
              <img
                src="/logo/petrosquare-mark.svg"
                alt="PetroSquare"
-               width={28}
-               height={28}
+               width={40}
+               height={40}
                style={{ verticalAlign: 'middle' }}
                className="shrink-0"
              />
