@@ -28,7 +28,7 @@ export function LeftNav({ currentPath }: LeftNavProps) {
 
   // Determine width based on state
   // Using fixed width classes for transition
-  const widthClass = collapsed ? 'w-20' : 'w-64';
+  const widthClass = collapsed ? 'w-24' : 'w-72';
 
   // Prevent hydration mismatch by rendering default (expanded) until mounted,
   // but if we want to avoid flash of expanded content, we might accept a flash or use layout effect (not SSR safe).
@@ -41,8 +41,8 @@ export function LeftNav({ currentPath }: LeftNavProps) {
              <img
                src="/logo/petrosquare-mark.svg"
                alt="PetroSquare"
-               width={48}
-               height={48}
+               width={56}
+               height={56}
                style={{ verticalAlign: 'middle' }}
                className="shrink-0"
              />
