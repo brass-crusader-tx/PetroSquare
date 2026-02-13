@@ -1,13 +1,13 @@
-import type { ReactNode } from "react";
-import { AppLayout } from "@petrosquare/ui";
+"use client";
 
-export default function ModulesLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+import { usePathname } from 'next/navigation';
+import { AppLayout } from '@petrosquare/ui';
+
+export default function ModulesLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
   return (
-    <AppLayout>
+    <AppLayout currentPath={pathname}>
       {children}
     </AppLayout>
   );

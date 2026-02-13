@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { PageHeader, StatusPill } from '@petrosquare/ui';
-import { Basin, GISAsset, MapOverlay, AISummary } from '@petrosquare/types';
+import { Badge, DetailDrawer, getStandardTabs } from '@petrosquare/ui';
+import { Basin, GISAsset, AISummary } from '@petrosquare/types';
 import FilterPanel from './components/FilterPanel';
-import AssetDetails from './components/AssetDetails';
 import AISummaryPanel from './components/AISummary';
 
 // Dynamically import Map to avoid SSR window issues
@@ -17,7 +16,6 @@ export default function GISPage() {
   // --- State ---
   const [basins, setBasins] = useState<Basin[]>([]);
   const [assets, setAssets] = useState<GISAsset[]>([]);
-  const [overlays, setOverlays] = useState<MapOverlay[]>([]);
 
   const [selectedBasinId, setSelectedBasinId] = useState<string>('b-permian');
   const [selectedAsset, setSelectedAsset] = useState<GISAsset | null>(null);
@@ -26,19 +24,20 @@ export default function GISPage() {
   const [summary, setSummary] = useState<AISummary | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
 
+  // Layer Toggles
+  const [showWells, setShowWells] = useState(true);
+  const [showPipelines, setShowPipelines] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showCarbon, setShowCarbon] = useState(false);
+
   // --- Effects ---
 
   // Initial Load
   useEffect(() => {
     async function init() {
       try {
-        const [basinsRes, overlaysRes] = await Promise.all([
-          fetch('/api/gis/basins').then(r => r.json()),
-          fetch('/api/gis/overlays').then(r => r.json())
-        ]);
-
+        const basinsRes = await fetch('/api/gis/basins').then(r => r.json());
         if (basinsRes.status === 'ok') setBasins(basinsRes.data);
-        if (overlaysRes.status === 'ok') setOverlays(overlaysRes.data);
       } catch (e) {
         console.error("Failed to init GIS module", e);
       }
@@ -57,7 +56,6 @@ export default function GISPage() {
         const json = await res.json();
         if (json.status === 'ok') {
           setAssets(json.data);
-          // Center map if possible (handled by map component via props)
         }
       } catch (e) {
         console.error("Failed to load assets", e);
@@ -88,36 +86,29 @@ export default function GISPage() {
       }
   };
 
-  // --- Handlers ---
-
-  const handleToggleOverlay = (id: string) => {
-    setOverlays(prev => prev.map(o => o.id === id ? { ...o, visible: !o.visible } : o));
-  };
-
-  const handleAssetSelect = (asset: GISAsset) => {
-      setSelectedAsset(asset);
-  };
-
   const selectedBasin = basins.find(b => b.id === selectedBasinId);
   const center: [number, number] | undefined = selectedBasin ? selectedBasin.center : undefined;
 
   return (
-    <div className="flex flex-col h-full">
-       <PageHeader
-            title="GIS & Asset Intelligence"
-            description="Geospatial analysis of assets, basins, and infrastructure."
-            actions={
-                <div className="flex items-center space-x-4 text-xs font-mono text-muted">
-                    <StatusPill status="success">Live</StatusPill>
-                    <span>Assets: {assets.length}</span>
-                    <span className="h-4 w-px bg-border"></span>
-                    <span>Latency: 12ms</span>
-                </div>
-            }
-       />
+    <main className="h-screen w-screen bg-background text-text flex flex-col overflow-hidden">
+       {/* Header */}
+       <header className="border-b border-border bg-surface sticky top-0 z-20 h-16 shrink-0 flex items-center justify-between px-4">
+           <div className="flex items-center space-x-4">
+             <Link href="/" className="text-muted hover:text-white font-mono">←</Link>
+             <h1 className="text-lg font-bold text-white font-sans">GIS & Asset Intelligence</h1>
+             <Badge status="live">Live</Badge>
+           </div>
+           <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 text-xs font-mono text-muted">
+                  <span>Assets: {assets.length}</span>
+                  <span className="h-4 w-px bg-border"></span>
+                  <span>Latency: 12ms</span>
+              </div>
+           </div>
+       </header>
 
        {/* Main Workspace */}
-       <div className="flex-1 flex relative overflow-hidden border-t border-border">
+       <div className="flex-1 flex relative">
 
            {/* Left Panel - Filters */}
            <div className="w-80 bg-surface border-r border-border flex flex-col z-10 p-4 space-y-4 overflow-y-auto shrink-0">
@@ -125,9 +116,16 @@ export default function GISPage() {
                   basins={basins}
                   selectedBasinId={selectedBasinId}
                   onSelectBasin={setSelectedBasinId}
-                  overlays={overlays}
-                  onToggleOverlay={handleToggleOverlay}
-                  onRefresh={() => setSelectedBasinId(selectedBasinId)} // Simple refresh
+                  onRefresh={() => setSelectedBasinId(selectedBasinId)}
+
+                  showWells={showWells}
+                  setShowWells={setShowWells}
+                  showPipelines={showPipelines}
+                  setShowPipelines={setShowPipelines}
+                  showHeatmap={showHeatmap}
+                  setShowHeatmap={setShowHeatmap}
+                  showCarbon={showCarbon}
+                  setShowCarbon={setShowCarbon}
                />
 
                <AISummaryPanel
@@ -139,15 +137,19 @@ export default function GISPage() {
            </div>
 
            {/* Center - Map */}
-           <div className="flex-1 relative bg-black min-h-[500px]">
+           <div className="flex-1 relative bg-black">
                <GISMap
                   basins={basins}
                   assets={assets}
-                  overlays={overlays}
                   selectedAssetId={selectedAsset?.id}
-                  onAssetSelect={handleAssetSelect}
+                  onAssetSelect={setSelectedAsset}
                   center={center}
                   zoom={selectedBasinId === 'b-permian' ? 6 : 5}
+
+                  showWells={showWells}
+                  showPipelines={showPipelines}
+                  showHeatmap={showHeatmap}
+                  showCarbon={showCarbon}
                />
 
                {/* Overlay Loading State */}
@@ -158,14 +160,17 @@ export default function GISPage() {
                )}
            </div>
 
-           {/* Right Panel - Asset Details (Drawer) */}
-           {selectedAsset && (
-               <AssetDetails
-                  asset={selectedAsset}
-                  onClose={() => setSelectedAsset(null)}
-               />
-           )}
+           {/* Right Panel - DetailDrawer */}
+           <DetailDrawer
+              isOpen={!!selectedAsset}
+              onClose={() => setSelectedAsset(null)}
+              title={selectedAsset?.name || 'Asset Details'}
+              subtitle={selectedAsset?.type || 'Unknown Type'}
+              source="Internal GIS DB + Real-time Telemetry"
+              timestamp={new Date().toISOString()}
+              tabs={getStandardTabs(selectedAsset, null, 'Asset')}
+           />
        </div>
-    </div>
+    </main>
   );
 }

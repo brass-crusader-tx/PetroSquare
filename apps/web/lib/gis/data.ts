@@ -88,7 +88,31 @@ const generateAssets = (count: number, basin: Basin, baseLat: number, baseLng: n
 };
 
 export const MOCK_ASSETS: GISAsset[] = [
-  ...generateAssets(30, MOCK_BASINS[0], 31.9, -102.1), // Permian
+  // Fixed asset at center for testing/demo reliability
+  {
+      id: 'b-permian-fixed-center',
+      name: 'Permian Center Well',
+      type: 'WELL',
+      status: 'ACTIVE',
+      latitude: 31.9,
+      longitude: -102.1,
+      operator_id: 'Test Operator',
+      basin_id: 'b-permian',
+      jurisdiction_id: 'US-TX',
+      geometry: { type: 'Point', coordinates: [-102.1, 31.9] },
+      production_profile_id: 'prod-fixed',
+      current_production: 1000,
+      reserve_class: 'P1',
+      breakeven_price: 40,
+      carbon_intensity: 20,
+      risk_score: 10,
+      risk_level: 'LOW',
+      regulatory_status: 'COMPLIANT',
+      infra_distance_pipeline: 1,
+      infra_distance_refinery: 100,
+      metadata: { note: 'Fixed verification asset' }
+  },
+  ...generateAssets(29, MOCK_BASINS[0], 31.9, -102.1), // Permian
   ...generateAssets(15, MOCK_BASINS[1], 55.2, -118.8)  // WCSB
 ];
 
