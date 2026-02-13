@@ -28,7 +28,7 @@ export function LeftNav({ currentPath }: LeftNavProps) {
 
   // Determine width based on state
   // Using fixed width classes for transition
-  const widthClass = collapsed ? 'w-20' : 'w-64';
+  const widthClass = collapsed ? 'w-24' : 'w-72';
 
   // Prevent hydration mismatch by rendering default (expanded) until mounted,
   // but if we want to avoid flash of expanded content, we might accept a flash or use layout effect (not SSR safe).
@@ -38,8 +38,14 @@ export function LeftNav({ currentPath }: LeftNavProps) {
     <aside className={`${widthClass} bg-surface border-r border-border flex flex-col h-screen sticky top-0 shrink-0 z-40 transition-all duration-300 hidden lg:flex`}>
       <div className={`p-4 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} relative`}>
         <div className="flex items-center space-x-3 overflow-hidden">
-             {/* Use /logo/petrosquare-mark.svg */}
-             <img src="/logo/petrosquare-mark.svg" width="32" height="32" alt="PetroSquare" className="shrink-0" />
+             <img
+               src="/logo/petrosquare-mark.svg"
+               alt="PetroSquare"
+               width={56}
+               height={56}
+               style={{ verticalAlign: 'middle' }}
+               className="shrink-0"
+             />
              <div className={`min-w-0 transition-opacity duration-300 ${collapsed ? 'opacity-0 w-0 hidden' : 'opacity-100'}`}>
                   <div className="text-lg font-bold tracking-tight text-white font-sans leading-none truncate">PetroSquare</div>
                   <div className="text-[10px] text-muted font-mono mt-1 truncate">OPERATING SYSTEM</div>
