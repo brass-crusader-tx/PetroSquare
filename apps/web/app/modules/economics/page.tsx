@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable } from '@petrosquare/ui';
+import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable, DetailDrawer } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { EconScenario, EconResult, PortfolioItem } from '@petrosquare/types';
 
@@ -17,6 +17,14 @@ export default function EconomicsPage() {
 
     const [result, setResult] = useState<EconResult | null>(null);
     const [running, setRunning] = useState(false);
+
+    const [drawer, setDrawer] = useState<{ isOpen: boolean, data: any, type: string, title: string }>({
+      isOpen: false, data: null, type: '', title: ''
+    });
+
+    const openDrawer = (title: string, type: string, data: any) => {
+      setDrawer({ isOpen: true, title, type, data });
+    };
 
     // Fetch scenarios and portfolio
     const { data: scenarios, loading: loadingScenarios } = useData<EconScenario[]>('/api/econ/scenarios');
@@ -73,6 +81,7 @@ export default function EconomicsPage() {
                     changeLabel="vs Base"
                     status={result ? (result.npv > 0 ? 'success' : 'error') : 'neutral'}
                     loading={running}
+                    onClick={() => result && openDrawer('NPV Analysis', 'Metric', { value: result.npv, unit: 'USD', description: 'Net Present Value at 10% discount rate.' })}
                  />
                  <KpiCard
                     title="IRR"
@@ -80,6 +89,7 @@ export default function EconomicsPage() {
                     unit="%"
                     status={result ? (result.irr > 15 ? 'success' : 'warning') : 'neutral'}
                     loading={running}
+                    onClick={() => result && openDrawer('IRR Analysis', 'Metric', { value: result.irr, unit: '%', description: 'Internal Rate of Return.' })}
                  />
                  <KpiCard
                     title="Payback Period"
@@ -87,6 +97,7 @@ export default function EconomicsPage() {
                     unit="Years"
                     status="neutral"
                     loading={running}
+                    onClick={() => result && openDrawer('Payback Period', 'Metric', { value: result.payback_period, unit: 'Years' })}
                  />
                  <KpiCard
                     title="Breakeven Price"
@@ -94,6 +105,7 @@ export default function EconomicsPage() {
                     unit="USD/bbl"
                     status="neutral"
                     loading={running}
+                    onClick={() => result && openDrawer('Breakeven Analysis', 'Metric', { value: result.breakeven_oil_price, unit: 'USD/bbl' })}
                  />
             </div>
 
@@ -184,7 +196,11 @@ export default function EconomicsPage() {
                                  const height = Math.min(100, Math.max(5, (cf.value / 2000000) * 100)); // Normalize roughly
                                  const isNegative = cf.value < 0;
                                  return (
-                                    <div key={i} className="flex-1 flex flex-col justify-end group relative h-full">
+                                    <div
+                                        key={i}
+                                        className="flex-1 flex flex-col justify-end group relative h-full cursor-pointer hover:bg-surface-inset/5 rounded"
+                                        onClick={() => openDrawer(`Cash Flow ${cf.period}`, 'Financial Period', cf)}
+                                    >
                                         <div className="flex-1 flex flex-col justify-end">
                                              <div
                                                 className={`w-full transition-all rounded-t ${isNegative ? 'bg-error/80' : 'bg-success/80'} hover:opacity-100 opacity-80`}
@@ -223,7 +239,11 @@ export default function EconomicsPage() {
                                     </thead>
                                     <tbody className="divide-y divide-border/50">
                                         {portfolio?.map((item) => (
-                                            <tr key={item.asset_id} className="hover:bg-surface-highlight/10 transition-colors group">
+                                            <tr
+                                                key={item.asset_id}
+                                                className="hover:bg-surface-highlight/10 transition-colors group cursor-pointer"
+                                                onClick={() => openDrawer(item.asset_name, 'Asset Economics', item)}
+                                            >
                                                 <td className="px-6 py-3 font-medium text-white font-mono text-xs">{item.asset_name}</td>
                                                 <td className="px-6 py-3 text-right font-mono text-white group-hover:text-primary transition-colors">${(item.npv / 1000000).toFixed(1)}M</td>
                                                 <td className="px-6 py-3 text-right font-mono text-white">{item.roi}%</td>
@@ -241,6 +261,14 @@ export default function EconomicsPage() {
                     </DataPanel>
                 </div>
             </div>
+
+            <DetailDrawer
+                isOpen={drawer.isOpen}
+                onClose={() => setDrawer({...drawer, isOpen: false})}
+                title={drawer.title}
+                type={drawer.type}
+                data={drawer.data}
+            />
       </PageContainer>
     );
 }

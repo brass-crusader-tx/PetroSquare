@@ -20,3 +20,5 @@ export * from './FilterBar';
 export * from './LeftNav';
 export * from './TopHeader';
 export * from './AppLayout';
+export * from './Footer';
+export * from './DetailDrawer';

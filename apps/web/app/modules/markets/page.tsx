@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta } from '@petrosquare/ui';
+import React, { useState } from 'react';
+import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, DetailDrawer } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { FuturesCurve, CrackSpread, MarketSummary } from '@petrosquare/types';
 
@@ -42,6 +42,14 @@ export default function MarketsPage() {
   const { data: curve, loading: loadingCurve, error: errorCurve } = useData<FuturesCurve>('/api/markets/curve?symbol=CL=F');
   const { data: spreads, loading: loadingSpreads, error: errorSpreads } = useData<CrackSpread[]>('/api/markets/spreads');
 
+  const [drawer, setDrawer] = useState<{ isOpen: boolean, data: any, type: string, title: string }>({
+      isOpen: false, data: null, type: '', title: ''
+  });
+
+  const openDrawer = (title: string, type: string, data: any) => {
+      setDrawer({ isOpen: true, title, type, data });
+  };
+
   return (
     <PageContainer>
         <PageHeader
@@ -73,6 +81,7 @@ export default function MarketsPage() {
                     change={b.change_percent}
                     changeLabel="24h"
                     status="neutral"
+                    onClick={() => openDrawer(b.name, 'Market Benchmark', b)}
                 />
             ))}
         </div>
@@ -87,7 +96,10 @@ export default function MarketsPage() {
                 footer={<DataMeta source="CME Group" lastUpdated="Live" unit="USD/bbl" />}
                 className="lg:col-span-2"
             >
-                 <div className="h-64 w-full bg-surface-inset/10 rounded flex items-center justify-center p-4">
+                 <div
+                    className="h-64 w-full bg-surface-inset/10 rounded flex items-center justify-center p-4 cursor-pointer hover:bg-surface-inset/20 transition-colors"
+                    onClick={() => curve && openDrawer('WTI Futures Curve', 'Futures Data', curve)}
+                 >
                     {curve && (
                         <div className="w-full h-full">
                             <SimpleLineChart
@@ -113,7 +125,10 @@ export default function MarketsPage() {
                 error={errorSummary ? "Failed to load pulse" : undefined}
                 footer={<DataMeta source="PetroSquare AI" lastUpdated="Just now" />}
             >
-                <div className="prose prose-invert prose-sm">
+                <div
+                    className="prose prose-invert prose-sm cursor-pointer hover:bg-surface-highlight/5 rounded p-2 -m-2 transition-colors"
+                    onClick={() => summary && openDrawer('Market Pulse', 'AI Insight', { summary: summary.pulse_summary })}
+                >
                     <p className="text-muted text-sm leading-relaxed">
                         {summary?.pulse_summary || "No commentary available."}
                     </p>
@@ -130,7 +145,11 @@ export default function MarketsPage() {
             >
                 <div className="space-y-4">
                     {spreads?.map(spread => (
-                        <div key={spread.name} className="flex justify-between items-center border-b border-border/50 pb-2 last:border-0">
+                        <div
+                            key={spread.name}
+                            className="flex justify-between items-center border-b border-border/50 pb-2 last:border-0 cursor-pointer hover:bg-surface-highlight/10 p-2 -mx-2 rounded transition-colors"
+                            onClick={() => openDrawer(spread.name, 'Crack Spread', spread)}
+                        >
                             <div>
                                 <div className="text-sm font-bold text-white">{spread.name}</div>
                                 <div className="text-xs text-muted">Components: {spread.components.join(' / ')}</div>
@@ -146,6 +165,14 @@ export default function MarketsPage() {
                 </div>
             </DataPanel>
         </div>
+
+        <DetailDrawer
+            isOpen={drawer.isOpen}
+            onClose={() => setDrawer({...drawer, isOpen: false})}
+            title={drawer.title}
+            type={drawer.type}
+            data={drawer.data}
+        />
     </PageContainer>
   );
 }

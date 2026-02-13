@@ -9,9 +9,10 @@ export interface KpiCardProps {
   changeLabel?: string;
   status?: 'success' | 'warning' | 'error' | 'info' | 'neutral';
   loading?: boolean;
+  onClick?: () => void;
 }
 
-export function KpiCard({ title, value, unit, change, changeLabel, status = 'neutral', loading = false }: KpiCardProps) {
+export function KpiCard({ title, value, unit, change, changeLabel, status = 'neutral', loading = false, onClick }: KpiCardProps) {
   if (loading) {
     return (
       <div className="bg-surface border border-border rounded p-4 animate-pulse h-full">
@@ -33,7 +34,10 @@ export function KpiCard({ title, value, unit, change, changeLabel, status = 'neu
   }
 
   return (
-    <div className="bg-surface border border-border rounded p-4 flex flex-col justify-between hover:border-surface-highlight transition-colors h-full">
+    <div
+      className={`bg-surface border border-border rounded p-4 flex flex-col justify-between transition-colors h-full ${onClick ? 'cursor-pointer hover:border-primary hover:bg-surface-highlight/10' : 'hover:border-surface-highlight'}`}
+      onClick={onClick}
+    >
       <div className="text-xs text-muted uppercase tracking-wider font-mono mb-1">{title}</div>
       <div className="flex items-baseline space-x-1 mb-2">
         <span className="text-2xl font-bold text-white tracking-tight">{value}</span>
