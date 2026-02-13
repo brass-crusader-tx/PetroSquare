@@ -1,0 +1,30 @@
+
+> web@0.0.0 dev /app/apps/web
+> next dev
+
+   ▲ Next.js 14.1.0
+   - Local:        http://localhost:3000
+
+ ✓ Ready in 3.1s
+ ○ Compiling / ...
+ ✓ Compiled / in 6.8s (558 modules)
+ ✓ Compiled in 732ms (271 modules)
+ ○ Compiling /modules/markets ...
+ ✓ Compiled /modules/markets in 1629ms (555 modules)
+ ✓ Compiled /api/markets/spreads in 259ms (317 modules)
+ ✓ Compiled (326 modules)
+ ✓ Compiled /modules/gis in 409ms (607 modules)
+ ✓ Compiled /api/gis/overlays in 144ms (339 modules)
+ ✓ Compiled (347 modules)
+ ✓ Compiled /modules/economics in 298ms (623 modules)
+ ✓ Compiled /api/econ/portfolio in 170ms (353 modules)
+ ✓ Compiled (355 modules)
+ ✓ Compiled /modules/production in 312ms (633 modules)
+ ✓ Compiled /api/production/regions in 179ms (361 modules)
+ ✓ Compiled (363 modules)
+ ✓ Compiled /modules/risk in 309ms (643 modules)
+ ✓ Compiled /api/risk/overlays in 199ms (369 modules)
+ ✓ Compiled (373 modules)
+ ✓ Compiled /modules/intel in 425ms (655 modules)
+ ✓ Compiled /api/intel/rigs in 250ms (379 modules)
+ ✓ Compiled (383 modules)

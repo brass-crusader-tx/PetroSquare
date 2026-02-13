@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable } from '@petrosquare/ui';
+import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable, DetailDrawer, DetailDrawerProps } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { EconScenario, EconResult, PortfolioItem } from '@petrosquare/types';
+import { OperationalInsight } from '../../../components/OperationalInsight';
 
 export default function EconomicsPage() {
     // State for Scenario Inputs
@@ -41,6 +42,16 @@ export default function EconomicsPage() {
         }
     };
 
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [drawerTitle, setDrawerTitle] = useState('');
+    const [drawerSubtitle, setDrawerSubtitle] = useState('');
+
+    const handleOpenDrawer = (title: string, subtitle: string) => {
+        setDrawerTitle(title);
+        setDrawerSubtitle(subtitle);
+        setDrawerOpen(true);
+    };
+
     return (
       <PageContainer>
             <PageHeader
@@ -63,38 +74,51 @@ export default function EconomicsPage() {
                  </select>
             </FilterBar>
 
+            {/* Operational Insight */}
+            <div className="mb-8">
+                <OperationalInsight module="economics" />
+            </div>
+
             {/* KPI Strip */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                 <KpiCard
-                    title="NPV (10%)"
-                    value={result ? `$${(result.npv / 1000000).toFixed(1)}M` : '—'}
-                    unit="USD"
-                    change={result && result.npv > 0 ? 12.5 : undefined} // Mock change for demo
-                    changeLabel="vs Base"
-                    status={result ? (result.npv > 0 ? 'success' : 'error') : 'neutral'}
-                    loading={running}
-                 />
-                 <KpiCard
-                    title="IRR"
-                    value={result ? `${result.irr.toFixed(1)}` : '—'}
-                    unit="%"
-                    status={result ? (result.irr > 15 ? 'success' : 'warning') : 'neutral'}
-                    loading={running}
-                 />
-                 <KpiCard
-                    title="Payback Period"
-                    value={result ? `${result.payback_period}` : '—'}
-                    unit="Years"
-                    status="neutral"
-                    loading={running}
-                 />
-                 <KpiCard
-                    title="Breakeven Price"
-                    value={result ? `$${result.breakeven_oil_price}` : '—'}
-                    unit="USD/bbl"
-                    status="neutral"
-                    loading={running}
-                 />
+                 <div onClick={() => handleOpenDrawer('NPV (10%)', 'Net Present Value Analysis')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+                     <KpiCard
+                        title="NPV (10%)"
+                        value={result ? `$${(result.npv / 1000000).toFixed(1)}M` : '—'}
+                        unit="USD"
+                        change={result && result.npv > 0 ? 12.5 : undefined} // Mock change for demo
+                        changeLabel="vs Base"
+                        status={result ? (result.npv > 0 ? 'success' : 'error') : 'neutral'}
+                        loading={running}
+                     />
+                 </div>
+                 <div onClick={() => handleOpenDrawer('IRR', 'Internal Rate of Return')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+                     <KpiCard
+                        title="IRR"
+                        value={result ? `${result.irr.toFixed(1)}` : '—'}
+                        unit="%"
+                        status={result ? (result.irr > 15 ? 'success' : 'warning') : 'neutral'}
+                        loading={running}
+                     />
+                 </div>
+                 <div onClick={() => handleOpenDrawer('Payback Period', 'Time to recoup investment')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+                     <KpiCard
+                        title="Payback Period"
+                        value={result ? `${result.payback_period}` : '—'}
+                        unit="Years"
+                        status="neutral"
+                        loading={running}
+                     />
+                 </div>
+                 <div onClick={() => handleOpenDrawer('Breakeven Price', 'Price required for zero NPV')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+                     <KpiCard
+                        title="Breakeven Price"
+                        value={result ? `$${result.breakeven_oil_price}` : '—'}
+                        unit="USD/bbl"
+                        status="neutral"
+                        loading={running}
+                     />
+                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -241,6 +265,22 @@ export default function EconomicsPage() {
                     </DataPanel>
                 </div>
             </div>
+
+            <DetailDrawer
+                isOpen={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+                title={drawerTitle}
+                subtitle={drawerSubtitle}
+                content={{
+                    Overview: <div className="p-4 text-sm text-muted">Economic model outputs for {drawerTitle}.</div>,
+                    Trends: <div className="p-4 text-sm text-muted">Sensitivity analysis over time.</div>,
+                    Drivers: <div className="p-4 text-sm text-muted">Key cost and revenue drivers.</div>,
+                    Risks: <div className="p-4 text-sm text-muted">Financial risk exposure.</div>,
+                    RawData: <div className="p-4 text-xs font-mono text-muted overflow-auto max-h-96">
+                        {JSON.stringify({ metric: drawerTitle, timestamp: new Date().toISOString() }, null, 2)}
+                    </div>
+                }}
+            />
       </PageContainer>
     );
 }

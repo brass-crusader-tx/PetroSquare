@@ -1,9 +1,10 @@
 "use client";
 
-import React from 'react';
-import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta } from '@petrosquare/ui';
+import React, { useState } from 'react';
+import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, DetailDrawer, DetailDrawerProps } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { FuturesCurve, CrackSpread, MarketSummary } from '@petrosquare/types';
+import { OperationalInsight } from '../../../components/OperationalInsight';
 
 function SimpleLineChart({ data, width = 300, height = 150 }: { data: { x: string, y: number }[], width?: number, height?: number }) {
   if (!data || data.length === 0) return null;
@@ -42,6 +43,16 @@ export default function MarketsPage() {
   const { data: curve, loading: loadingCurve, error: errorCurve } = useData<FuturesCurve>('/api/markets/curve?symbol=CL=F');
   const { data: spreads, loading: loadingSpreads, error: errorSpreads } = useData<CrackSpread[]>('/api/markets/spreads');
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTitle, setDrawerTitle] = useState('');
+  const [drawerSubtitle, setDrawerSubtitle] = useState('');
+
+  const handleOpenDrawer = (title: string, subtitle: string) => {
+      setDrawerTitle(title);
+      setDrawerSubtitle(subtitle);
+      setDrawerOpen(true);
+  };
+
   return (
     <PageContainer>
         <PageHeader
@@ -61,19 +72,25 @@ export default function MarketsPage() {
             </select>
         </FilterBar>
 
+        {/* Operational Insight */}
+        <div className="mb-8">
+            <OperationalInsight module="markets" />
+        </div>
+
         {/* KPI Strip */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {loadingSummary && [...Array(4)].map((_, i) => <KpiCard key={i} title="Loading..." value="" loading />)}
             {summary?.benchmarks.map(b => (
-                <KpiCard
-                    key={b.symbol}
-                    title={b.name}
-                    value={b.price.toFixed(2)}
-                    unit={b.unit}
-                    change={b.change_percent}
-                    changeLabel="24h"
-                    status="neutral"
-                />
+                <div key={b.symbol} onClick={() => handleOpenDrawer(b.name, `Benchmark Analysis: ${b.symbol}`)} className="cursor-pointer transition-transform hover:scale-[1.02]">
+                    <KpiCard
+                        title={b.name}
+                        value={b.price.toFixed(2)}
+                        unit={b.unit}
+                        change={b.change_percent}
+                        changeLabel="24h"
+                        status="neutral"
+                    />
+                </div>
             ))}
         </div>
 
@@ -105,21 +122,6 @@ export default function MarketsPage() {
                 </div>
             </DataPanel>
 
-            {/* Market Pulse */}
-             <DataPanel
-                title="Market Pulse"
-                subtitle="AI-generated market commentary"
-                loading={loadingSummary}
-                error={errorSummary ? "Failed to load pulse" : undefined}
-                footer={<DataMeta source="PetroSquare AI" lastUpdated="Just now" />}
-            >
-                <div className="prose prose-invert prose-sm">
-                    <p className="text-muted text-sm leading-relaxed">
-                        {summary?.pulse_summary || "No commentary available."}
-                    </p>
-                </div>
-            </DataPanel>
-
             {/* Crack Spreads */}
             <DataPanel
                 title="Crack Spreads"
@@ -146,6 +148,22 @@ export default function MarketsPage() {
                 </div>
             </DataPanel>
         </div>
+
+        <DetailDrawer
+            isOpen={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            title={drawerTitle}
+            subtitle={drawerSubtitle}
+            content={{
+                Overview: <div className="p-4 text-sm text-muted">Detailed market analysis for {drawerTitle}.</div>,
+                Trends: <div className="p-4 text-sm text-muted">Historical price action and technical indicators.</div>,
+                Drivers: <div className="p-4 text-sm text-muted">Supply/Demand balance and geopolitical factors.</div>,
+                Risks: <div className="p-4 text-sm text-muted">Volatility and exposure metrics.</div>,
+                RawData: <div className="p-4 text-xs font-mono text-muted overflow-auto max-h-96">
+                    {JSON.stringify({ symbol: drawerTitle, timestamp: new Date().toISOString() }, null, 2)}
+                </div>
+            }}
+        />
     </PageContainer>
   );
 }

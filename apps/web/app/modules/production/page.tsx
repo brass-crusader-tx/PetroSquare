@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable } from '@petrosquare/ui';
+import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable, DetailDrawer, DetailDrawerProps } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { TopProducersResponse } from '@petrosquare/types';
 import Link from 'next/link';
+import { OperationalInsight } from '../../../components/OperationalInsight';
 
 export default function ProductionPage() {
   const [country, setCountry] = useState<'US' | 'CA'>('US');
@@ -15,6 +16,16 @@ export default function ProductionPage() {
   // Calculate total production for KPI
   const totalProduction = regions?.rows.reduce((acc, row) => acc + row.latest_value, 0) || 0;
   const topRegion = regions?.rows[0];
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTitle, setDrawerTitle] = useState('');
+  const [drawerSubtitle, setDrawerSubtitle] = useState('');
+
+  const handleOpenDrawer = (title: string, subtitle: string) => {
+      setDrawerTitle(title);
+      setDrawerSubtitle(subtitle);
+      setDrawerOpen(true);
+  };
 
   return (
       <PageContainer>
@@ -45,38 +56,51 @@ export default function ProductionPage() {
              </select>
         </FilterBar>
 
+        {/* Operational Insight */}
+        <div className="mb-8">
+            <OperationalInsight module="production" context={country} />
+        </div>
+
         {/* KPI Strip */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-             <KpiCard
-                title={`Total ${country} Production`}
-                value={totalProduction.toLocaleString()}
-                unit={regions?.units || 'bbl/d'}
-                change={2.4} // Mock
-                changeLabel="vs Prev"
-                status="success"
-                loading={loadingRegions}
-             />
-             <KpiCard
-                title="Top Region"
-                value={topRegion?.region.name || '—'}
-                unit={topRegion ? `#${topRegion.rank}` : undefined}
-                status="neutral"
-                loading={loadingRegions}
-             />
-             <KpiCard
-                title="Active Rigs"
-                value={basins?.reduce((acc: number, b: any) => acc + b.rigs, 0) || '—'}
-                unit="Count"
-                change={-1}
-                status="warning"
-                loading={loadingBasins}
-             />
-             <KpiCard
-                title="Reporting Status"
-                value="98%"
-                unit="Complete"
-                status="success"
-             />
+             <div onClick={() => handleOpenDrawer(`Total ${country} Production`, 'Aggregate production metrics')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+                <KpiCard
+                    title={`Total ${country} Production`}
+                    value={totalProduction.toLocaleString()}
+                    unit={regions?.units || 'bbl/d'}
+                    change={2.4} // Mock
+                    changeLabel="vs Prev"
+                    status="success"
+                    loading={loadingRegions}
+                />
+             </div>
+             <div onClick={() => handleOpenDrawer('Top Region', `Leading producer: ${topRegion?.region.name}`)} className="cursor-pointer transition-transform hover:scale-[1.02]">
+                <KpiCard
+                    title="Top Region"
+                    value={topRegion?.region.name || '—'}
+                    unit={topRegion ? `#${topRegion.rank}` : undefined}
+                    status="neutral"
+                    loading={loadingRegions}
+                />
+             </div>
+             <div onClick={() => handleOpenDrawer('Active Rigs', 'Basin activity summary')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+                <KpiCard
+                    title="Active Rigs"
+                    value={basins?.reduce((acc: number, b: any) => acc + b.rigs, 0) || '—'}
+                    unit="Count"
+                    change={-1}
+                    status="warning"
+                    loading={loadingBasins}
+                />
+             </div>
+             <div onClick={() => handleOpenDrawer('Reporting Status', 'Data completeness and timeliness')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+                <KpiCard
+                    title="Reporting Status"
+                    value="98%"
+                    unit="Complete"
+                    status="success"
+                />
+             </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -161,6 +185,22 @@ export default function ProductionPage() {
                 </DataPanel>
             </div>
         </div>
+
+        <DetailDrawer
+            isOpen={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            title={drawerTitle}
+            subtitle={drawerSubtitle}
+            content={{
+                Overview: <div className="p-4 text-sm text-muted">Detailed breakdown for {drawerTitle}. This panel contains granular metrics.</div>,
+                Trends: <div className="p-4 text-sm text-muted">Historical trend analysis would appear here.</div>,
+                Drivers: <div className="p-4 text-sm text-muted">Key drivers influencing this metric.</div>,
+                Risks: <div className="p-4 text-sm text-muted">Associated risk factors and exposure.</div>,
+                RawData: <div className="p-4 text-xs font-mono text-muted overflow-auto max-h-96">
+                    {JSON.stringify({ title: drawerTitle, timestamp: new Date().toISOString() }, null, 2)}
+                </div>
+            }}
+        />
       </PageContainer>
   );
 }

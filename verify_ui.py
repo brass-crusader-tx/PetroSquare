@@ -26,6 +26,17 @@ def verify_modules():
                 time.sleep(2)
                 print(f"Retrying... {i}")
 
+        # Login
+        try:
+            page.goto("http://localhost:3000")
+            if page.locator("input[type='password']").count() > 0:
+                print("Logging in...")
+                page.fill("input[type='password']", "PetroV0")
+                page.click("button[type='submit']")
+                page.wait_for_selector("main", timeout=10000) # Wait for main content after login
+        except Exception as e:
+            print(f"Login failed or not needed: {e}")
+
         for name, url in modules:
             print(f"Verifying {name}...")
             try:
