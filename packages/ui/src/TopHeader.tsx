@@ -86,6 +86,7 @@ export function TopHeader() {
              <button className="text-white p-2">
                  <Menu size={20} />
              </button>
+             <img src="/logo/petrosquare-mark.svg" width="28" height="28" alt="PetroSquare" className="ml-2" />
         </div>
 
         <div className="flex-1 max-w-xl relative" ref={wrapperRef}>
