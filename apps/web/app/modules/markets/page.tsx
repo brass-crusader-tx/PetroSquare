@@ -124,10 +124,10 @@ export default function MarketsPage() {
                                     Components: {spread.components.join(' / ')}
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </DataPanel>
-            </div>
+                        </div>
+                    ))}
+                </div>
+            </DataPanel>
         </div>
 
         <DetailDrawer
