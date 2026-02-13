@@ -20,8 +20,6 @@ module.exports = {
         background: '#0F172A', // Slate 900
         surface: '#1E293B',    // Slate 800
         'surface-highlight': '#334155', // Slate 700
-        'surface-card': '#1E293B',      // Card background
-        'surface-inset': '#020617',     // Darker inset background (Slate 950)
         border: '#334155',     // Slate 700
 
         // Data visualization colors
@@ -35,29 +33,16 @@ module.exports = {
         secondary: '#64748B',  // Slate 500
         text: '#F8FAFC',       // Slate 50
         muted: '#94A3B8',      // Slate 400
-
-        // Semantic Status Colors (Map to data colors or primary)
-        success: '#10B981',
-        warning: '#F59E0B',
-        error: '#EF4444',
-        info: '#3B82F6',
       },
       fontFamily: {
         mono: ['"JetBrains Mono"', 'monospace'],
         sans: ['Inter', 'sans-serif'],
       },
       spacing: {
-        // Semantic Spacing Scale
-        'space-1': '4px',
-        'space-2': '8px',
-        'space-3': '12px',
-        'space-4': '16px',
-        'space-6': '24px',
-        'space-8': '32px',
+        // Ensuring standard scale is available, plus any specific semantic spacing if needed
+        // For now, standard Tailwind spacing is sufficient, but explicit scale is enforced by usage
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/typography'),
-  ],
+  plugins: [],
 };

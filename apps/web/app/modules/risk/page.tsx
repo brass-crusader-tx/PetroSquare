@@ -45,43 +45,32 @@ export default function RiskPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
 
             {/* Left Column: Alerts & Overlays */}
-            <div className="space-y-6">
-                 <DataPanel
-                    title="Operational Alerts"
-                    subtitle="Real-time asset notifications"
-                    loading={loadingAlerts}
-                    footer={<DataMeta source="SCADA / IoT" lastUpdated="Real-time" />}
-                >
+            <div className="lg:col-span-1 space-y-6">
+                 <DataPanel title="Operational Alerts" loading={loadingAlerts}>
                     <div className="space-y-4">
-                        {loadingAlerts ? <SkeletonCard /> : alerts?.map(alert => (
-                            <div key={alert.id} className="bg-surface-inset/30 p-4 rounded border-l-4 border-l-error border border-border/50 hover:bg-surface-inset/50 transition-colors">
+                        {alerts?.map(alert => (
+                            <div key={alert.id} className="bg-surface-highlight/10 p-4 rounded border border-l-4 border-l-data-critical border-border">
                                 <div className="flex justify-between items-start mb-2">
-                                    <span className="text-xs font-bold uppercase text-error tracking-wider">{alert.type}</span>
-                                    <span className="text-xs text-muted font-mono">{new Date(alert.timestamp).toLocaleDateString()}</span>
+                                    <span className="text-xs font-bold uppercase text-data-critical tracking-wider">{alert.type}</span>
+                                    <span className="text-xs text-muted font-mono">{alert.timestamp.split('T')[0]}</span>
                                 </div>
                                 <p className="text-sm font-medium text-white mb-2">
                                     {alert.message}
                                 </p>
                                 <div className="flex space-x-2">
                                     {alert.asset_ids.map(id => (
-                                        <StatusPill key={id} status="neutral">{id}</StatusPill>
+                                        <Badge key={id} status="declared">{id}</Badge>
                                     ))}
                                 </div>
                             </div>
                         ))}
-                        {alerts?.length === 0 && <div className="text-center text-muted text-sm py-8">No active alerts.</div>}
                     </div>
                 </DataPanel>
 
-                <DataPanel
-                    title="Risk Overlays"
-                    subtitle="GIS layers integration status"
-                    loading={loadingOverlays}
-                    footer={<DataMeta source="GIS Module" />}
-                >
+                <DataPanel title="Risk Overlays (GIS Integration)" loading={loadingOverlays}>
                     <div className="space-y-2">
                         {overlays?.map(overlay => (
-                            <div key={overlay.id} className="flex items-center justify-between p-3 bg-surface-inset/20 rounded border border-border">
+                            <div key={overlay.id} className="flex items-center justify-between p-3 bg-surface-highlight/10 rounded border border-border">
                                 <div className="flex items-center space-x-3">
                                     <div className={`w-3 h-3 rounded-full ${overlay.visible ? 'bg-primary' : 'bg-muted'}`}></div>
                                     <span className="text-sm font-medium text-white">{overlay.name}</span>
@@ -94,14 +83,8 @@ export default function RiskPage() {
             </div>
 
             {/* Right Column: Regulatory Feed */}
-            <div className="space-y-6">
-                <DataPanel
-                    title="Regulatory & Geopolitical Feed"
-                    subtitle="Global news and legislative updates"
-                    loading={loadingEvents}
-                    footer={<DataMeta source="Reuters / Bloomberg" lastUpdated="10m ago" />}
-                    className="h-full"
-                >
+            <div className="lg:col-span-1 space-y-6">
+                <DataPanel title="Regulatory & Geopolitical Feed" loading={loadingEvents}>
                     <div className="space-y-6">
                         {events?.map(event => (
                             <div
@@ -110,9 +93,9 @@ export default function RiskPage() {
                                 onClick={() => setSelectedEvent(event)}
                             >
                                 <div className="flex justify-between items-start mb-2">
-                                    <StatusPill status={event.severity === 'HIGH' || event.severity === 'CRITICAL' ? 'error' : 'success'}>
+                                    <Badge status={event.severity === 'HIGH' || event.severity === 'CRITICAL' ? 'error' : 'live'}>
                                         {event.severity}
-                                    </StatusPill>
+                                    </Badge>
                                     <span className="text-xs text-muted font-mono">{event.date}</span>
                                 </div>
                                 <h4 className="text-base font-bold text-white mb-1">{event.title}</h4>
@@ -122,7 +105,7 @@ export default function RiskPage() {
                                 </p>
                                 <div className="mt-3 flex space-x-2">
                                     {event.affected_regions.map(r => (
-                                        <span key={r} className="text-[10px] px-2 py-0.5 bg-surface-highlight rounded text-muted font-mono uppercase">
+                                        <span key={r} className="text-[10px] px-2 py-0.5 bg-surface-highlight rounded text-muted font-mono">
                                             {r}
                                         </span>
                                     ))}

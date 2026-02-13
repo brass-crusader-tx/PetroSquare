@@ -108,7 +108,7 @@ export default function GISPage() {
        </header>
 
        {/* Main Workspace */}
-       <div className="flex-1 flex relative overflow-hidden border-t border-border">
+       <div className="flex-1 flex relative">
 
            {/* Left Panel - Filters */}
            <div className="w-80 bg-surface border-r border-border flex flex-col z-10 p-4 space-y-4 overflow-y-auto shrink-0">
@@ -137,7 +137,7 @@ export default function GISPage() {
            </div>
 
            {/* Center - Map */}
-           <div className="flex-1 relative bg-black min-h-[500px]">
+           <div className="flex-1 relative bg-black">
                <GISMap
                   basins={basins}
                   assets={assets}
@@ -171,6 +171,6 @@ export default function GISPage() {
               tabs={getStandardTabs(selectedAsset, null, 'Asset')}
            />
        </div>
-    </div>
+    </main>
   );
 }
