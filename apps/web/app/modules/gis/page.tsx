@@ -7,7 +7,8 @@ import { PageHeader, StatusPill } from '@petrosquare/ui';
 import { Basin, GISAsset, MapOverlay, AISummary } from '@petrosquare/types';
 import FilterPanel from './components/FilterPanel';
 import AssetDetails from './components/AssetDetails';
-import AISummaryPanel from './components/AISummary';
+import { OperationalInsight } from '../../../components/OperationalInsight';
+import { useAISummary } from '../../../lib/hooks/useAISummary';
 
 // Dynamically import Map to avoid SSR window issues
 const GISMap = dynamic(() => import('./components/Map'), { ssr: false, loading: () => <div className="h-full bg-slate-900 animate-pulse flex items-center justify-center text-muted">Loading Geospatial Engine...</div> });
@@ -23,8 +24,9 @@ export default function GISPage() {
   const [selectedAsset, setSelectedAsset] = useState<GISAsset | null>(null);
 
   const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState<AISummary | null>(null);
-  const [loadingSummary, setLoadingSummary] = useState(false);
+
+  // AI Summary Hook
+  const { summary, loading: loadingSummary, refresh: refreshSummary } = useAISummary('gis', selectedBasinId);
 
   // --- Effects ---
 
@@ -66,27 +68,7 @@ export default function GISPage() {
       }
     }
     loadAssets();
-
-    // Also fetch Basin Summary
-    fetchBasinSummary(selectedBasinId);
-
   }, [selectedBasinId]);
-
-  const fetchBasinSummary = async (id: string) => {
-      setLoadingSummary(true);
-      setSummary(null);
-      try {
-          const res = await fetch(`/api/gis/ai-summary?context_id=${id}`);
-          const json = await res.json();
-          if (json.status === 'ok') {
-              setSummary(json.data);
-          }
-      } catch(e) {
-          console.error("Failed to load summary", e);
-      } finally {
-          setLoadingSummary(false);
-      }
-  };
 
   // --- Handlers ---
 
@@ -130,11 +112,11 @@ export default function GISPage() {
                   onRefresh={() => setSelectedBasinId(selectedBasinId)} // Simple refresh
                />
 
-               <AISummaryPanel
+               <OperationalInsight
                   title={`Basin Intelligence: ${selectedBasin?.code || ''}`}
                   summary={summary}
                   loading={loadingSummary}
-                  onGenerate={() => fetchBasinSummary(selectedBasinId)}
+                  onRefresh={refreshSummary}
                />
            </div>
 
