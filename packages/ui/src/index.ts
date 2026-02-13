@@ -19,4 +19,6 @@ export * from './PageHeader';
 export * from './FilterBar';
 export * from './LeftNav';
 export * from './TopHeader';
+export * from './Footer';
+export * from './DetailDrawer';
 export * from './AppLayout';
