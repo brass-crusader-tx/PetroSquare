@@ -21,6 +21,10 @@ COPY . .
 RUN npm install -g pnpm
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# Build dependencies first to ensure fresh dist/ output
+RUN pnpm --filter @petrosquare/types build
+RUN pnpm --filter @petrosquare/connectors build
+RUN pnpm --filter @petrosquare/ui build
 RUN pnpm --filter web build
 
 FROM base AS runner
