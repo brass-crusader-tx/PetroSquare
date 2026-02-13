@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@petrosquare/connectors": "workspace:*",
     "@petrosquare/types": "workspace:*",
     "@petrosquare/ui": "workspace:*",
