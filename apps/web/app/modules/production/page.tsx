@@ -3,14 +3,18 @@
 import React, { useState } from 'react';
 import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
+import { useAISummary } from '../../../lib/hooks/useAISummary';
+import { OperationalInsight } from '../../../components/OperationalInsight';
 import { TopProducersResponse } from '@petrosquare/types';
 import Link from 'next/link';
 
 export default function ProductionPage() {
   const [country, setCountry] = useState<'US' | 'CA'>('US');
+
+  // Data Fetching
   const { data: regions, loading: loadingRegions } = useData<TopProducersResponse>(`/api/production/regions?country=${country}`);
-  // In a real app, type would be specific, but using any[] as per original file
   const { data: basins, loading: loadingBasins } = useData<any[]>('/api/production/basins');
+  const { summary, loading: loadingSummary, refresh: refreshSummary } = useAISummary('production', country);
 
   // Calculate total production for KPI
   const totalProduction = regions?.rows.reduce((acc, row) => acc + row.latest_value, 0) || 0;
@@ -44,6 +48,16 @@ export default function ProductionPage() {
                 <option>Natural Gas</option>
              </select>
         </FilterBar>
+
+        {/* Operational Insight */}
+        <div className="mb-6">
+            <OperationalInsight
+                title={`${country === 'US' ? 'US' : 'Canadian'} Production Intelligence`}
+                summary={summary}
+                loading={loadingSummary}
+                onRefresh={refreshSummary}
+            />
+        </div>
 
         {/* KPI Strip */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
