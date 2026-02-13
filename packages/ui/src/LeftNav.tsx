@@ -38,7 +38,14 @@ export function LeftNav({ currentPath }: LeftNavProps) {
     <aside className={`${widthClass} bg-surface border-r border-border flex flex-col h-screen sticky top-0 shrink-0 z-40 transition-all duration-300 hidden lg:flex`}>
       <div className={`p-4 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} relative`}>
         <div className="flex items-center space-x-3 overflow-hidden">
-             <img src="/logo/petrosquare-mark.svg" width="28" height="28" alt="PetroSquare" className="shrink-0" />
+             <img
+               src="/logo/petrosquare-mark.svg"
+               alt="PetroSquare"
+               width={28}
+               height={28}
+               style={{ verticalAlign: 'middle' }}
+               className="shrink-0"
+             />
              <div className={`min-w-0 transition-opacity duration-300 ${collapsed ? 'opacity-0 w-0 hidden' : 'opacity-100'}`}>
                   <div className="text-lg font-bold tracking-tight text-white font-sans leading-none truncate">PetroSquare</div>
                   <div className="text-[10px] text-muted font-mono mt-1 truncate">OPERATING SYSTEM</div>

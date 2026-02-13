@@ -4,12 +4,11 @@ export default function Loading() {
   return (
     <div className="h-screen w-full flex items-center justify-center bg-background">
       <div className="relative animate-pulse">
-        <Image
+        <img
           src="/logo/petrosquare-mark.svg"
           alt="PetroSquare"
           width={64}
           height={64}
-          priority
           className="animate-[pulse_2s_ease-in-out_infinite]"
         />
       </div>
