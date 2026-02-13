@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable, SkeletonCard } from '@petrosquare/ui';
+import React, { useState } from 'react';
+import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable, SkeletonCard, DetailDrawer } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { IntelDeal, IntelInfrastructure, IntelRigCount } from '@petrosquare/types';
 
@@ -9,6 +9,14 @@ export default function IntelPage() {
   const { data: deals, loading: loadingDeals } = useData<IntelDeal[]>('/api/intel/deals');
   const { data: infra, loading: loadingInfra } = useData<IntelInfrastructure[]>('/api/intel/infrastructure');
   const { data: rigs, loading: loadingRigs } = useData<IntelRigCount[]>('/api/intel/rigs');
+
+  const [drawer, setDrawer] = useState<{ isOpen: boolean, data: any, type: string, title: string }>({
+      isOpen: false, data: null, type: '', title: ''
+  });
+
+  const openDrawer = (title: string, type: string, data: any) => {
+      setDrawer({ isOpen: true, title, type, data });
+  };
 
   const totalDealValue = deals?.reduce((acc, d) => acc + d.value_usd_m, 0) || 0;
   const activeRigs = rigs?.reduce((acc, r) => acc + r.count, 0) || 0;
@@ -36,6 +44,7 @@ export default function IntelPage() {
                 change={15.2}
                 status="success"
                 loading={loadingDeals}
+                onClick={() => openDrawer('Total M&A Value', 'Market Stat', { value: totalDealValue, unit: 'USD' })}
              />
              <KpiCard
                 title="Active Rig Count"
@@ -44,18 +53,21 @@ export default function IntelPage() {
                 change={-5}
                 status="warning"
                 loading={loadingRigs}
+                onClick={() => openDrawer('Active Rig Count', 'Rig Stat', { value: activeRigs, change: -5 })}
              />
              <KpiCard
                 title="Infra Uptime"
                 value="99.2%"
                 unit="Global"
                 status="success"
+                onClick={() => openDrawer('Infra Uptime', 'Performance Metric', { value: 99.2, unit: '%' })}
              />
               <KpiCard
                 title="Project Starts"
                 value="12"
                 unit="Q3 2024"
                 status="neutral"
+                onClick={() => openDrawer('Project Starts', 'Growth Metric', { count: 12, period: 'Q3 2024' })}
              />
         </div>
 
@@ -71,7 +83,11 @@ export default function IntelPage() {
                 >
                     <div className="space-y-4">
                         {loadingDeals ? <SkeletonCard /> : deals?.map(deal => (
-                            <div key={deal.id} className="bg-surface-inset/20 p-4 rounded border border-border hover:bg-surface-inset/40 transition-colors group">
+                            <div
+                                key={deal.id}
+                                className="bg-surface-inset/20 p-4 rounded border border-border hover:bg-surface-inset/40 transition-colors group cursor-pointer"
+                                onClick={() => openDrawer(`${deal.buyer} / ${deal.seller}`, 'M&A Transaction', deal)}
+                            >
                                 <div className="flex justify-between items-start mb-2">
                                     <StatusPill status="info">{deal.asset_type}</StatusPill>
                                     <span className="text-xs text-muted font-mono">{deal.date}</span>
@@ -98,7 +114,11 @@ export default function IntelPage() {
                 >
                      <div className="grid grid-cols-2 gap-4">
                         {loadingRigs ? [...Array(4)].map((_, i) => <div key={i} className="h-16 bg-surface-highlight rounded animate-pulse"></div>) : rigs?.map(r => (
-                             <div key={r.region} className="bg-surface-inset/20 p-3 rounded border border-border flex justify-between items-center">
+                             <div
+                                key={r.region}
+                                className="bg-surface-inset/20 p-3 rounded border border-border flex justify-between items-center cursor-pointer hover:bg-surface-inset/40 transition-colors"
+                                onClick={() => openDrawer(r.region, 'Rig Count Data', r)}
+                             >
                                  <div>
                                      <div className="text-xs text-muted uppercase font-bold tracking-wider">{r.region}</div>
                                      <div className="text-xl font-mono text-white font-bold">{r.count}</div>
@@ -134,7 +154,11 @@ export default function IntelPage() {
                                 </thead>
                                 <tbody className="divide-y divide-border/50">
                                     {infra?.map((item) => (
-                                        <tr key={item.id} className="hover:bg-surface-highlight/10 transition-colors">
+                                        <tr
+                                            key={item.id}
+                                            className="hover:bg-surface-highlight/10 transition-colors cursor-pointer"
+                                            onClick={() => openDrawer(item.name, 'Infrastructure Asset', item)}
+                                        >
                                             <td className="px-6 py-3">
                                                 <div className="font-medium text-white">{item.name}</div>
                                                 <div className="text-xs text-muted">{item.location}</div>
@@ -157,6 +181,14 @@ export default function IntelPage() {
                 </DataPanel>
             </div>
         </div>
+
+        <DetailDrawer
+            isOpen={drawer.isOpen}
+            onClose={() => setDrawer({...drawer, isOpen: false})}
+            title={drawer.title}
+            type={drawer.type}
+            data={drawer.data}
+        />
       </PageContainer>
   );
 }

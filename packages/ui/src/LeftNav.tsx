@@ -22,9 +22,7 @@ export function LeftNav() {
             {/* Brand */}
             <div className="h-16 flex items-center justify-center border-b border-border shrink-0">
                 <Link href="/" className="font-bold text-white tracking-tight flex items-center">
-                    <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-white font-mono text-lg">
-                        P
-                    </div>
+                    <img src="/logo/petrosquare-mark.svg" alt="PetroSquare" className="w-6 h-6" />
                     {!collapsed && <span className="ml-3 font-sans text-lg">PetroSquare</span>}
                 </Link>
             </div>

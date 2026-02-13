@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable } from '@petrosquare/ui';
+import { PageContainer, PageHeader, FilterBar, DataPanel, KpiCard, DataMeta, StatusPill, SkeletonTable, DetailDrawer } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { TopProducersResponse } from '@petrosquare/types';
 import Link from 'next/link';
@@ -11,6 +11,14 @@ export default function ProductionPage() {
   const { data: regions, loading: loadingRegions } = useData<TopProducersResponse>(`/api/production/regions?country=${country}`);
   // In a real app, type would be specific, but using any[] as per original file
   const { data: basins, loading: loadingBasins } = useData<any[]>('/api/production/basins');
+
+  const [drawer, setDrawer] = useState<{ isOpen: boolean, data: any, type: string, title: string }>({
+      isOpen: false, data: null, type: '', title: ''
+  });
+
+  const openDrawer = (title: string, type: string, data: any) => {
+      setDrawer({ isOpen: true, title, type, data });
+  };
 
   // Calculate total production for KPI
   const totalProduction = regions?.rows.reduce((acc, row) => acc + row.latest_value, 0) || 0;
@@ -55,6 +63,7 @@ export default function ProductionPage() {
                 changeLabel="vs Prev"
                 status="success"
                 loading={loadingRegions}
+                onClick={() => openDrawer(`Total ${country} Production`, 'Production Aggregate', { value: totalProduction, country })}
              />
              <KpiCard
                 title="Top Region"
@@ -62,6 +71,7 @@ export default function ProductionPage() {
                 unit={topRegion ? `#${topRegion.rank}` : undefined}
                 status="neutral"
                 loading={loadingRegions}
+                onClick={() => topRegion && openDrawer(topRegion.region.name, 'Regional Leader', topRegion)}
              />
              <KpiCard
                 title="Active Rigs"
@@ -70,12 +80,14 @@ export default function ProductionPage() {
                 change={-1}
                 status="warning"
                 loading={loadingBasins}
+                onClick={() => openDrawer('Active Rigs', 'Rig Count', { total: basins?.reduce((acc: number, b: any) => acc + b.rigs, 0) })}
              />
              <KpiCard
                 title="Reporting Status"
                 value="98%"
                 unit="Complete"
                 status="success"
+                onClick={() => openDrawer('Reporting Status', 'System Status', { status: 'Complete', percentage: 98 })}
              />
         </div>
 
@@ -100,7 +112,11 @@ export default function ProductionPage() {
                     </thead>
                     <tbody className="divide-y divide-border/50">
                       {regions?.rows.map((row) => (
-                        <tr key={row.region.code} className="hover:bg-surface-highlight/10 transition-colors group">
+                        <tr
+                            key={row.region.code}
+                            className="hover:bg-surface-highlight/10 transition-colors group cursor-pointer"
+                            onClick={() => openDrawer(row.region.name, 'Regional Production', row)}
+                        >
                           <td className="px-6 py-3 font-mono text-muted group-hover:text-white">#{row.rank}</td>
                           <td className="px-6 py-3 font-medium text-white">{row.region.name}</td>
                           <td className="px-6 py-3 text-right font-mono text-white group-hover:text-primary transition-colors">
@@ -124,7 +140,11 @@ export default function ProductionPage() {
                 >
                     <div className="space-y-4">
                         {basins?.map((basin: any) => (
-                            <div key={basin.name} className="flex items-center justify-between p-4 bg-surface-inset/30 hover:bg-surface-inset/50 transition-colors rounded border border-border group">
+                            <div
+                                key={basin.name}
+                                className="flex items-center justify-between p-4 bg-surface-inset/30 hover:bg-surface-inset/50 transition-colors rounded border border-border group cursor-pointer"
+                                onClick={() => openDrawer(basin.name, 'Basin Stats', basin)}
+                            >
                                 <div>
                                     <h4 className="font-bold text-white text-sm">{basin.name}</h4>
                                     <div className="text-xs text-muted mt-1 flex items-center">
@@ -147,13 +167,17 @@ export default function ProductionPage() {
                     loading={false}
                     footer={<DataMeta source="Internal DB" />}
                 >
-                    <div className="p-8 border-2 border-dashed border-border rounded flex flex-col items-center justify-center text-center bg-surface-inset/10">
+                    <div
+                        className="p-8 border-2 border-dashed border-border rounded flex flex-col items-center justify-center text-center bg-surface-inset/10 cursor-pointer hover:bg-surface-inset/20 transition-colors"
+                        onClick={() => openDrawer('Well Analysis', 'Well Data', { id: 'sample-well', status: 'Active', depth: 12000, type: 'Oil', operator: 'PetroSquare Ops' })}
+                    >
                         <div className="text-4xl mb-4 opacity-20">🕳️</div>
                         <p className="text-sm text-muted mb-6 max-w-xs">Select a well from the map or enter an API number to view decline curves and production history.</p>
                         <Link
                             href="/api/production/well/12345"
                             target="_blank"
                             className="inline-flex items-center px-4 py-2 bg-primary text-white rounded text-sm font-medium hover:bg-blue-600 transition-colors shadow-lg shadow-primary/20"
+                            onClick={(e) => e.stopPropagation()}
                         >
                             View Sample Well JSON →
                         </Link>
@@ -161,6 +185,14 @@ export default function ProductionPage() {
                 </DataPanel>
             </div>
         </div>
+
+        <DetailDrawer
+            isOpen={drawer.isOpen}
+            onClose={() => setDrawer({...drawer, isOpen: false})}
+            title={drawer.title}
+            type={drawer.type}
+            data={drawer.data}
+        />
       </PageContainer>
   );
 }
