@@ -71,7 +71,45 @@ export default function ProductionPage() {
         {/* AI Insight */}
         <InsightCard insight={insight} loading={loadingInsight} className="mb-6" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        {/* Priority Assets - Moved to top for visibility */}
+        <div className="mb-6">
+          <DataPanel title="Active Production Assets (Priority)" loading={false}>
+              <div className="space-y-4">
+                  <p className="text-sm text-muted mb-4">
+                    Access advanced analytics, decline curve forecasting, anomaly detection, and scenario modeling for active assets.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Link href="/modules/production/asset/well-01" className="block p-4 bg-surface-highlight/10 rounded border border-border hover:border-primary/50 transition-colors group">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h4 className="font-bold text-white text-base group-hover:text-primary transition-colors flex items-center gap-2">
+                                  Well 01
+                                  <Badge status="live">Live</Badge>
+                                </h4>
+                                <div className="text-sm text-muted mt-1">Permian Basin • Pioneer • 1,000 bbl/d</div>
+                                <div className="flex gap-2 mt-2">
+                                  <Badge status="beta">DCA Enabled</Badge>
+                                  <Badge status="beta">AI Anomalies</Badge>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-sm font-mono text-primary font-bold group-hover:underline">Open Analytics Studio &rarr;</div>
+                            </div>
+                        </div>
+                    </Link>
+
+                    <div className="flex items-center justify-center p-4 bg-surface-highlight/5 rounded border border-dashed border-border text-center h-full">
+                        <div>
+                          <p className="text-sm text-muted font-medium">Connect More Assets</p>
+                          <p className="text-xs text-muted mt-1">Ingestion pipelines available for OPC UA / WITSML</p>
+                        </div>
+                    </div>
+                  </div>
+              </div>
+          </DataPanel>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column: Regional Production */}
           <DataPanel title={`Top Producing Regions (${country})`} loading={loadingRegions}>
             <div className="overflow-x-auto">
@@ -98,43 +136,22 @@ export default function ProductionPage() {
             </div>
           </DataPanel>
 
-            {/* Right Column: Basins & Wells */}
-            <div className="space-y-6">
-                <DataPanel title="Major Basins Overview" loading={loadingBasins}>
-                    <div className="space-y-4">
-                        {basins?.map((basin: any) => (
-                            <div key={basin.name} className="flex items-center justify-between p-3 bg-surface-highlight/10 rounded border border-border cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setSelectedBasin(basin.name)}>
-                                <div>
-                                    <h4 className="font-bold text-white text-sm">{basin.name}</h4>
-                                    <div className="text-xs text-muted mt-1">{basin.rigs} Active Rigs</div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-lg font-mono text-white">{basin.production.toLocaleString()} <span className="text-xs text-muted">bbl/d</span></div>
-                                </div>
+            {/* Right Column: Basins Overview */}
+            <DataPanel title="Major Basins Overview" loading={loadingBasins}>
+                <div className="space-y-4">
+                    {basins?.map((basin: any) => (
+                        <div key={basin.name} className="flex items-center justify-between p-3 bg-surface-highlight/10 rounded border border-border cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setSelectedBasin(basin.name)}>
+                            <div>
+                                <h4 className="font-bold text-white text-sm">{basin.name}</h4>
+                                <div className="text-xs text-muted mt-1">{basin.rigs} Active Rigs</div>
                             </div>
-                        ))}
-                    </div>
-                </DataPanel>
-
-                <DataPanel title="Active Assets (Demo)" loading={false}>
-                    <div className="space-y-4">
-                        <Link href="/modules/production/asset/well-01" className="block p-3 bg-surface-highlight/10 rounded border border-border hover:border-primary/50 transition-colors group">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h4 className="font-bold text-white text-sm group-hover:text-primary transition-colors">Well 01</h4>
-                                    <div className="text-xs text-muted mt-1">Permian Basin • Active</div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-sm font-mono text-data-positive group-hover:underline">View Analytics &rarr;</div>
-                                </div>
+                            <div className="text-right">
+                                <div className="text-lg font-mono text-white">{basin.production.toLocaleString()} <span className="text-xs text-muted">bbl/d</span></div>
                             </div>
-                        </Link>
-                         <div className="p-3 bg-surface-highlight/5 rounded border border-dashed border-border text-center">
-                            <p className="text-xs text-muted">More assets available via search.</p>
                         </div>
-                    </div>
-                </DataPanel>
-            </div>
+                    ))}
+                </div>
+            </DataPanel>
         </div>
 
         <DetailDrawer
