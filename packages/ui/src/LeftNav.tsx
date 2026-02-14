@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NavItem } from './NavItem';
-import { LayoutDashboard, Activity, LineChart, DollarSign, Map, AlertTriangle, Globe, Layers, Cpu, FileCode, ChevronLeft, ChevronRight, User } from 'lucide-react';
+import { LayoutDashboard, Activity, LineChart, DollarSign, Map, AlertTriangle, Globe, Layers, Cpu, FileCode, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface LeftNavProps {
     currentPath?: string;
@@ -31,7 +31,7 @@ export function LeftNav({ currentPath }: LeftNavProps) {
   return (
     <aside className={`${widthClass} flex flex-col h-full bg-surface border-r border-border/50 transition-all duration-300 z-50`}>
       {/* Header / Logo */}
-      <div className={`h-16 flex items-center ${collapsed ? 'justify-center' : 'px-6 justify-between'} border-b border-border/50`}>
+      <a href="/" className={`h-16 flex items-center ${collapsed ? 'justify-center' : 'px-6 justify-between'} border-b border-border/50 hover:bg-surface-highlight/50 transition-colors block`}>
         <div className="flex items-center gap-3 overflow-hidden">
              <img
                src="/logo/petrosquare-mark.svg"
@@ -42,7 +42,7 @@ export function LeftNav({ currentPath }: LeftNavProps) {
                   <span className="text-sm font-bold tracking-tight text-white font-sans">PetroSquare</span>
              </div>
         </div>
-      </div>
+      </a>
 
       {/* Navigation Items */}
       <div className="flex-1 py-6 px-3 space-y-1 overflow-y-auto scrollbar-none">
