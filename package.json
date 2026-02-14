@@ -6,6 +6,7 @@
     "build": "pnpm -r build",
     "dev": "pnpm -r dev",
     "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
     "clean": "rm -rf node_modules **/*/node_modules"
   },
   "devDependencies": {
