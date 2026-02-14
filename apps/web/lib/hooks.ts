@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { DataEnvelope } from '@petrosquare/types';
 
 export function useData<T>(url: string | null) {
@@ -14,29 +14,15 @@ export function useData<T>(url: string | null) {
     if (!url) return;
     let mounted = true;
     setLoading(true);
-
-    // Check if URL is API route or external.
-    // If it's internal API, it might return T directly or DataEnvelope<T>.
-    // My new economics APIs return T directly (arrays or objects).
-    // But existing hooks seem to expect DataEnvelope.
-    // Let's check my API implementation.
-
     fetch(url)
       .then(res => res.json())
-      .then((json: any) => {
+      .then((json: DataEnvelope<T>) => {
         if (!mounted) return;
-
-        // Handle DataEnvelope structure
-        if (json && typeof json === 'object' && 'status' in json && 'data' in json) {
-            if (json.status === 'ok' || (json.status === 'degraded' && json.data)) {
-                setData(json.data);
-                setProvenance(json.provenance);
-            } else {
-                setError(json.error?.message || 'Unknown error');
-            }
+        if (json.status === 'ok' || (json.status === 'degraded' && json.data)) {
+          setData(json.data);
+          setProvenance(json.provenance);
         } else {
-            // Assume direct data return (which my new APIs do)
-            setData(json);
+          setError(json.error?.message || 'Unknown error');
         }
         setLoading(false);
       })
