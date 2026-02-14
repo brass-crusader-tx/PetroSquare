@@ -153,10 +153,16 @@ export function TopHeader() {
 
         {/* Right Actions */}
         <div className="flex items-center space-x-2 ml-4">
-            <IconButton variant="ghost" size="sm" onClick={() => alert("No new notifications.")} className="text-muted hover:text-white">
+            <IconButton variant="ghost" size="sm" className="text-muted hover:text-white" disabled>
                 <Bell size={20} />
             </IconButton>
-            <IconButton variant="ghost" size="sm" onClick={() => alert("Settings are restricted.")} className="text-muted hover:text-white">
+            <IconButton
+                variant="ghost"
+                size="sm"
+                onClick={() => window.dispatchEvent(new Event('petrosquare-open-inspector'))}
+                className="text-muted hover:text-white"
+                title="System Inspector"
+            >
                 <Settings size={20} />
             </IconButton>
         </div>

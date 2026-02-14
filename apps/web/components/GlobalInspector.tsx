@@ -30,23 +30,19 @@ export function GlobalInspector() {
     }
   }, [isOpen]);
 
+  // Listen for global open event
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener('petrosquare-open-inspector', handleOpen);
+    return () => window.removeEventListener('petrosquare-open-inspector', handleOpen);
+  }, []);
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-40 lg:right-20">
-        <IconButton
-          onClick={() => setIsOpen(true)}
-          className="bg-surface border border-white/10 shadow-2xl rounded-full h-10 w-10 hover:bg-surface-highlight hover:scale-110 transition-transform"
-          title="Open System Inspector"
-          variant="surface"
-        >
-          <Settings size={18} className="text-muted" />
-        </IconButton>
-      </div>
-
       <Drawer isOpen={isOpen} onClose={() => setIsOpen(false)} title="System Inspector">
 
         <div className="space-y-6">

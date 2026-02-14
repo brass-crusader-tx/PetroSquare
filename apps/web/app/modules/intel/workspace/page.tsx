@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 export default function IntelWorkspacePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<IntelItem>>({
     type: 'NOTE',
     title: '',
@@ -30,6 +31,7 @@ export default function IntelWorkspacePage() {
 
   const handleSave = async (submit = false) => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch('/api/intel/items', {
         method: 'POST',
@@ -44,10 +46,10 @@ export default function IntelWorkspacePage() {
         }
         router.push('/modules/intel');
       } else {
-        alert('Error saving item: ' + json.error?.message);
+        setError('Error saving item: ' + json.error?.message);
       }
     } catch (e: any) {
-      alert('Error: ' + e.message);
+      setError('Error: ' + e.message);
     } finally {
       setLoading(false);
     }
@@ -79,11 +81,13 @@ export default function IntelWorkspacePage() {
         <SectionHeader title="Create Intel Item" description="Draft a new intelligence brief, note, or link." />
 
         <div className="max-w-3xl mx-auto mt-6 space-y-6">
+            {error && <div className="p-3 bg-data-critical/10 border border-data-critical/30 text-data-critical rounded text-sm mb-4">{error}</div>}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm text-muted">Type</label>
+                    <label className="text-sm text-muted font-medium">Type</label>
                     <select
-                        className="w-full bg-surface border border-border rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
+                        className="w-full bg-surface/50 border border-border/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary/50 focus:bg-surface transition-colors"
                         value={formData.type}
                         onChange={e => setFormData({...formData, type: e.target.value as IntelItemType})}
                     >
@@ -93,10 +97,10 @@ export default function IntelWorkspacePage() {
                     </select>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm text-muted">Title</label>
+                    <label className="text-sm text-muted font-medium">Title</label>
                     <input
                         type="text"
-                        className="w-full bg-surface border border-border rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
+                        className="w-full bg-surface/50 border border-border/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary/50 focus:bg-surface transition-colors placeholder:text-muted/50"
                         value={formData.title}
                         onChange={e => setFormData({...formData, title: e.target.value})}
                         placeholder="e.g. Q3 Earnings Analysis"
@@ -105,9 +109,9 @@ export default function IntelWorkspacePage() {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm text-muted">Content</label>
+                <label className="text-sm text-muted font-medium">Content</label>
                 <textarea
-                    className="w-full h-40 bg-surface border border-border rounded px-3 py-2 text-white focus:outline-none focus:border-primary font-mono text-sm"
+                    className="w-full h-40 bg-surface/50 border border-border/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary/50 focus:bg-surface transition-colors font-mono text-sm placeholder:text-muted/50"
                     value={formData.content_text}
                     onChange={e => setFormData({...formData, content_text: e.target.value})}
                     placeholder="Enter observations..."
@@ -117,20 +121,20 @@ export default function IntelWorkspacePage() {
             {formData.type === 'LINK' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-sm text-muted">Source URL</label>
+                        <label className="text-sm text-muted font-medium">Source URL</label>
                         <input
                             type="text"
-                            className="w-full bg-surface border border-border rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
+                            className="w-full bg-surface/50 border border-border/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary/50 focus:bg-surface transition-colors placeholder:text-muted/50"
                             value={formData.source_url || ''}
                             onChange={e => setFormData({...formData, source_url: e.target.value})}
                             placeholder="https://..."
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm text-muted">Source Name</label>
+                        <label className="text-sm text-muted font-medium">Source Name</label>
                         <input
                             type="text"
-                            className="w-full bg-surface border border-border rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
+                            className="w-full bg-surface/50 border border-border/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary/50 focus:bg-surface transition-colors placeholder:text-muted/50"
                             value={formData.source_name || ''}
                             onChange={e => setFormData({...formData, source_name: e.target.value})}
                             placeholder="e.g. Reuters"

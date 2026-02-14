@@ -58,12 +58,12 @@ export default function IntelFeedPage() {
                 placeholder="Search..."
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                className="bg-surface border border-border rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-primary w-full md:w-64"
+                className="bg-surface/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 focus:bg-surface w-full md:w-64 placeholder:text-muted transition-colors"
              />
              <select
                 value={typeFilter}
                 onChange={e => setTypeFilter(e.target.value as any)}
-                className="bg-surface border border-border rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
+                className="bg-surface/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 focus:bg-surface transition-colors"
              >
                 <option value="ALL">All Types</option>
                 <option value="NOTE">Note</option>

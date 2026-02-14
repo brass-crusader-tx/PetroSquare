@@ -36,7 +36,7 @@ export function LeftNav({ currentPath }: LeftNavProps) {
              <img
                src="/logo/petrosquare-mark.svg"
                alt="PetroSquare"
-               className="w-8 h-8 shrink-0"
+               className="w-10 h-10 shrink-0 invert brightness-0 grayscale opacity-90"
              />
              <div className={`transition-opacity duration-300 ${collapsed ? 'opacity-0 w-0 hidden' : 'opacity-100'}`}>
                   <span className="text-sm font-bold tracking-tight text-white font-sans">PetroSquare</span>

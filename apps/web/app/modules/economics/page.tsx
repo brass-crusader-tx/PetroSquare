@@ -118,62 +118,62 @@ export default function EconomicsPage() {
                 <DataPanel title="Scenario Parameters">
                     <div className="space-y-4">
                         <div>
-                            <label className="text-xs uppercase text-muted font-bold block mb-1">Oil Price Base Case ($/bbl)</label>
+                            <label className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-2">Oil Price Base Case ($/bbl)</label>
                             <input
                                 type="range" min="40" max="120" step="1"
                                 value={inputs.oil_price}
                                 onChange={e => setInputs({...inputs, oil_price: Number(e.target.value)})}
-                                className="w-full h-2 bg-surface-highlight rounded-lg appearance-none cursor-pointer"
+                                className="w-full h-1.5 bg-surface-highlight rounded-lg appearance-none cursor-pointer accent-primary hover:accent-primary/80"
                             />
-                            <div className="flex justify-between text-xs mt-1">
-                                <span className="text-muted">$40</span>
-                                <span className="text-primary font-mono text-lg">${inputs.oil_price}</span>
-                                <span className="text-muted">$120</span>
+                            <div className="flex justify-between text-xs mt-2">
+                                <span className="text-muted font-mono">$40</span>
+                                <span className="text-primary font-mono text-lg font-bold">${inputs.oil_price}</span>
+                                <span className="text-muted font-mono">$120</span>
                             </div>
                         </div>
 
                         <div>
-                            <label className="text-xs uppercase text-muted font-bold block mb-1">OPEX ($/bbl)</label>
+                            <label className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-2">OPEX ($/bbl)</label>
                             <input
                                 type="range" min="5" max="30" step="0.5"
                                 value={inputs.opex}
                                 onChange={e => setInputs({...inputs, opex: Number(e.target.value)})}
-                                className="w-full h-2 bg-surface-highlight rounded-lg appearance-none cursor-pointer"
+                                className="w-full h-1.5 bg-surface-highlight rounded-lg appearance-none cursor-pointer accent-primary hover:accent-primary/80"
                             />
-                            <div className="text-right text-primary font-mono text-lg">${inputs.opex}</div>
+                            <div className="text-right text-primary font-mono text-lg font-bold mt-1">${inputs.opex}</div>
                         </div>
 
                         <div>
-                            <label className="text-xs uppercase text-muted font-bold block mb-1">CAPEX ($)</label>
+                            <label className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1">CAPEX ($)</label>
                             <input
                                 type="number"
                                 value={inputs.capex}
                                 onChange={e => setInputs({...inputs, capex: Number(e.target.value)})}
-                                className="w-full bg-surface-highlight text-white p-2 rounded border border-border text-sm font-mono"
+                                className="w-full bg-surface-highlight/30 hover:bg-surface-highlight/50 focus:bg-surface-highlight transition-colors text-white p-2 rounded border border-border/50 focus:border-primary text-sm font-mono outline-none"
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                              <div>
-                                <label className="text-xs uppercase text-muted font-bold block mb-1">Royalty %</label>
+                                <label className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1">Royalty %</label>
                                 <input
                                     type="number" value={inputs.royalty}
                                     onChange={e => setInputs({...inputs, royalty: Number(e.target.value)})}
-                                    className="w-full bg-surface-highlight text-white p-2 rounded border border-border text-sm font-mono"
+                                    className="w-full bg-surface-highlight/30 hover:bg-surface-highlight/50 focus:bg-surface-highlight transition-colors text-white p-2 rounded border border-border/50 focus:border-primary text-sm font-mono outline-none"
                                 />
                              </div>
                              <div>
-                                <label className="text-xs uppercase text-muted font-bold block mb-1">Discount %</label>
+                                <label className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1">Discount %</label>
                                 <input
                                     type="number" value={inputs.discount}
                                     onChange={e => setInputs({...inputs, discount: Number(e.target.value)})}
-                                    className="w-full bg-surface-highlight text-white p-2 rounded border border-border text-sm font-mono"
+                                    className="w-full bg-surface-highlight/30 hover:bg-surface-highlight/50 focus:bg-surface-highlight transition-colors text-white p-2 rounded border border-border/50 focus:border-primary text-sm font-mono outline-none"
                                 />
                              </div>
                         </div>
 
                         <div className="pt-4">
-                            <Button variant="primary" className="w-full" onClick={handleRun} disabled={running}>
+                            <Button variant="primary" className="w-full shadow-lg shadow-primary/20" onClick={handleRun} disabled={running}>
                                 {running ? 'Running Model...' : 'Run Scenario'}
                             </Button>
                         </div>
@@ -183,9 +183,18 @@ export default function EconomicsPage() {
                 <DataPanel title="Saved Scenarios" loading={loadingScenarios}>
                     <div className="space-y-2">
                         {scenarios?.map(s => (
-                            <div key={s.id} className="p-2 hover:bg-surface-highlight cursor-pointer rounded border border-transparent hover:border-border text-sm flex justify-between">
-                                <span className="text-white">{s.name}</span>
-                                <span className="text-muted text-xs">{new Date(s.created_at).toLocaleDateString()}</span>
+                            <div
+                                key={s.id}
+                                onClick={() => {
+                                    // Hypothetical: if scenario object has inputs, load them.
+                                    // For now just logging to show interaction works
+                                    console.log("Loaded scenario", s.id);
+                                    // In a real app: setInputs(s.inputs); handleRun();
+                                }}
+                                className="p-3 hover:bg-surface-highlight/50 cursor-pointer rounded-lg border border-transparent hover:border-border/50 text-sm flex justify-between items-center transition-all active:scale-[0.99]"
+                            >
+                                <span className="text-white font-medium">{s.name}</span>
+                                <span className="text-muted text-[10px] font-mono border border-border/30 px-1.5 py-0.5 rounded bg-surface-highlight/10">{new Date(s.created_at).toLocaleDateString()}</span>
                             </div>
                         ))}
                     </div>
@@ -233,17 +242,17 @@ export default function EconomicsPage() {
                                     revenue: cf.value * 1.5, // Mock revenue for demo (simulated)
                                     opex: cf.value * 0.3 // Mock OPEX
                                 }))}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                    <XAxis dataKey="period" stroke="#94A3B8" tick={{fontSize: 10}} />
-                                    <YAxis stroke="#94A3B8" tick={{fontSize: 10}} tickFormatter={(val) => `$${val/1000}k`} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} opacity={0.3} />
+                                    <XAxis dataKey="period" stroke="#94A3B8" tick={{fontSize: 10}} tickLine={false} axisLine={false} />
+                                    <YAxis stroke="#94A3B8" tick={{fontSize: 10}} tickFormatter={(val) => `$${val/1000}k`} tickLine={false} axisLine={false} />
                                     <Tooltip
-                                        contentStyle={{ backgroundColor: '#1E293B', borderColor: '#334155', color: '#fff' }}
+                                        contentStyle={{ backgroundColor: '#09090b', borderColor: '#27272a', color: '#fff', borderRadius: '8px' }}
                                         itemStyle={{ color: '#fff' }}
                                         formatter={(val: any) => [`$${Number(val).toLocaleString()}`, '']}
                                     />
-                                    <Legend />
+                                    <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
                                     <Area type="monotone" dataKey="revenue" fill="#3B82F6" stroke="#3B82F6" fillOpacity={0.1} name="Revenue" />
-                                    <Bar dataKey="netCashFlow" barSize={20} fill="#10B981" name="Net Cash Flow" />
+                                    <Bar dataKey="netCashFlow" barSize={20} fill="#10B981" name="Net Cash Flow" radius={[4, 4, 0, 0]} />
                                     <Line type="monotone" dataKey="opex" stroke="#EF4444" strokeWidth={2} dot={false} name="OPEX" />
                                 </ComposedChart>
                             </ResponsiveContainer>
@@ -257,28 +266,30 @@ export default function EconomicsPage() {
 
                 {/* Portfolio Table */}
                 <DataPanel title="Portfolio Analysis" loading={loadingPortfolio}>
+                    <div className="overflow-x-auto">
                      <table className="w-full text-sm text-left">
-                        <thead className="text-xs text-muted uppercase bg-surface-highlight/10 border-b border-border">
+                        <thead className="text-[10px] text-muted uppercase tracking-wider bg-surface-highlight/30 border-b border-border/50">
                             <tr>
-                                <th className="px-4 py-3">Asset</th>
-                                <th className="px-4 py-3 text-right">NPV</th>
-                                <th className="px-4 py-3 text-right">ROI</th>
-                                <th className="px-4 py-3 text-center">Status</th>
+                                <th className="px-4 py-3 font-medium">Asset</th>
+                                <th className="px-4 py-3 text-right font-medium">NPV</th>
+                                <th className="px-4 py-3 text-right font-medium">ROI</th>
+                                <th className="px-4 py-3 text-center font-medium">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-border/50">
                             {portfolio?.map((item) => (
-                                <tr key={item.asset_id} className="border-b border-border hover:bg-surface-highlight/5">
+                                <tr key={item.asset_id} className="hover:bg-surface-highlight/5 transition-colors">
                                     <td className="px-4 py-3 font-medium text-white">{item.asset_name}</td>
-                                    <td className="px-4 py-3 text-right font-mono text-white">${(item.npv / 1000000).toFixed(1)}M</td>
-                                    <td className="px-4 py-3 text-right font-mono text-white">{item.roi}%</td>
+                                    <td className="px-4 py-3 text-right font-mono text-white text-xs">${(item.npv / 1000000).toFixed(1)}M</td>
+                                    <td className="px-4 py-3 text-right font-mono text-white text-xs">{item.roi}%</td>
                                     <td className="px-4 py-3 text-center">
-                                        <span className={`inline-block w-2 h-2 rounded-full ${item.status === 'positive' ? 'bg-data-positive' : item.status === 'negative' ? 'bg-data-critical' : 'bg-data-warning'}`}></span>
+                                        <span className={`inline-block w-2 h-2 rounded-full ${item.status === 'positive' ? 'bg-data-positive shadow-[0_0_8px_rgba(16,185,129,0.5)]' : item.status === 'negative' ? 'bg-data-critical shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-data-warning'}`}></span>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </DataPanel>
 
             </div>
