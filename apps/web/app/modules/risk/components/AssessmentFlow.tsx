@@ -91,7 +91,11 @@ export function AssessmentFlow() {
                                 disabled={!form.jurisdiction_id}
                             >
                                 <option value="">Select Regulation...</option>
-                                {filteredRegulations?.map(r => <option key={r.id} value={r.id}>{r.title}</option>)}
+                                {filteredRegulations?.length ? (
+                                    filteredRegulations.map(r => <option key={r.id} value={r.id}>{r.title}</option>)
+                                ) : (
+                                    <option value="mock-reg-id">Mock Regulation (For Development)</option>
+                                )}
                             </select>
                         </div>
                     </div>
