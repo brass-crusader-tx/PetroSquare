@@ -138,6 +138,14 @@ export default function GISMap({
         return (order[a.type as keyof typeof order] || 0) - (order[b.type as keyof typeof order] || 0);
     });
 
+    // Explicitly group layers to guarantee render order
+    const polygonLayers = sortedLayers.filter(l => l.type === 'POLYGON' || l.type === 'RASTER');
+    const lineLayers = sortedLayers.filter(l => l.type === 'LINE');
+    const pointLayers = sortedLayers.filter(l => l.type === 'POINT' || l.type === 'HEATMAP');
+
+    // Concatenate in visual order (Bottom to Top)
+    const orderedRenderLayers = [...polygonLayers, ...lineLayers, ...pointLayers];
+
     return (
         <div className="h-full w-full relative bg-slate-900">
              <Map
@@ -160,7 +168,7 @@ export default function GISMap({
                 <ScaleControl />
                 <FullscreenControl position="top-right" />
 
-                {sortedLayers.map(layer => {
+                {orderedRenderLayers.map(layer => {
                     const data = layerData[layer.id];
                     if (!data) return null;
 
