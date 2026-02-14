@@ -4,13 +4,14 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Map, { Source, Layer, NavigationControl, ScaleControl, FullscreenControl, MapRef, MapLayerMouseEvent, Popup } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { GISAsset, Basin } from '@petrosquare/types';
+import { Badge } from '@petrosquare/ui';
 
 interface MapProps {
   basins: Basin[];
-  assets: GISAsset[]; // Internal assets
+  assets: GISAsset[];
   selectedAssetId?: string;
   onAssetSelect: (asset: GISAsset) => void;
-  center?: [number, number]; // [lat, lng]
+  center?: [number, number];
   zoom?: number;
   showWells?: boolean;
   showPipelines?: boolean;
@@ -63,7 +64,7 @@ export default function GISMap({
              }
         };
 
-        const timer = setTimeout(fetchRealData, 1500); // 1.5s debounce to be nice to APIs
+        const timer = setTimeout(fetchRealData, 1500);
         return () => clearTimeout(timer);
     }, [viewState, showWells, showPipelines]);
 
@@ -114,7 +115,7 @@ export default function GISMap({
     }, []);
 
     return (
-        <div className="h-full w-full relative bg-slate-900">
+        <div className="h-full w-full relative bg-surface overflow-hidden rounded-xl border border-white/5">
              <Map
                 ref={mapRef}
                 {...viewState}
@@ -131,7 +132,7 @@ export default function GISMap({
                 <ScaleControl />
                 <FullscreenControl position="top-right" />
 
-                {/* 1. Real Wells (OSM) - Bottom */}
+                {/* 1. Real Wells (OSM) */}
                  {showWells && osmWells && (
                      <Source id="osm-source" type="geojson" data={osmWells}>
                          <Layer
@@ -139,15 +140,15 @@ export default function GISMap({
                              type="circle"
                              paint={{
                                  'circle-radius': 4,
-                                 'circle-color': '#10B981', // Green for OSM
+                                 'circle-color': '#10b981', // Emerald-500
                                  'circle-stroke-width': 1,
-                                 'circle-stroke-color': '#064E3B'
+                                 'circle-stroke-color': '#064e3b'
                              }}
                          />
                      </Source>
                  )}
 
-                {/* 2. Internal Assets - Middle */}
+                {/* 2. Internal Assets */}
                  <Source id="internal-source" type="geojson" data={{
                      type: 'FeatureCollection',
                      features: internalAssets.map(a => ({
@@ -161,25 +162,25 @@ export default function GISMap({
                         type="circle"
                         paint={{
                             'circle-radius': 6,
-                            'circle-color': '#3B82F6', // Blue for internal
+                            'circle-color': '#3b82f6', // Blue-500
                             'circle-stroke-width': 2,
-                            'circle-stroke-color': '#FFFFFF'
+                            'circle-stroke-color': '#ffffff'
                         }}
                     />
                  </Source>
 
-                 {/* 3. Real Pipelines - Top */}
+                 {/* 3. Real Pipelines */}
                  {showPipelines && pipelines && (
                      <Source id="pipelines-source" type="geojson" data={pipelines}>
                          <Layer
                              id="pipelines"
                              type="line"
-                             paint={{ 'line-color': '#F59E0B', 'line-width': 2, 'line-opacity': 0.8 }}
+                             paint={{ 'line-color': '#f59e0b', 'line-width': 2, 'line-opacity': 0.8 }}
                          />
                      </Source>
                  )}
 
-                 {/* Heatmap/Carbon Placeholders (Visual Simulation) */}
+                 {/* Heatmap */}
                  {showHeatmap && (
                      <Source id="heatmap-source" type="geojson" data={{
                          type: 'FeatureCollection', features: [
@@ -217,15 +218,17 @@ export default function GISMap({
                          anchor="bottom"
                          offset={10}
                      >
-                         <div className="p-2 bg-surface border border-border rounded shadow-lg min-w-[150px]">
-                             <div className="font-bold text-white text-sm mb-1">{hoverInfo.feature.properties.name || 'Unknown Asset'}</div>
-                             <div className="text-xs text-muted flex justify-between">
-                                 <span>Type:</span>
-                                 <span className="text-white">{hoverInfo.feature.properties.type || 'N/A'}</span>
-                             </div>
-                             <div className="text-xs text-muted flex justify-between">
-                                 <span>Status:</span>
-                                 <Badge status={hoverInfo.feature.properties.status || 'live'} size="sm" />
+                         <div className="p-3 bg-surface/95 backdrop-blur border border-white/10 rounded-xl shadow-xl min-w-[180px]">
+                             <div className="font-bold text-white text-sm mb-2 truncate">{hoverInfo.feature.properties.name || 'Unknown Asset'}</div>
+                             <div className="space-y-1">
+                                <div className="text-xs text-muted flex justify-between items-center">
+                                    <span>Type</span>
+                                    <span className="text-white font-mono">{hoverInfo.feature.properties.type || 'N/A'}</span>
+                                </div>
+                                <div className="text-xs text-muted flex justify-between items-center">
+                                    <span>Status</span>
+                                    <Badge status={hoverInfo.feature.properties.status || 'live'} />
+                                </div>
                              </div>
                          </div>
                      </Popup>
@@ -234,39 +237,33 @@ export default function GISMap({
              </Map>
 
              {/* Legend */}
-             <div className="absolute bottom-6 right-6 bg-surface/90 backdrop-blur p-3 rounded border border-border text-xs z-10 pointer-events-none">
-                <div className="font-bold text-white mb-2">Map Layers</div>
-                <div className="flex flex-col space-y-2">
+             <div className="absolute bottom-6 right-6 bg-surface/80 backdrop-blur-md p-4 rounded-xl border border-white/5 text-xs z-10 pointer-events-none shadow-lg">
+                <div className="font-bold text-white mb-3 uppercase tracking-wider text-[10px]">Map Layers</div>
+                <div className="flex flex-col space-y-3">
                     <div className="flex items-center space-x-2">
-                        <span className="w-3 h-3 rounded-full bg-blue-500 border border-white"></span>
-                        <span className="text-muted">Managed Assets</span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-blue-500 border border-white/50 shadow-sm"></span>
+                        <span className="text-muted font-medium">Managed Assets</span>
                     </div>
                     {showWells && (
                         <div className="flex items-center space-x-2">
-                            <span className="w-3 h-3 rounded-full bg-emerald-500 border border-emerald-900"></span>
-                            <span className="text-muted">OSM Wells</span>
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-emerald-900/50 shadow-sm"></span>
+                            <span className="text-muted font-medium">OSM Wells</span>
                         </div>
                     )}
                     {showPipelines && (
                         <div className="flex items-center space-x-2">
-                            <span className="w-8 h-0.5 bg-amber-500"></span>
-                            <span className="text-muted">Pipelines</span>
+                            <span className="w-8 h-0.5 bg-amber-500 shadow-sm"></span>
+                            <span className="text-muted font-medium">Pipelines</span>
                         </div>
                     )}
                     {showHeatmap && (
                         <div className="flex items-center space-x-2">
                             <span className="w-3 h-3 rounded bg-gradient-to-r from-blue-500 to-red-500 opacity-50"></span>
-                            <span className="text-muted">Econ Heatmap</span>
+                            <span className="text-muted font-medium">Econ Heatmap</span>
                         </div>
                     )}
                 </div>
             </div>
         </div>
     );
-}
-
-// Simple Badge for Tooltip
-function Badge({ status, size }: { status: string, size?: string }) {
-    const color = status === 'live' ? 'text-emerald-400' : status === 'offline' ? 'text-red-400' : 'text-amber-400';
-    return <span className={`font-mono uppercase ${color}`}>{status}</span>;
 }
