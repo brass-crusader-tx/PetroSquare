@@ -59,7 +59,11 @@ export function TelemetryChart({ data, window }: TelemetryChartProps) {
           contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#e2e8f0' }}
           itemStyle={{ color: '#10b981' }}
           labelStyle={{ color: '#94a3b8', marginBottom: '0.5rem' }}
-          formatter={(value: number) => [`${value} ${data[0].unit}`, data[0].tag]}
+          formatter={(value: number | string | Array<number | string> | undefined) => {
+            if (value === undefined) return ['', ''];
+            const val = typeof value === 'number' ? value : Number(value);
+            return [`${val} ${data[0].unit}`, data[0].tag];
+          }}
         />
         <Line
           type="monotone"

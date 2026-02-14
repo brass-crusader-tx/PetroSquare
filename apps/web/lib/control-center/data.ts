@@ -41,9 +41,7 @@ if (!globalStore.mockAssets) {
     healthScore: 92,
     lastContact: new Date().toISOString(),
     activeAlarms: 0,
-    depth: 3000,
-    apiNumber: 'API-101',
-    metadata: { basin: 'North Sea' }
+    metadata: { basin: 'North Sea', depth: 3000, apiNumber: 'API-101' }
   },
   {
     id: 'pump-202',

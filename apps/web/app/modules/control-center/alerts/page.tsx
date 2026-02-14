@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Alert } from '@petrosquare/types';
-import { ActionButtons } from '../../components/ActionButtons';
-import { WorkflowManager } from '../../components/WorkflowManager';
+import { ActionButtons } from '../components/ActionButtons';
+import { WorkflowManager } from '../components/WorkflowManager';
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);

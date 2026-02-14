@@ -46,7 +46,7 @@ export function InspectDrawer({ isOpen, onClose, asset, telemetry, window }: Ins
             <h4 className="text-sm font-semibold text-white mb-2">Transformations</h4>
             <ul className="list-disc list-inside text-xs text-slate-400 space-y-1">
               <li>Raw value scaling (Linear, factor 1.0)</li>
-              <li>Unit conversion (Bar -> Psi)</li>
+              <li>Unit conversion (Bar -&gt; Psi)</li>
               <li>Outlier detection (3-sigma filter applied)</li>
             </ul>
           </div>
