@@ -4,23 +4,19 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Map, { Source, Layer, NavigationControl, ScaleControl, FullscreenControl, MapRef, MapLayerMouseEvent, Popup } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { GISAsset, Basin } from '@petrosquare/types';
+import { GISLayer } from '@/lib/gis/types';
 
 interface MapProps {
   basins: Basin[];
-  assets: GISAsset[]; // Internal assets
+  activeLayers: GISLayer[];
   selectedAssetId?: string;
   onAssetSelect: (asset: GISAsset) => void;
   center?: [number, number]; // [lat, lng]
   zoom?: number;
-  showWells?: boolean;
-  showPipelines?: boolean;
-  showHeatmap?: boolean;
-  showCarbon?: boolean;
 }
 
 export default function GISMap({
-    basins, assets: internalAssets, selectedAssetId, onAssetSelect, center, zoom,
-    showWells, showPipelines, showHeatmap, showCarbon
+    basins, activeLayers, selectedAssetId, onAssetSelect, center, zoom
 }: MapProps) {
     const mapRef = useRef<MapRef>(null);
     const [viewState, setViewState] = useState({
@@ -29,8 +25,8 @@ export default function GISMap({
         zoom: zoom || 4
     });
 
-    const [osmWells, setOsmWells] = useState<any>(null);
-    const [pipelines, setPipelines] = useState<any>(null);
+    // Store features per layer: { layerId: FeatureCollection }
+    const [layerData, setLayerData] = useState<Record<string, any>>({});
     const [hoverInfo, setHoverInfo] = useState<{longitude: number, latitude: number, feature: any} | null>(null);
 
     // Initial FlyTo
@@ -40,32 +36,50 @@ export default function GISMap({
         }
     }, [center, zoom]);
 
-    // Fetch Real Data on Move (Debounced)
+    // Load data when map is fully loaded
+    const onMapLoad = useCallback(() => {
+        if (center && mapRef.current) {
+            // Force fetch after load to ensure bounds are correct
+            setViewState(curr => ({ ...curr })); // Trigger update
+        }
+    }, [center]);
+
+    // Fetch Data on Move (Debounced)
     useEffect(() => {
-        const fetchRealData = async () => {
+        const fetchData = async () => {
              if (!mapRef.current) return;
              const bounds = mapRef.current.getBounds();
              if (!bounds) return;
 
              const bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+             const currentZoom = mapRef.current.getZoom();
 
-             if (showWells) {
+             const newLayerData: Record<string, any> = {};
+
+             // Fetch for each active layer
+             await Promise.all(activeLayers.map(async (layer) => {
                  try {
-                    const res = await fetch(`/api/gis/osm?bbox=${bbox}`);
-                    if (res.ok) setOsmWells(await res.json());
-                 } catch(e) { console.error(e); }
-             }
-             if (showPipelines) {
-                 try {
-                    const res = await fetch(`/api/gis/pipelines?bbox=${bbox}`);
-                    if (res.ok) setPipelines(await res.json());
-                 } catch(e) { console.error(e); }
-             }
+                     // TODO: Add caching here if needed, but browser fetch cache might handle it if headers are set
+                     // Or use SWR. For now simple fetch.
+                     const res = await fetch(`/api/gis/layers/${layer.id}/features?bbox=${bbox}&zoom=${Math.floor(currentZoom)}`);
+                     if (res.ok) {
+                         const json = await res.json();
+                         newLayerData[layer.id] = {
+                             type: 'FeatureCollection',
+                             features: json.data || []
+                         };
+                     }
+                 } catch (e) {
+                     console.error(`Failed to fetch layer ${layer.id}`, e);
+                 }
+             }));
+
+             setLayerData(prev => ({ ...prev, ...newLayerData }));
         };
 
-        const timer = setTimeout(fetchRealData, 1500); // 1.5s debounce to be nice to APIs
+        const timer = setTimeout(fetchData, 800); // 800ms debounce
         return () => clearTimeout(timer);
-    }, [viewState, showWells, showPipelines]);
+    }, [viewState, activeLayers]);
 
     const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
     const mapStyle = MAPTILER_KEY
@@ -76,25 +90,38 @@ export default function GISMap({
         const feature = event.features?.[0];
         if (feature) {
              const props = feature.properties || {};
-             const geom = feature.geometry as any;
-             const coords = geom.coordinates || [0, 0];
 
+             // If cluster, zoom in
+             if (props.cluster) {
+                 const clusterId = props.cluster_id;
+                 const point_count = props.point_count;
+                 const coordinates = (feature.geometry as any).coordinates;
+
+                 mapRef.current?.flyTo({
+                     center: coordinates,
+                     zoom: viewState.zoom + 2
+                 });
+                 return;
+             }
+
+             // Normalize to GISAsset for DetailDrawer
+             // If props don't match GISAsset exactly, we map best effort
              const asset: GISAsset = {
-                 id: props.id || 'unknown',
+                 id: props.id || String(Math.random()),
                  name: props.name || 'Unknown Asset',
                  type: (props.type as any) || 'ASSET',
                  status: (props.status as any) || 'UNKNOWN',
-                 latitude: coords[1],
-                 longitude: coords[0],
-                 geometry: geom,
-                 operator_id: props.operator || 'Unknown',
-                 basin_id: 'unknown',
-                 jurisdiction_id: 'unknown',
+                 latitude: event.lngLat.lat,
+                 longitude: event.lngLat.lng,
+                 geometry: feature.geometry as any,
+                 operator_id: props.operator_id || 'Unknown',
+                 basin_id: props.basin_id || 'unknown',
+                 jurisdiction_id: props.jurisdiction_id || 'unknown',
                  metadata: props
              };
              onAssetSelect(asset);
         }
-    }, [onAssetSelect]);
+    }, [onAssetSelect, viewState.zoom]);
 
     const onMouseEnter = useCallback((event: MapLayerMouseEvent) => {
         const feature = event.features?.[0];
@@ -113,6 +140,20 @@ export default function GISMap({
         setHoverInfo(null);
     }, []);
 
+    // Sort layers by Z-Index (Polygons bottom, Lines middle, Points top)
+    const sortedLayers = [...activeLayers].sort((a, b) => {
+        const order = { 'POLYGON': 1, 'RASTER': 1, 'LINE': 2, 'POINT': 3, 'HEATMAP': 4 };
+        return (order[a.type as keyof typeof order] || 0) - (order[b.type as keyof typeof order] || 0);
+    });
+
+    // Explicitly group layers to guarantee render order
+    const polygonLayers = sortedLayers.filter(l => l.type === 'POLYGON' || l.type === 'RASTER');
+    const lineLayers = sortedLayers.filter(l => l.type === 'LINE');
+    const pointLayers = sortedLayers.filter(l => l.type === 'POINT' || l.type === 'HEATMAP');
+
+    // Concatenate in visual order (Bottom to Top)
+    const orderedRenderLayers = [...polygonLayers, ...lineLayers, ...pointLayers];
+
     return (
         <div className="h-full w-full relative bg-slate-900">
              <Map
@@ -123,90 +164,96 @@ export default function GISMap({
                 mapStyle={mapStyle}
                 attributionControl={false}
                 onClick={onClick}
+                onLoad={onMapLoad}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
-                interactiveLayerIds={['osm-wells', 'internal-assets', 'pipelines']}
+                // Interactive layer IDs needed for hover/click
+                interactiveLayerIds={activeLayers.flatMap(l => {
+                    if (l.type === 'POINT') return [l.id, `${l.id}-clusters`];
+                    return [l.id];
+                })}
              >
                 <NavigationControl position="top-right" showCompass={false} />
                 <ScaleControl />
                 <FullscreenControl position="top-right" />
 
-                {/* 1. Real Wells (OSM) - Bottom */}
-                 {showWells && osmWells && (
-                     <Source id="osm-source" type="geojson" data={osmWells}>
-                         <Layer
-                             id="osm-wells"
-                             type="circle"
-                             paint={{
-                                 'circle-radius': 4,
-                                 'circle-color': '#10B981', // Green for OSM
-                                 'circle-stroke-width': 1,
-                                 'circle-stroke-color': '#064E3B'
-                             }}
-                         />
-                     </Source>
-                 )}
+                {orderedRenderLayers.map(layer => {
+                    const data = layerData[layer.id];
+                    if (!data) return null;
 
-                {/* 2. Internal Assets - Middle */}
-                 <Source id="internal-source" type="geojson" data={{
-                     type: 'FeatureCollection',
-                     features: internalAssets.map(a => ({
-                         type: 'Feature',
-                         geometry: a.geometry,
-                         properties: a
-                     }))
-                 }}>
-                    <Layer
-                        id="internal-assets"
-                        type="circle"
-                        paint={{
-                            'circle-radius': 6,
-                            'circle-color': '#3B82F6', // Blue for internal
-                            'circle-stroke-width': 2,
-                            'circle-stroke-color': '#FFFFFF'
-                        }}
-                    />
-                 </Source>
-
-                 {/* 3. Real Pipelines - Top */}
-                 {showPipelines && pipelines && (
-                     <Source id="pipelines-source" type="geojson" data={pipelines}>
-                         <Layer
-                             id="pipelines"
-                             type="line"
-                             paint={{ 'line-color': '#F59E0B', 'line-width': 2, 'line-opacity': 0.8 }}
-                         />
-                     </Source>
-                 )}
-
-                 {/* Heatmap/Carbon Placeholders (Visual Simulation) */}
-                 {showHeatmap && (
-                     <Source id="heatmap-source" type="geojson" data={{
-                         type: 'FeatureCollection', features: [
-                             { type: 'Feature', geometry: { type: 'Point', coordinates: [viewState.longitude, viewState.latitude] }, properties: {} }
-                         ]
-                     }}>
-                         <Layer
-                            id="heatmap-layer"
-                            type="heatmap"
-                            paint={{
-                                'heatmap-weight': 1,
-                                'heatmap-intensity': 1,
-                                'heatmap-color': [
-                                    'interpolate', ['linear'], ['heatmap-density'],
-                                    0, 'rgba(33,102,172,0)',
-                                    0.2, 'rgb(103,169,207)',
-                                    0.4, 'rgb(209,229,240)',
-                                    0.6, 'rgb(253,219,199)',
-                                    0.8, 'rgb(239,138,98)',
-                                    1, 'rgb(178,24,43)'
-                                ],
-                                'heatmap-radius': 100,
-                                'heatmap-opacity': 0.6
-                            }}
-                         />
-                     </Source>
-                 )}
+                    return (
+                        <Source key={layer.id} id={layer.id} type="geojson" data={data}>
+                            {/* Render based on Layer Type */}
+                            {layer.type === 'POINT' && (
+                                <>
+                                    {/* Non-clustered points */}
+                                    <Layer
+                                        id={layer.id}
+                                        source={layer.id}
+                                        type="circle"
+                                        filter={['!', ['has', 'point_count']]}
+                                        paint={layer.style_json || {
+                                            'circle-radius': 6,
+                                            'circle-color': '#3B82F6',
+                                            'circle-stroke-width': 1,
+                                            'circle-stroke-color': '#fff'
+                                        }}
+                                    />
+                                    {/* Clusters */}
+                                    <Layer
+                                        id={`${layer.id}-clusters`}
+                                        source={layer.id}
+                                        type="circle"
+                                        filter={['has', 'point_count']}
+                                        paint={{
+                                            'circle-color': '#51bbd6',
+                                            'circle-radius': [
+                                                'step', ['get', 'point_count'],
+                                                15, 10,
+                                                20, 50,
+                                                25
+                                            ]
+                                        }}
+                                    />
+                                    <Layer
+                                        id={`${layer.id}-cluster-count`}
+                                        source={layer.id}
+                                        type="symbol"
+                                        filter={['has', 'point_count']}
+                                        layout={{
+                                            'text-field': '{point_count_abbreviated}',
+                                            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                                            'text-size': 12
+                                        }}
+                                        paint={{ 'text-color': '#ffffff' }}
+                                    />
+                                </>
+                            )}
+                            {layer.type === 'LINE' && (
+                                <Layer
+                                    id={layer.id}
+                                    source={layer.id}
+                                    type="line"
+                                    paint={layer.style_json || {
+                                        'line-color': '#F59E0B',
+                                        'line-width': 2
+                                    }}
+                                />
+                            )}
+                            {layer.type === 'POLYGON' && (
+                                <Layer
+                                    id={layer.id}
+                                    source={layer.id}
+                                    type="fill"
+                                    paint={layer.style_json || {
+                                        'fill-color': '#10B981',
+                                        'fill-opacity': 0.4
+                                    }}
+                                />
+                            )}
+                        </Source>
+                    );
+                })}
 
                  {hoverInfo && (
                      <Popup
@@ -218,54 +265,53 @@ export default function GISMap({
                          offset={10}
                      >
                          <div className="p-2 bg-surface border border-border rounded shadow-lg min-w-[150px]">
-                             <div className="font-bold text-white text-sm mb-1">{hoverInfo.feature.properties.name || 'Unknown Asset'}</div>
-                             <div className="text-xs text-muted flex justify-between">
-                                 <span>Type:</span>
-                                 <span className="text-white">{hoverInfo.feature.properties.type || 'N/A'}</span>
-                             </div>
-                             <div className="text-xs text-muted flex justify-between">
-                                 <span>Status:</span>
-                                 <Badge status={hoverInfo.feature.properties.status || 'live'} size="sm" />
-                             </div>
+                             {hoverInfo.feature.properties.cluster ? (
+                                 <div className="font-bold text-white text-sm">Cluster ({hoverInfo.feature.properties.point_count} points)</div>
+                             ) : (
+                                 <>
+                                    <div className="font-bold text-white text-sm mb-1">{hoverInfo.feature.properties.name || 'Unknown Asset'}</div>
+                                    <div className="text-xs text-muted flex justify-between">
+                                        <span>Type:</span>
+                                        <span className="text-white">{hoverInfo.feature.properties.type || 'N/A'}</span>
+                                    </div>
+                                    <div className="text-xs text-muted flex justify-between">
+                                        <span>Status:</span>
+                                        <Badge status={hoverInfo.feature.properties.status || 'live'} size="sm" />
+                                    </div>
+                                 </>
+                             )}
                          </div>
                      </Popup>
                  )}
 
              </Map>
 
-             {/* Legend */}
+             {/* Dynamic Legend */}
              <div className="absolute bottom-6 right-6 bg-surface/90 backdrop-blur p-3 rounded border border-border text-xs z-10 pointer-events-none">
-                <div className="font-bold text-white mb-2">Map Layers</div>
+                <div className="font-bold text-white mb-2">Visible Layers</div>
                 <div className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2">
-                        <span className="w-3 h-3 rounded-full bg-blue-500 border border-white"></span>
-                        <span className="text-muted">Managed Assets</span>
-                    </div>
-                    {showWells && (
-                        <div className="flex items-center space-x-2">
-                            <span className="w-3 h-3 rounded-full bg-emerald-500 border border-emerald-900"></span>
-                            <span className="text-muted">OSM Wells</span>
+                    {activeLayers.map(l => (
+                        <div key={l.id} className="flex items-center space-x-2">
+                            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: getLayerColor(l) }}></span>
+                            <span className="text-muted">{l.name}</span>
                         </div>
-                    )}
-                    {showPipelines && (
-                        <div className="flex items-center space-x-2">
-                            <span className="w-8 h-0.5 bg-amber-500"></span>
-                            <span className="text-muted">Pipelines</span>
-                        </div>
-                    )}
-                    {showHeatmap && (
-                        <div className="flex items-center space-x-2">
-                            <span className="w-3 h-3 rounded bg-gradient-to-r from-blue-500 to-red-500 opacity-50"></span>
-                            <span className="text-muted">Econ Heatmap</span>
-                        </div>
-                    )}
+                    ))}
                 </div>
             </div>
         </div>
     );
 }
 
-// Simple Badge for Tooltip
+// Helper to extract color from style_json for legend
+function getLayerColor(layer: GISLayer): string {
+    if (layer.style_json) {
+        if (layer.style_json['circle-color']) return layer.style_json['circle-color'];
+        if (layer.style_json['line-color']) return layer.style_json['line-color'];
+        if (layer.style_json['fill-color']) return layer.style_json['fill-color'];
+    }
+    return '#ccc';
+}
+
 function Badge({ status, size }: { status: string, size?: string }) {
     const color = status === 'live' ? 'text-emerald-400' : status === 'offline' ? 'text-red-400' : 'text-amber-400';
     return <span className={`font-mono uppercase ${color}`}>{status}</span>;
