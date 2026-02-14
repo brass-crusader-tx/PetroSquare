@@ -673,3 +673,109 @@ export interface MarketEvent {
         confidence: number;
     };
 }
+
+// --- Risk & Regulatory Types (Enhanced) ---
+
+export interface Jurisdiction {
+  id: string;
+  name: string;
+  code: string; // e.g. US-TX
+  type: 'COUNTRY' | 'STATE' | 'PROVINCE' | 'COUNTY';
+  parent_id?: string;
+}
+
+export interface Regulation {
+  id: string;
+  org_id: string;
+  jurisdiction_id: string;
+  title: string;
+  description: string;
+  status: 'active' | 'pending' | 'repealed';
+  effective_date: string;
+  url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RegulationVersion {
+  id: string;
+  regulation_id: string;
+  version: number;
+  effective_date: string;
+  changes_summary: string;
+  full_text?: string;
+  created_at: string;
+}
+
+export interface Obligation {
+  id: string;
+  org_id: string;
+  regulation_id: string;
+  title: string;
+  description: string;
+  frequency?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'ANNUALLY';
+  due_day?: number;
+}
+
+export interface Control {
+  id: string;
+  org_id: string;
+  name: string;
+  description: string;
+  obligation_ids: string[];
+}
+
+export interface Assessment {
+  id: string;
+  org_id: string;
+  asset_id: string;
+  jurisdiction_id: string;
+  regulation_id: string;
+  status: 'COMPLIANT' | 'NON_COMPLIANT' | 'WARNING' | 'NOT_APPLICABLE';
+  score: number; // 0-100
+  assessed_by: string;
+  assessed_at: string;
+  notes?: string;
+}
+
+export interface Issue {
+  id: string;
+  org_id: string;
+  assessment_id?: string;
+  obligation_id?: string;
+  asset_id: string;
+  title: string;
+  description: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+  assignee_id?: string;
+  due_date?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Watchlist {
+  id: string;
+  org_id: string;
+  name: string;
+  description?: string;
+  filters: {
+    jurisdiction_ids?: string[];
+    keywords?: string[];
+    regulation_status?: string[];
+  };
+  created_by: string;
+  created_at: string;
+}
+
+export interface WatchlistEvent {
+  id: string;
+  watchlist_id: string;
+  regulation_id?: string;
+  regulation_version_id?: string;
+  type: 'REGULATION_UPDATE' | 'NEW_REGULATION' | 'STATUS_CHANGE';
+  summary: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  created_at: string;
+  is_read: boolean;
+}
