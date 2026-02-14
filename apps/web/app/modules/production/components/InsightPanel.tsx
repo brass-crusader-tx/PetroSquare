@@ -88,35 +88,40 @@ export function InsightPanel({ assetId }: { assetId: string }) {
 
               {/* Transparency Block */}
               {m.role === 'assistant' && m.meta && (
-                <div className="max-w-[85%] bg-surface-highlight/10 border-l-2 border-primary pl-3 py-2 mb-3 text-xs text-muted space-y-1">
+                <div className="max-w-[85%] bg-surface-highlight/20 border border-primary/20 rounded-r-lg rounded-bl-lg p-3 mb-3 text-xs text-muted space-y-2 shadow-sm">
                    <div className="flex items-center gap-2">
-                      <CheckCircle size={10} className="text-data-positive" />
-                      <span className="font-semibold text-data-positive">Confidence: {m.meta.confidence}</span>
+                      <div className="p-1 rounded-full bg-data-positive/10">
+                         <CheckCircle size={12} className="text-data-positive" />
+                      </div>
+                      <span className="font-bold text-data-positive">Confidence: {m.meta.confidence}</span>
                    </div>
-                   <div className="flex items-start gap-2">
-                      <Database size={10} className="mt-0.5" />
+                   <div className="flex items-start gap-2 border-t border-border pt-2">
+                      <Database size={12} className="mt-0.5 shrink-0" />
                       <div>
-                        <span className="font-semibold">Sources:</span>
-                        <ul className="list-disc list-inside ml-1 text-muted/80">
-                            {m.meta.sources?.map((s, idx) => <li key={idx}>{s}</li>)}
+                        <span className="font-bold block mb-1">Data Sources:</span>
+                        <ul className="list-disc list-inside ml-1 space-y-0.5">
+                            {m.meta.sources?.map((s, idx) => <li key={idx} className="opacity-80">{s}</li>)}
                         </ul>
                       </div>
                    </div>
-                   <div className="flex items-center gap-2">
-                      <AlertCircle size={10} />
-                      <span><span className="font-semibold">Assumptions:</span> {m.meta.assumptions}</span>
+                   <div className="flex items-start gap-2 border-t border-border pt-2">
+                      <AlertCircle size={12} className="mt-0.5 shrink-0" />
+                      <span><span className="font-bold">Assumptions:</span> {m.meta.assumptions}</span>
                    </div>
                 </div>
               )}
 
               {/* Refine Action for User messages */}
               {m.role === 'user' && (
-                  <button
-                    onClick={() => refinePrompt(m.text)}
-                    className="text-[10px] text-muted hover:text-white flex items-center gap-1 mb-3 mr-1"
-                  >
-                    <Edit2 size={8} /> Refine
-                  </button>
+                  <div className="flex justify-end mb-3 mr-1">
+                      <button
+                        onClick={() => refinePrompt(m.text)}
+                        className="text-[10px] font-medium text-muted hover:text-white hover:bg-surface-highlight/30 px-2 py-1 rounded border border-transparent hover:border-border transition-all flex items-center gap-1.5"
+                      >
+                        <Edit2 size={10} />
+                        Refine Prompt
+                      </button>
+                  </div>
               )}
             </div>
           ))}

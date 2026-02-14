@@ -128,9 +128,16 @@ export function TopHeader() {
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => { if(query.length > 1) setIsOpen(true); }}
-                    placeholder="Search or type command... (Cmd+K)"
-                    className="w-full bg-surface-highlight/20 border border-border rounded-full py-2 pl-10 pr-10 text-sm text-white focus:outline-none focus:border-primary transition-all placeholder:text-muted/50"
+                    placeholder="Search or type command..."
+                    className="w-full bg-surface-highlight/20 border border-border rounded-full py-2 pl-10 pr-20 text-sm text-white focus:outline-none focus:border-primary transition-all placeholder:text-muted/50"
                 />
+                {!query && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-1 pointer-events-none">
+                        <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border border-border bg-surface px-1.5 font-mono text-[10px] font-medium text-muted opacity-100">
+                            <span className="text-xs">⌘</span>K
+                        </kbd>
+                    </div>
+                )}
                 {query && (
                     <button
                         onClick={() => { setQuery(''); setIsOpen(false); }}
