@@ -1,103 +1,92 @@
 "use client";
 
-import React from 'react';
-import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge } from '@petrosquare/ui';
+import React, { useState } from 'react';
+import { PageContainer, SectionHeader } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
-import { IntelDeal, IntelInfrastructure, IntelRigCount } from '@petrosquare/types';
+import { IntelItem, IntelItemType } from '@petrosquare/types';
+import { IntelItemCard } from './components/IntelItemCard';
+import Link from 'next/link';
 
-export default function IntelPage() {
-  const { data: deals, loading: loadingDeals } = useData<IntelDeal[]>('/api/intel/deals');
-  const { data: infra, loading: loadingInfra } = useData<IntelInfrastructure[]>('/api/intel/infrastructure');
-  const { data: rigs, loading: loadingRigs } = useData<IntelRigCount[]>('/api/intel/rigs');
+export default function IntelFeedPage() {
+  const [query, setQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<IntelItemType | 'ALL'>('ALL');
+
+  const { data: items, loading, error } = useData<IntelItem[]>('/api/intel/feed');
+
+  const filteredItems = items?.filter(item => {
+    if (typeFilter !== 'ALL' && item.type !== typeFilter) return false;
+    if (query) {
+      const q = query.toLowerCase();
+      return (
+        item.title.toLowerCase().includes(q) ||
+        item.content_text.toLowerCase().includes(q) ||
+        item.tags.some(t => t.name.toLowerCase().includes(q)) ||
+        item.entities.some(e => e.name.toLowerCase().includes(q))
+      );
+    }
+    return true;
+  });
 
   return (
     <main className="min-h-screen bg-background text-text">
       <PageContainer>
         <SectionHeader
-            title="Market Intelligence"
-            description="Track M&A activity, infrastructure status, and drilling rig counts."
+          title="Intel Workspace"
+          description="Manage market, competitive, and operational intelligence."
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        {/* Action Bar */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+          <div className="flex gap-4 flex-wrap">
+            <Link href="/modules/intel/workspace" className="bg-primary text-white px-4 py-2 rounded text-sm hover:bg-primary-hover transition-colors">
+              + New Item
+            </Link>
+            <Link href="/modules/intel/review" className="bg-surface text-white px-4 py-2 rounded text-sm hover:bg-surface-highlight transition-colors border border-border">
+              Review Queue
+            </Link>
+            <Link href="/modules/intel/signals" className="bg-surface text-white px-4 py-2 rounded text-sm hover:bg-surface-highlight transition-colors border border-border">
+              Signals
+            </Link>
+            <Link href="/modules/intel/dashboard" className="bg-surface text-white px-4 py-2 rounded text-sm hover:bg-surface-highlight transition-colors border border-border">
+              Legacy Dashboard
+            </Link>
+          </div>
 
-            {/* Left Column: M&A */}
-            <div className="lg:col-span-1 space-y-6">
-                <DataPanel title="M&A Watchlist" loading={loadingDeals}>
-                    <div className="space-y-4">
-                        {deals?.map(deal => (
-                            <div key={deal.id} className="bg-surface-highlight/10 p-4 rounded border border-border">
-                                <div className="flex justify-between items-start mb-2">
-                                    <Badge status="live">{deal.asset_type}</Badge>
-                                    <span className="text-xs text-muted font-mono">{deal.date}</span>
-                                </div>
-                                <div className="text-sm font-bold text-white mb-1">
-                                    {deal.buyer} acquires {deal.seller}
-                                </div>
-                                <div className="text-lg font-mono text-data-positive mb-2">
-                                    ${(deal.value_usd_m / 1000).toFixed(1)}B
-                                </div>
-                                <p className="text-xs text-muted leading-relaxed">
-                                    {deal.description}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </DataPanel>
-
-                <DataPanel title="Rig Count Overview" loading={loadingRigs}>
-                     <div className="grid grid-cols-2 gap-4">
-                        {rigs?.map(r => (
-                             <div key={r.region} className="bg-surface-highlight/10 p-3 rounded border border-border flex justify-between items-center">
-                                 <div>
-                                     <div className="text-xs text-muted uppercase">{r.region}</div>
-                                     <div className="text-xl font-mono text-white font-bold">{r.count}</div>
-                                 </div>
-                                 <div className={`text-xs font-mono ${r.change_weekly >= 0 ? 'text-data-positive' : 'text-data-critical'}`}>
-                                     {r.change_weekly > 0 ? '+' : ''}{r.change_weekly}
-                                 </div>
-                             </div>
-                        ))}
-                     </div>
-                </DataPanel>
-            </div>
-
-            {/* Right Column: Infrastructure */}
-            <div className="lg:col-span-1 space-y-6">
-                <DataPanel title="Infrastructure Status" loading={loadingInfra}>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-muted uppercase bg-surface-highlight/10 border-b border-border">
-                                <tr>
-                                    <th className="px-4 py-3">Facility</th>
-                                    <th className="px-4 py-3">Type</th>
-                                    <th className="px-4 py-3 text-right">Capacity</th>
-                                    <th className="px-4 py-3 text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {infra?.map((item) => (
-                                    <tr key={item.id} className="border-b border-border hover:bg-surface-highlight/5">
-                                        <td className="px-4 py-3">
-                                            <div className="font-medium text-white">{item.name}</div>
-                                            <div className="text-xs text-muted">{item.location}</div>
-                                        </td>
-                                        <td className="px-4 py-3 text-xs font-mono text-muted">{item.type}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-white">
-                                            {item.capacity.toLocaleString()} <span className="text-xs text-muted">{item.unit}</span>
-                                        </td>
-                                        <td className="px-4 py-3 text-center">
-                                            <Badge status={item.status === 'OPERATIONAL' ? 'live' : item.status === 'MAINTENANCE' ? 'declared' : 'beta'}>
-                                                {item.status}
-                                            </Badge>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </DataPanel>
-            </div>
+          <div className="flex gap-2 w-full md:w-auto">
+             <input
+                type="text"
+                placeholder="Search..."
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                className="bg-surface border border-border rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-primary w-full md:w-64"
+             />
+             <select
+                value={typeFilter}
+                onChange={e => setTypeFilter(e.target.value as any)}
+                className="bg-surface border border-border rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
+             >
+                <option value="ALL">All Types</option>
+                <option value="NOTE">Note</option>
+                <option value="LINK">Link</option>
+                <option value="REPORT">Report</option>
+             </select>
+          </div>
         </div>
+
+        {error && <div className="text-data-critical mb-4">Error loading feed: {error}</div>}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+             <div className="col-span-full text-center py-10 text-muted">Loading feed...</div>
+          ) : filteredItems && filteredItems.length > 0 ? (
+             filteredItems.map(item => (
+                <IntelItemCard key={item.id} item={item} />
+             ))
+          ) : (
+             <div className="col-span-full text-center py-10 text-muted">No items found. Create your first intel item!</div>
+          )}
+        </div>
+
       </PageContainer>
     </main>
   );
