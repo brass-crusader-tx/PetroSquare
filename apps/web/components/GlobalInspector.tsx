@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Drawer, IconButton, Badge, Button } from '@petrosquare/ui';
 import type { HealthResponse, MetaResponse, Capability } from '@petrosquare/types';
 import { useDensity } from '../context/DensityContext';
+import { Settings, Activity, Copy, Check, Terminal } from 'lucide-react';
 
 export function GlobalInspector() {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,24 +30,20 @@ export function GlobalInspector() {
     }
   }, [isOpen]);
 
-  // Open automatically if inspectMode is on? No, that would be annoying.
-  // But inspectMode might show inline details. The Drawer is separate.
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
   return (
     <>
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-6 right-6 z-40 lg:right-20">
         <IconButton
           onClick={() => setIsOpen(true)}
-          className="bg-surface border border-border shadow-lg rounded-full h-12 w-12 hover:bg-surface-highlight"
+          className="bg-surface border border-white/10 shadow-2xl rounded-full h-10 w-10 hover:bg-surface-highlight hover:scale-110 transition-transform"
           title="Open System Inspector"
+          variant="surface"
         >
-          <svg className="w-6 h-6 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <Settings size={18} className="text-muted" />
         </IconButton>
       </div>
 
@@ -55,34 +52,36 @@ export function GlobalInspector() {
         <div className="space-y-6">
           {/* Route Context */}
           <section>
-            <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">Current Context</h3>
-            <div className="bg-black/30 p-3 rounded border border-border font-mono text-sm text-blue-400 break-all">
+            <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider flex items-center gap-2">
+                <Terminal size={12} /> Current Context
+            </h3>
+            <div className="bg-black/30 p-3 rounded-lg border border-white/5 font-mono text-sm text-blue-400 break-all shadow-inner">
               {pathname}
             </div>
-            <div className="mt-2 flex items-center space-x-2 text-xs text-muted">
+            <div className="mt-2 flex items-center space-x-2 text-xs text-muted font-mono">
                <span>Density: <span className="text-white">{density}</span></span>
-               <span className="mx-1">•</span>
-               <span>Inspect Mode: <span className={inspectMode ? "text-data-warning" : "text-white"}>{inspectMode ? 'ON' : 'OFF'}</span></span>
+               <span className="mx-1 opacity-30">|</span>
+               <span>Inspect: <span className={inspectMode ? "text-data-warning" : "text-white"}>{inspectMode ? 'ON' : 'OFF'}</span></span>
             </div>
           </section>
 
           {/* Health Check */}
           <section>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold uppercase text-muted tracking-wider">Health Status</h3>
+              <h3 className="text-xs font-bold uppercase text-muted tracking-wider flex items-center gap-2">
+                  <Activity size={12} /> Health Status
+              </h3>
               <IconButton
                 size="sm"
                 variant="ghost"
                 onClick={() => copyToClipboard(JSON.stringify(health, null, 2))}
                 title="Copy JSON"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
+                <Copy size={12} />
               </IconButton>
             </div>
             {health ? (
-               <div className="bg-black/30 p-3 rounded border border-border space-y-2">
+               <div className="bg-black/30 p-3 rounded-lg border border-white/5 space-y-2 shadow-inner">
                  <div className="flex justify-between items-center">
                    <span className="text-xs text-muted">Status</span>
                    <Badge status={health.status === 'ok' ? 'live' : 'error'} />
@@ -91,12 +90,12 @@ export function GlobalInspector() {
                    <span className="text-xs text-muted">Version</span>
                    <span className="text-xs font-mono text-white">{health.version}</span>
                  </div>
-                 <div className="text-xs text-muted pt-1 border-t border-dashed border-border mt-1">
+                 <div className="text-[10px] text-muted/50 pt-2 border-t border-dashed border-white/5 mt-2 font-mono text-right">
                    {new Date(health.timestamp).toLocaleString()}
                  </div>
                </div>
             ) : (
-              <div className="text-xs text-muted italic">Loading...</div>
+              <div className="text-xs text-muted italic animate-pulse">Checking system health...</div>
             )}
           </section>
 
@@ -110,24 +109,22 @@ export function GlobalInspector() {
                 onClick={() => copyToClipboard(JSON.stringify(meta, null, 2))}
                 title="Copy JSON"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
+                <Copy size={12} />
               </IconButton>
             </div>
             {meta ? (
-               <div className="bg-black/30 p-3 rounded border border-border space-y-2 font-mono text-xs">
+               <div className="bg-black/30 p-3 rounded-lg border border-white/5 space-y-2 font-mono text-xs shadow-inner">
                  <div className="flex flex-col">
-                   <span className="text-muted text-[10px] uppercase">Commit</span>
-                   <span className="text-white break-all">{meta.commit}</span>
+                   <span className="text-muted text-[10px] uppercase tracking-wider mb-0.5">Commit</span>
+                   <span className="text-white break-all bg-white/5 px-1.5 py-0.5 rounded">{meta.commit}</span>
                  </div>
                  <div className="flex flex-col">
-                   <span className="text-muted text-[10px] uppercase">Environment</span>
-                   <span className="text-white">{meta.environment}</span>
+                   <span className="text-muted text-[10px] uppercase tracking-wider mb-0.5">Environment</span>
+                   <span className="text-primary">{meta.environment}</span>
                  </div>
                </div>
             ) : (
-               <div className="text-xs text-muted italic">Loading...</div>
+               <div className="text-xs text-muted italic animate-pulse">Loading metadata...</div>
             )}
           </section>
 
@@ -136,40 +133,40 @@ export function GlobalInspector() {
             <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">Capabilities</h3>
              <div className="space-y-2">
                {capabilities.map(cap => (
-                 <div key={cap.id} className="bg-surface-highlight/10 p-2 rounded border border-border flex items-center justify-between">
-                   <span className="text-xs text-white">{cap.title}</span>
-                   <Badge status={cap.status} className="scale-75 origin-right" />
+                 <div key={cap.id} className="bg-surface-highlight/10 p-2.5 rounded-lg border border-white/5 flex items-center justify-between hover:bg-surface-highlight/20 transition-colors">
+                   <span className="text-xs text-white font-medium">{cap.title}</span>
+                   <Badge status={cap.status} className="scale-90 origin-right" />
                  </div>
                ))}
              </div>
           </section>
 
-          <section className="pt-4 border-t border-border">
-             <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">Production & Reserves</h3>
+          <section className="pt-4 border-t border-white/5">
+             <h3 className="text-xs font-bold uppercase text-muted mb-3 tracking-wider">Production APIs</h3>
              <div className="space-y-2 mb-4">
                 <div className="flex justify-between items-center text-xs">
                    <span className="text-muted">EIA Last Fetch</span>
-                   <span className="text-white font-mono">{lastEiaFetch ? new Date(lastEiaFetch).toLocaleTimeString() : 'N/A'}</span>
+                   <span className="text-white font-mono bg-white/5 px-1.5 rounded">{lastEiaFetch ? new Date(lastEiaFetch).toLocaleTimeString() : 'N/A'}</span>
                 </div>
                  <div className="flex justify-between items-center text-xs">
                    <span className="text-muted">CER Last Fetch</span>
-                   <span className="text-white font-mono">{lastCerFetch ? new Date(lastCerFetch).toLocaleTimeString() : 'N/A'}</span>
+                   <span className="text-white font-mono bg-white/5 px-1.5 rounded">{lastCerFetch ? new Date(lastCerFetch).toLocaleTimeString() : 'N/A'}</span>
                 </div>
              </div>
              <div className="grid grid-cols-2 gap-2">
-                  <Button variant="secondary" className="text-[10px] px-2 py-1 h-auto" onClick={() => copyToClipboard('/api/data/production-reserves/regions')}>Copy Regions API</Button>
-                  <Button variant="secondary" className="text-[10px] px-2 py-1 h-auto" onClick={() => copyToClipboard('/api/data/production-reserves/top-producers?kind=US_STATE')}>Copy Top Prod API</Button>
-                  <Button variant="secondary" className="text-[10px] px-2 py-1 h-auto" onClick={() => copyToClipboard('/api/data/production-reserves/production?kind=US_STATE&code=TX')}>Copy Prod API</Button>
-                  <Button variant="secondary" className="text-[10px] px-2 py-1 h-auto" onClick={() => copyToClipboard('/api/data/production-reserves/reserves?kind=US_STATE&code=TX')}>Copy Resv API</Button>
+                  <Button variant="secondary" size="sm" className="text-[10px] h-8 justify-start" onClick={() => copyToClipboard('/api/data/production-reserves/regions')}>Copy Regions</Button>
+                  <Button variant="secondary" size="sm" className="text-[10px] h-8 justify-start" onClick={() => copyToClipboard('/api/data/production-reserves/top-producers?kind=US_STATE')}>Copy Top Prod</Button>
+                  <Button variant="secondary" size="sm" className="text-[10px] h-8 justify-start" onClick={() => copyToClipboard('/api/data/production-reserves/production?kind=US_STATE&code=TX')}>Copy Prod</Button>
+                  <Button variant="secondary" size="sm" className="text-[10px] h-8 justify-start" onClick={() => copyToClipboard('/api/data/production-reserves/reserves?kind=US_STATE&code=TX')}>Copy Resv</Button>
               </div>
           </section>
 
-          <section className="pt-4 border-t border-border">
+          <section className="pt-4 border-t border-white/5">
              <h3 className="text-xs font-bold uppercase text-muted mb-2 tracking-wider">System Contracts</h3>
-             <div className="space-y-2">
-                <a href="/api/health" target="_blank" className="block text-xs font-mono text-primary hover:underline">GET /api/health</a>
-                <a href="/api/meta" target="_blank" className="block text-xs font-mono text-primary hover:underline">GET /api/meta</a>
-                <a href="/api/capabilities" target="_blank" className="block text-xs font-mono text-primary hover:underline">GET /api/capabilities</a>
+             <div className="space-y-1">
+                <a href="/api/health" target="_blank" className="block text-xs font-mono text-primary hover:text-white transition-colors py-1">GET /api/health</a>
+                <a href="/api/meta" target="_blank" className="block text-xs font-mono text-primary hover:text-white transition-colors py-1">GET /api/meta</a>
+                <a href="/api/capabilities" target="_blank" className="block text-xs font-mono text-primary hover:text-white transition-colors py-1">GET /api/capabilities</a>
              </div>
           </section>
 

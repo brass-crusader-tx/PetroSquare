@@ -11,12 +11,12 @@ export function InlineMetricBlock({ label, value, trend, className }: InlineMetr
   let valueColor = 'text-white';
   if (trend === 'positive') valueColor = 'text-data-positive';
   if (trend === 'negative') valueColor = 'text-data-critical';
-  if (trend === 'neutral') valueColor = 'text-data-neutral';
+  if (trend === 'neutral') valueColor = 'text-muted';
 
   return (
-    <div className={`flex flex-col border-l-2 border-border pl-3 ${className || ''}`}>
-      <span className="text-xs font-medium text-muted uppercase tracking-wider font-sans">{label}</span>
-      <span className={`text-xl font-mono font-bold ${valueColor}`}>{value}</span>
+    <div className={`flex flex-col border-l-2 border-white/10 pl-4 py-1 hover:bg-white/5 transition-colors rounded-r-lg pr-2 ${className || ''}`}>
+      <span className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">{label}</span>
+      <span className={`text-lg font-mono font-medium tracking-tight ${valueColor}`}>{value}</span>
     </div>
   );
 }

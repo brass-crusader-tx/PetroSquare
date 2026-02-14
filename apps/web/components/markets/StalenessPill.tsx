@@ -7,7 +7,7 @@ export function StalenessPill({ asOf }: { asOf: string }) {
     const isStale = diff > 60000 * 15; // 15 mins
 
     return (
-        <span className={`text-[10px] font-mono flex items-center gap-1 ${isStale ? 'text-rose-400' : 'text-slate-400'}`}>
+        <span className={`text-[10px] font-mono flex items-center gap-1.5 px-2 py-1 rounded-full border ${isStale ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${isStale ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}`}></span>
             {isStale ? 'STALE' : 'LIVE'} • {date.toLocaleTimeString()}
         </span>
