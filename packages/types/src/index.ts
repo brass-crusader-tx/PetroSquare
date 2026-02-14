@@ -59,6 +59,7 @@ export interface MetaResponse {
   commit: string;
   environment: string;
   timestamp: string;
+  transform_version?: string;
 }
 
 export type CapabilityStatus = 'live' | 'declared' | 'beta';
@@ -258,7 +259,8 @@ export interface FuturesCurve {
   symbol: string;
   name: string;
   points: FuturesCurvePoint[];
-  last_updated: string;
+  last_updated: string; // Keep for backward compat, but use asOf in new types
+  asOf?: string; // Add optional asOf for compatibility
 }
 
 export interface CrackSpread {
@@ -521,4 +523,153 @@ export interface JobStatus {
   error?: string;
   created_at: string;
   updated_at: string;
+}
+
+// --- Markets & Trading Analytics - Blueprint Types ---
+
+export interface Instrument {
+    id: string;
+    type: 'CRUDE' | 'NATGAS' | 'POWER' | 'REFINED' | 'EMISSIONS' | 'EQUITY' | 'FX';
+    symbol: string;
+    exchange_symbol?: string;
+    name: string;
+    region: string;
+    unit: string;
+    currency: string;
+    timezone: string;
+}
+
+export interface PricePoint {
+    instrumentId: string;
+    ts: string;
+    price: number;
+    unit: string;
+    currency: string;
+    source: string;
+    qualityFlags: string[];
+}
+
+export interface PriceSeries {
+    instrumentId: string;
+    granularity: 'TICK' | '1M' | '1H' | '1D';
+    points: PricePoint[];
+}
+
+export interface ForwardCurvePoint {
+    instrumentId: string;
+    deliveryStart: string;
+    deliveryEnd: string;
+    price: number;
+    unit: string;
+    currency: string;
+    asOf: string;
+}
+
+export interface ForwardCurve {
+    instrumentId: string;
+    asOf: string;
+    points: ForwardCurvePoint[];
+}
+
+export interface Position {
+    id: string;
+    book: string;
+    strategy: string;
+    instrumentId: string;
+    type: 'PHYSICAL' | 'FINANCIAL';
+    qty: number;
+    unit: string;
+    avgPrice: number;
+    currency: string;
+    start: string;
+    end: string;
+    tags: string[];
+}
+
+export interface HedgeLink {
+    id: string;
+    physicalPositionId: string;
+    hedgePositionId: string;
+    hedgeRatio: number;
+    rationale: string;
+    createdBy: string;
+    createdAt: string;
+}
+
+export interface ProvenanceRef {
+    sourceSystem: string;
+    sourceType: 'EXCHANGE' | 'VENDOR' | 'INTERNAL' | 'NEWS';
+    sourceRef?: string;
+    ingestedAt: string;
+    asOf: string;
+    transformVersion?: string;
+    checksum?: string;
+    notes?: string;
+}
+
+export interface ConfidenceInterval {
+    low: number;
+    mid: number;
+    high: number;
+    level: number; // 0.95 etc
+}
+
+export interface AnalyticsResultEnvelope<T> {
+    id: string;
+    kind: 'SPREAD' | 'ARBITRAGE' | 'VAR' | 'CVAR' | 'GREEKS' | 'PRICING' | 'STRESS' | 'ESG' | 'SIGNAL';
+    asOf: string;
+    unit?: string;
+    value: T;
+    status: 'OK' | 'DEGRADED' | 'PENDING' | 'FAILED';
+    confidenceInterval?: ConfidenceInterval | null;
+    provenance: ProvenanceRef[];
+    warnings?: string[];
+}
+
+export interface ScenarioRun {
+    id: string;
+    userId: string;
+    createdAt: string;
+    mode: 'SANDBOX' | 'LIVE';
+    inputs: Record<string, unknown>;
+    inputsHash: string;
+    status: 'QUEUED' | 'RUNNING' | 'COMPLETE' | 'FAILED';
+    outputs?: AnalyticsResultEnvelope<unknown>[];
+}
+
+export interface EmissionFactor {
+    commodity: string;
+    process: string;
+    region: string;
+    factor: number;
+    unit: string; // e.g. kgCO2e/bbl
+    source: string;
+    effectiveDate: string;
+}
+
+export interface CarbonPriceSeries {
+    region: string;
+    price: number;
+    unit: string;
+    currency: string;
+    asOf: string;
+}
+
+export interface MarketEvent {
+    id: string;
+    ts: string;
+    title: string;
+    summary: string;
+    regions: string[];
+    commodities: string[];
+    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    tags: string[];
+    source: string;
+    urlRef?: string;
+    provenance?: ProvenanceRef;
+    impact?: {
+        instrumentIds: string[];
+        description: string;
+        confidence: number;
+    };
 }
