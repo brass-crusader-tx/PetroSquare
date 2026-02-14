@@ -356,3 +356,89 @@ export interface RiskAlert {
   timestamp: string;
   acknowledged: boolean;
 }
+
+// --- Control Center Types ---
+
+export interface TelemetryPoint {
+  timestamp: string;
+  value: number;
+  unit: string;
+  tag: string;
+  quality: 'GOOD' | 'BAD' | 'UNCERTAIN';
+}
+
+export interface ControlAsset extends Asset {
+  healthScore: number; // 0-100
+  lastContact: string;
+  activeAlarms: number;
+  telemetry?: TelemetryPoint[]; // Latest snapshot
+}
+
+export type AlertSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+export type AlertStatus = 'ACTIVE' | 'ACKNOWLEDGED' | 'RESOLVED';
+
+export interface Alert {
+  id: string;
+  title: string;
+  severity: AlertSeverity;
+  status: AlertStatus;
+  assetId: string;
+  assetName: string;
+  timestamp: string;
+  assigneeId?: string;
+  type: 'THRESHOLD' | 'ANOMALY' | 'SYSTEM';
+  description: string;
+}
+
+export interface WorkflowStep {
+  id: string;
+  action: string;
+  targetId?: string;
+  params?: Record<string, unknown>;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED';
+}
+
+export type WorkflowStatus = 'DRAFT' | 'SIMULATING' | 'COMMITTED' | 'FAILED';
+
+export interface Workflow {
+  id: string;
+  title: string;
+  description?: string;
+  status: WorkflowStatus;
+  steps: WorkflowStep[];
+  createdAt: string;
+  createdBy: string;
+  simulatedImpact?: {
+    riskScoreChange: number;
+    costEstimate: number;
+    timeline: string;
+  };
+}
+
+export interface WorkflowDraft {
+  title: string;
+  description?: string;
+  sourceAlertId?: string;
+  sourceAssetId?: string;
+}
+
+export interface AuditEvent {
+  id: string;
+  eventType: 'ACK_ALERT' | 'ASSIGN_ALERT' | 'CREATE_WORKFLOW' | 'COMMIT_WORKFLOW' | 'LOGIN' | 'SYSTEM_CHANGE';
+  timestamp: string;
+  actorId: string;
+  details: Record<string, unknown>;
+  correlationId?: string; // Links related events (e.g. alert -> workflow -> commit)
+}
+
+export interface ControlCenterAssistSource {
+  title: string;
+  url: string;
+  snippet: string;
+}
+
+export interface ControlCenterAssistResponse {
+  answer: string;
+  confidence: number;
+  sources: ControlCenterAssistSource[];
+}
