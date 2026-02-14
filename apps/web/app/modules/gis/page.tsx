@@ -5,7 +5,9 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Badge, DetailDrawer, getStandardTabs } from '@petrosquare/ui';
 import { Basin, GISAsset, AISummary } from '@petrosquare/types';
+import { GISLayer } from '@/lib/gis/types';
 import FilterPanel from './components/FilterPanel';
+import LayerControl from './components/LayerControl';
 import AISummaryPanel from './components/AISummary';
 
 // Dynamically import Map to avoid SSR window issues
@@ -15,59 +17,49 @@ export default function GISPage() {
 
   // --- State ---
   const [basins, setBasins] = useState<Basin[]>([]);
-  const [assets, setAssets] = useState<GISAsset[]>([]);
+
+  // Layer Management
+  const [layers, setLayers] = useState<GISLayer[]>([]);
+  const [activeLayerIds, setActiveLayerIds] = useState<string[]>([]);
+  const [loadingLayers, setLoadingLayers] = useState(true);
 
   const [selectedBasinId, setSelectedBasinId] = useState<string>('b-permian');
   const [selectedAsset, setSelectedAsset] = useState<GISAsset | null>(null);
 
-  const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<AISummary | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
 
-  // Layer Toggles
-  const [showWells, setShowWells] = useState(true);
-  const [showPipelines, setShowPipelines] = useState(true);
-  const [showHeatmap, setShowHeatmap] = useState(false);
-  const [showCarbon, setShowCarbon] = useState(false);
-
   // --- Effects ---
 
-  // Initial Load
+  // Initial Load: Basins & Layers
   useEffect(() => {
     async function init() {
       try {
-        const basinsRes = await fetch('/api/gis/basins').then(r => r.json());
+        const [basinsRes, layersRes] = await Promise.all([
+             fetch('/api/gis/basins').then(r => r.json()),
+             fetch('/api/gis/layers').then(r => r.json())
+        ]);
+
         if (basinsRes.status === 'ok') setBasins(basinsRes.data);
+        if (layersRes.status === 'ok') {
+            const allLayers = layersRes.data as GISLayer[];
+            setLayers(allLayers);
+            // Default active layers: Wells, Pipelines
+            setActiveLayerIds(allLayers.filter(l => l.id === 'l-wells' || l.id === 'l-pipelines').map(l => l.id));
+        }
       } catch (e) {
         console.error("Failed to init GIS module", e);
+      } finally {
+        setLoadingLayers(false);
       }
     }
     init();
   }, []);
 
-  // Fetch Assets on Basin Change
+  // Fetch Basin Summary on change
   useEffect(() => {
     if (!selectedBasinId) return;
-
-    async function loadAssets() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/gis/assets?basin_id=${selectedBasinId}`);
-        const json = await res.json();
-        if (json.status === 'ok') {
-          setAssets(json.data);
-        }
-      } catch (e) {
-        console.error("Failed to load assets", e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadAssets();
-
-    // Also fetch Basin Summary
     fetchBasinSummary(selectedBasinId);
-
   }, [selectedBasinId]);
 
   const fetchBasinSummary = async (id: string) => {
@@ -89,6 +81,12 @@ export default function GISPage() {
   const selectedBasin = basins.find(b => b.id === selectedBasinId);
   const center: [number, number] | undefined = selectedBasin ? selectedBasin.center : undefined;
 
+  const activeLayers = layers.filter(l => activeLayerIds.includes(l.id));
+
+  const toggleLayer = (id: string) => {
+      setActiveLayerIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
   return (
     <main className="h-screen w-screen bg-background text-text flex flex-col overflow-hidden">
        {/* Header */}
@@ -100,9 +98,9 @@ export default function GISPage() {
            </div>
            <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-4 text-xs font-mono text-muted">
-                  <span>Assets: {assets.length}</span>
+                  <span>Layers: {layers.length}</span>
                   <span className="h-4 w-px bg-border"></span>
-                  <span>Latency: 12ms</span>
+                  <span>Active: {activeLayerIds.length}</span>
               </div>
            </div>
        </header>
@@ -112,21 +110,33 @@ export default function GISPage() {
 
            {/* Left Panel - Filters */}
            <div className="w-80 bg-surface border-r border-border flex flex-col z-10 p-4 space-y-4 overflow-y-auto shrink-0">
+               {/* Reuse FilterPanel just for Basin selection for now, pass dummy props for toggles */}
                <FilterPanel
                   basins={basins}
                   selectedBasinId={selectedBasinId}
                   onSelectBasin={setSelectedBasinId}
                   onRefresh={() => setSelectedBasinId(selectedBasinId)}
 
-                  showWells={showWells}
-                  setShowWells={setShowWells}
-                  showPipelines={showPipelines}
-                  setShowPipelines={setShowPipelines}
-                  showHeatmap={showHeatmap}
-                  setShowHeatmap={setShowHeatmap}
-                  showCarbon={showCarbon}
-                  setShowCarbon={setShowCarbon}
+                  // Deprecated props (noop)
+                  showWells={false} setShowWells={() => {}}
+                  showPipelines={false} setShowPipelines={() => {}}
+                  showHeatmap={false} setShowHeatmap={() => {}}
+                  showCarbon={false} setShowCarbon={() => {}}
                />
+
+               {/* New Layer Control */}
+               <div className="border-t border-border pt-4">
+                  <h2 className="text-xs uppercase text-muted mb-2 font-bold">Layer Registry</h2>
+                  {loadingLayers ? (
+                      <div className="text-xs text-muted animate-pulse">Loading Layers...</div>
+                  ) : (
+                      <LayerControl
+                          layers={layers}
+                          activeLayerIds={activeLayerIds}
+                          onToggleLayer={toggleLayer}
+                      />
+                  )}
+               </div>
 
                <AISummaryPanel
                   title={`Basin Intelligence: ${selectedBasin?.code || ''}`}
@@ -140,22 +150,17 @@ export default function GISPage() {
            <div className="flex-1 relative bg-black">
                <GISMap
                   basins={basins}
-                  assets={assets}
+                  activeLayers={activeLayers}
                   selectedAssetId={selectedAsset?.id}
                   onAssetSelect={setSelectedAsset}
                   center={center}
                   zoom={selectedBasinId === 'b-permian' ? 6 : 5}
-
-                  showWells={showWells}
-                  showPipelines={showPipelines}
-                  showHeatmap={showHeatmap}
-                  showCarbon={showCarbon}
                />
 
                {/* Overlay Loading State */}
-               {loading && (
+               {loadingLayers && (
                    <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-surface/80 backdrop-blur px-4 py-2 rounded border border-primary text-xs text-primary animate-pulse z-[400]">
-                       Updating Geospatial Index...
+                       Loading GIS Module...
                    </div>
                )}
            </div>
