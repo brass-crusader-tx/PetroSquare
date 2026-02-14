@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Bell, Settings, Menu, X, ArrowRight, MapPin, BarChart2, FileText, Layers } from 'lucide-react';
+import { Search, Bell, Settings, Menu, X, ArrowRight, MapPin, BarChart2, FileText, Layers, Zap } from 'lucide-react';
 import { IconButton } from './IconButton';
 import { SEARCH_INDEX, SearchItem } from './searchIndex';
 
@@ -11,6 +11,20 @@ export function TopHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Command Palette Shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            inputRef.current?.focus();
+            setIsOpen(true);
+        }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Debounce Search
   useEffect(() => {
@@ -65,7 +79,20 @@ export function TopHeader() {
   };
 
   const handleSelect = (item: SearchItem) => {
-      window.location.href = item.href;
+      if (item.type === 'ACTION') {
+          // Mock action handling
+          if (item.href === '#toggle-theme') {
+             // In a real app, this would use a context.
+             // But for now, just mock.
+             alert("Theme toggled (Mock)");
+          } else if (item.href === '#logout') {
+             alert("Logged out (Mock)");
+          } else {
+             window.location.href = item.href;
+          }
+      } else {
+          window.location.href = item.href;
+      }
       setIsOpen(false);
       setQuery('');
   };
@@ -76,6 +103,7 @@ export function TopHeader() {
           case 'METRIC': return <BarChart2 size={14} className="text-data-positive" />;
           case 'BASIN': return <MapPin size={14} className="text-data-warning" />;
           case 'PAGE': return <FileText size={14} className="text-muted" />;
+          case 'ACTION': return <Zap size={14} className="text-yellow-400" />;
           default: return <Search size={14} className="text-muted" />;
       }
   };
@@ -94,12 +122,13 @@ export function TopHeader() {
                     <Search size={16} />
                 </span>
                 <input
+                    ref={inputRef}
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => { if(query.length > 1) setIsOpen(true); }}
-                    placeholder="Search assets, wells, or reports..."
+                    placeholder="Search or type command... (Cmd+K)"
                     className="w-full bg-surface-highlight/20 border border-border rounded-full py-2 pl-10 pr-10 text-sm text-white focus:outline-none focus:border-primary transition-all placeholder:text-muted/50"
                 />
                 {query && (
