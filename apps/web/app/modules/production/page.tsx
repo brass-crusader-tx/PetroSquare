@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge, IconButton, DetailDrawer, getStandardTabs, InsightCard } from '@petrosquare/ui';
-import { useData } from '../../../lib/hooks';
+import { useData } from '@/lib/hooks';
 import { TopProducersResponse } from '@petrosquare/types';
 import Link from 'next/link';
 

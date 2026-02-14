@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts';
 import { DataPanel } from '@petrosquare/ui';
+import { Anomaly } from '@petrosquare/types';
 
-export function ProductionChart({ oil, gas, water }: { oil: any[], gas: any[], water: any[] }) {
+export function ProductionChart({ oil, gas, water, anomalies = [] }: { oil: any[], gas: any[], water: any[], anomalies?: Anomaly[] }) {
   const [logScale, setLogScale] = useState(false);
 
   // Combine data by date
@@ -40,6 +41,15 @@ export function ProductionChart({ oil, gas, water }: { oil: any[], gas: any[], w
             <Line yAxisId="left" type="monotone" dataKey="oil" stroke="#10B981" dot={false} name="Oil (bbl/d)" strokeWidth={2} />
             <Line yAxisId="right" type="monotone" dataKey="gas" stroke="#EF4444" dot={false} name="Gas (mcf/d)" strokeWidth={2} />
             <Bar yAxisId="left" dataKey="water" fill="#3B82F6" name="Water (bbl/d)" opacity={0.3} />
+            {anomalies.map(a => (
+              <ReferenceLine
+                key={a.id}
+                x={a.timestamp.slice(0, 10)}
+                stroke={a.severity === 'HIGH' ? '#EF4444' : (a.severity === 'MEDIUM' ? '#F59E0B' : '#3B82F6')}
+                strokeDasharray="3 3"
+                label={{ value: '!', position: 'insideTop', fill: a.severity === 'HIGH' ? '#EF4444' : '#F59E0B', fontSize: 14, fontWeight: 'bold' }}
+              />
+            ))}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
