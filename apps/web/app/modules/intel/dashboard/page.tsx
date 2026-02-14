@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge } from '@petrosquare/ui';
-import { useData } from '../../../lib/hooks';
+import { useData } from '../../../../lib/hooks';
 import { IntelDeal, IntelInfrastructure, IntelRigCount } from '@petrosquare/types';
 
 export default function IntelPage() {
