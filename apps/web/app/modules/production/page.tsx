@@ -1,19 +1,52 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge, IconButton, DetailDrawer, getStandardTabs, InsightCard } from '@petrosquare/ui';
+import {
+  StandardPage,
+  DataPanel,
+  Badge,
+  IntelligenceBlock,
+  useDrawer,
+  getStandardTabs
+} from '@petrosquare/ui';
 import { useData } from '@/lib/hooks';
 import { TopProducersResponse } from '@petrosquare/types';
 import Link from 'next/link';
+import { MapPin, Activity } from 'lucide-react';
+
+// Helper component for Tabbed content inside Drawer
+function TabbedDrawerContent({ tabs }: { tabs: { id: string, label: string, content: React.ReactNode }[] }) {
+  const [activeTab, setActiveTab] = useState(tabs[0]?.id);
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex border-b border-border bg-surface-highlight/5 shrink-0 overflow-x-auto no-scrollbar">
+          {tabs.map(tab => (
+              <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id ? 'border-primary text-white' : 'border-transparent text-muted hover:text-white'}`}
+              >
+                  {tab.label}
+              </button>
+          ))}
+      </div>
+      <div className="flex-1 overflow-y-auto p-4">
+        {tabs.find(t => t.id === activeTab)?.content}
+      </div>
+    </div>
+  );
+}
 
 export default function ProductionPage() {
   const [country, setCountry] = useState<'US' | 'CA'>('US');
   const { data: regions, loading: loadingRegions } = useData<TopProducersResponse>(`/api/production/regions?country=${country}`);
-  const { data: basins, loading: loadingBasins } = useData<any[]>('/api/production/basins'); // Type is any[] for now due to connector mock
+  const { data: basins, loading: loadingBasins } = useData<any[]>('/api/production/basins');
 
-  const [insight, setInsight] = useState<string | null>(null);
+  const [insight, setInsight] = useState<string>("");
   const [loadingInsight, setLoadingInsight] = useState(false);
-  const [selectedBasin, setSelectedBasin] = useState<string | null>(null);
+
+  const { openDrawer } = useDrawer();
 
   useEffect(() => {
       if (regions && !insight && !loadingInsight) {
@@ -28,16 +61,6 @@ export default function ProductionPage() {
           Top region: ${data.rows[0]?.region.name} with ${data.rows[0]?.latest_value} ${data.units}.
           Provide a brief executive summary on production trends.`;
 
-          // Use the generic AI insight for landing page, or production specific if asset context is needed.
-          // Since this is high level, generic /api/ai/insight (if exists) or our new one if we pass a dummy asset_id?
-          // Our new route requires asset_id. So let's stick to the old one for Landing Page if it works,
-          // OR better: use our new route but we need an asset context.
-          // Actually, let's leave the landing page insight as is (using /api/ai/insight if it exists, otherwise it fails gracefully).
-          // Wait, I should probably check if /api/ai/insight exists.
-          // If not, I should create it or point to a valid route.
-          // Given constraints, I'll assume the previous code worked or I leave it be.
-          // BUT, I will add a "Global Insight" capability later if needed.
-
           const res = await fetch('/api/ai/insight', { method: 'POST', body: JSON.stringify({ prompt }) });
           if (res.ok) {
             const json = await res.json();
@@ -46,32 +69,79 @@ export default function ProductionPage() {
       } catch(e) { console.error(e); } finally { setLoadingInsight(false); }
   }
 
+  const handleBasinClick = (basinName: string, value: string) => {
+    const tabs = getStandardTabs({ name: basinName, value, units: 'bbl/d' });
+    openDrawer(
+      <TabbedDrawerContent tabs={tabs} />,
+      {
+        title: `${basinName} Details`,
+        subtitle: 'Basin Analysis',
+        width: 500
+      }
+    );
+  };
+
+  const handleAIQuery = async (query: string) => {
+    // Open a temporary drawer or show loading state
+    // For now, we'll open a drawer with the AI result
+    openDrawer(
+      <div className="flex flex-col h-full">
+         <div className="p-4 border-b border-border bg-surface-highlight/5">
+            <div className="text-xs text-muted uppercase font-bold mb-1">Your Query</div>
+            <div className="text-white italic">"{query}"</div>
+         </div>
+         <div className="flex-1 p-4">
+             <IntelligenceBlock
+               title="AI Response"
+               insight="Analyzing your query..."
+               loading={true}
+             />
+             {/* We would fetch the real response here */}
+             <AIResponseLoader query={query} />
+         </div>
+      </div>,
+      { title: "AI Assistant", subtitle: "PetroGPT-4-Turbo", width: 400 }
+    );
+  };
+
   return (
-    <PageContainer>
-        <SectionHeader
-          title="Production & Reserves"
-          description="Basin-level aggregates, decline curve analysis, and reserves reporting."
-        >
-          <div className="flex space-x-2">
+    <StandardPage
+      header={{
+        title: "Production & Reserves",
+        subtitle: "Basin-level aggregates, decline curve analysis, and reserves reporting.",
+        status: "active",
+        actions: (
+          <div className="flex space-x-1 bg-surface-highlight/10 p-1 rounded-lg border border-border">
             <button
               onClick={() => setCountry('US')}
-              className={`px-3 py-1 text-xs font-mono rounded ${country === 'US' ? 'bg-primary text-white' : 'bg-surface-highlight text-muted'}`}
+              className={`px-3 py-1 text-xs font-bold rounded transition-colors ${country === 'US' ? 'bg-primary text-white shadow-sm' : 'text-muted hover:text-white'}`}
             >
-              US (States)
+              US
             </button>
             <button
               onClick={() => setCountry('CA')}
-              className={`px-3 py-1 text-xs font-mono rounded ${country === 'CA' ? 'bg-primary text-white' : 'bg-surface-highlight text-muted'}`}
+              className={`px-3 py-1 text-xs font-bold rounded transition-colors ${country === 'CA' ? 'bg-primary text-white shadow-sm' : 'text-muted hover:text-white'}`}
             >
-              CA (Provinces)
+              CA
             </button>
           </div>
-        </SectionHeader>
-
+        )
+      }}
+      aiContext="Production Overview"
+      onAIQuery={handleAIQuery}
+    >
         {/* AI Insight */}
-        <InsightCard insight={insight} loading={loadingInsight} className="mb-6" />
+        <IntelligenceBlock
+          title="Production Intelligence"
+          insight={insight || "Gathering production intelligence..."}
+          loading={loadingInsight}
+          confidence="high"
+          sources={['EIA', 'Operator Reports', 'Internal Production DB']}
+          assumptions={['Normal weather patterns', 'No major infrastructure outages']}
+          className="mb-6"
+        />
 
-        {/* Priority Assets - Moved to top for visibility */}
+        {/* Priority Assets */}
         <div className="mb-6">
           <DataPanel title="Active Production Assets (Priority)" loading={false}>
               <div className="space-y-4">
@@ -86,22 +156,26 @@ export default function ProductionPage() {
                                   Well 01
                                   <Badge status="live">Live</Badge>
                                 </h4>
-                                <div className="text-sm text-muted mt-1">Permian Basin • Pioneer • 1,000 bbl/d</div>
-                                <div className="flex gap-2 mt-2">
-                                  <Badge status="beta">DCA Enabled</Badge>
-                                  <Badge status="beta">AI Anomalies</Badge>
+                                <div className="text-sm text-muted mt-1 flex items-center gap-2">
+                                  <MapPin size={12} /> Permian Basin • Pioneer
+                                </div>
+                                <div className="flex gap-2 mt-3">
+                                  <div className="text-xs px-2 py-0.5 rounded bg-surface border border-border text-muted">DCA Enabled</div>
+                                  <div className="text-xs px-2 py-0.5 rounded bg-surface border border-border text-muted">AI Anomalies</div>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <div className="text-sm font-mono text-primary font-bold group-hover:underline">Open Analytics Studio &rarr;</div>
+                            <div className="text-right flex flex-col items-end justify-between">
+                                <div className="text-lg font-mono text-white">1,000 <span className="text-xs text-muted">bbl/d</span></div>
+                                <div className="text-xs font-bold text-primary group-hover:underline mt-2">OPEN STUDIO &rarr;</div>
                             </div>
                         </div>
                     </Link>
 
-                    <div className="flex items-center justify-center p-4 bg-surface-highlight/5 rounded border border-dashed border-border text-center h-full">
+                    <div className="flex items-center justify-center p-4 bg-surface-highlight/5 rounded border border-dashed border-border text-center h-full hover:bg-surface-highlight/10 transition-colors cursor-pointer" onClick={() => alert("Connector wizard would open here.")}>
                         <div>
-                          <p className="text-sm text-muted font-medium">Connect More Assets</p>
-                          <p className="text-xs text-muted mt-1">Ingestion pipelines available for OPC UA / WITSML</p>
+                          <Activity size={24} className="mx-auto text-muted mb-2" />
+                          <p className="text-sm text-white font-medium">Connect More Assets</p>
+                          <p className="text-xs text-muted mt-1">OPC UA / WITSML / MQTT</p>
                         </div>
                     </div>
                   </div>
@@ -123,7 +197,11 @@ export default function ProductionPage() {
                 </thead>
                 <tbody>
                   {regions?.rows.map((row) => (
-                    <tr key={row.region.code} className="border-b border-border hover:bg-surface-highlight/5 cursor-pointer" onClick={() => setSelectedBasin(row.region.name)}>
+                    <tr
+                      key={row.region.code}
+                      className="border-b border-border hover:bg-surface-highlight/10 cursor-pointer transition-colors"
+                      onClick={() => handleBasinClick(row.region.name, row.latest_value.toLocaleString())}
+                    >
                       <td className="px-4 py-3 font-mono text-muted">#{row.rank}</td>
                       <td className="px-4 py-3 font-medium text-white">{row.region.name}</td>
                       <td className="px-4 py-3 text-right font-mono text-data-positive">
@@ -138,12 +216,19 @@ export default function ProductionPage() {
 
             {/* Right Column: Basins Overview */}
             <DataPanel title="Major Basins Overview" loading={loadingBasins}>
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {basins?.map((basin: any) => (
-                        <div key={basin.name} className="flex items-center justify-between p-3 bg-surface-highlight/10 rounded border border-border cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setSelectedBasin(basin.name)}>
+                        <div
+                          key={basin.name}
+                          className="flex items-center justify-between p-3 bg-surface-highlight/10 rounded border border-border cursor-pointer hover:border-primary/50 hover:bg-surface-highlight/20 transition-all"
+                          onClick={() => handleBasinClick(basin.name, basin.production.toLocaleString())}
+                        >
                             <div>
                                 <h4 className="font-bold text-white text-sm">{basin.name}</h4>
-                                <div className="text-xs text-muted mt-1">{basin.rigs} Active Rigs</div>
+                                <div className="text-xs text-muted mt-1 flex items-center gap-1">
+                                  <div className="w-2 h-2 rounded-full bg-data-warning"></div>
+                                  {basin.rigs} Active Rigs
+                                </div>
                             </div>
                             <div className="text-right">
                                 <div className="text-lg font-mono text-white">{basin.production.toLocaleString()} <span className="text-xs text-muted">bbl/d</span></div>
@@ -153,16 +238,42 @@ export default function ProductionPage() {
                 </div>
             </DataPanel>
         </div>
-
-        <DetailDrawer
-            isOpen={!!selectedBasin}
-            onClose={() => setSelectedBasin(null)}
-            title={`${selectedBasin} Details`}
-            subtitle="Basin Analysis"
-            source="Production DB"
-            timestamp={new Date().toLocaleTimeString()}
-            tabs={getStandardTabs({ name: selectedBasin, value: '5.8M', units: 'bbl/d' })}
-        />
-    </PageContainer>
+    </StandardPage>
   );
+}
+
+// Internal component to fetch and display AI response in the drawer
+function AIResponseLoader({ query }: { query: string }) {
+    const [response, setResponse] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchAI = async () => {
+            try {
+                const res = await fetch('/api/ai/insight', {
+                    method: 'POST',
+                    body: JSON.stringify({ prompt: query })
+                });
+                const json = await res.json();
+                setResponse(json.text || "No response generated.");
+            } catch (e) {
+                setResponse("Error connecting to AI service.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAI();
+    }, [query]);
+
+    if (loading) return null; // Parent shows loading state
+
+    return (
+        <IntelligenceBlock
+            title="Analysis Complete"
+            insight={response || ""}
+            confidence="high"
+            sources={['PetroSquare Data Fabric']}
+            className="mt-4 animate-fade-in"
+        />
+    );
 }

@@ -17,10 +17,11 @@ module.exports = {
     },
     extend: {
       colors: {
-        background: '#0F172A', // Slate 900
-        surface: '#1E293B',    // Slate 800
-        'surface-highlight': '#334155', // Slate 700
-        border: '#334155',     // Slate 700
+        // "Deep Graphite" / Charcoal Palette
+        background: '#0B1221', // Custom Deep Graphite (Darker than Slate 900)
+        surface: '#151E32',    // Custom Surface (Rich Charcoal)
+        'surface-highlight': '#2A3650', // Lighter interaction state
+        border: '#2A3650',     // Matching highlight for borders
 
         // Data visualization colors
         'data-positive': '#10B981', // Emerald 500
@@ -39,10 +40,25 @@ module.exports = {
         sans: ['Inter', 'sans-serif'],
       },
       spacing: {
-        // Ensuring standard scale is available, plus any specific semantic spacing if needed
-        // For now, standard Tailwind spacing is sufficient, but explicit scale is enforced by usage
+        // Ensuring standard scale is available
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.2s ease-out',
+        'slide-in-right': 'slideInRight 0.3s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 };

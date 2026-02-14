@@ -9,11 +9,12 @@
     "clean": "rm -rf node_modules **/*/node_modules"
   },
   "devDependencies": {
-    "turbo": "1.12.4",
-    "prettier": "3.2.5",
-    "typescript": "5.3.3",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "20.11.24",
-    "@types/scheduler": "0.16.2"
+    "@types/scheduler": "0.16.2",
+    "prettier": "3.2.5",
+    "turbo": "1.12.4",
+    "typescript": "5.3.3"
   },
   "engines": {
     "node": ">=18"
