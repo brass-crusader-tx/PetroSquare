@@ -673,3 +673,88 @@ export interface MarketEvent {
         confidence: number;
     };
 }
+
+// --- Intel Module Types ---
+
+export type IntelItemType = 'NOTE' | 'LINK' | 'REPORT';
+export type IntelItemStatus = 'DRAFT' | 'IN_REVIEW' | 'PUBLISHED' | 'ARCHIVED';
+export type IntelEntityType = 'COMPANY' | 'ASSET' | 'BASIN' | 'PERSON' | 'COMMODITY';
+
+export interface IntelTag {
+  id: string;
+  org_id: string;
+  name: string;
+  color?: string;
+}
+
+export interface IntelEntity {
+  id: string;
+  org_id: string;
+  type: IntelEntityType;
+  name: string;
+  external_refs?: Record<string, string>;
+  created_at: string;
+}
+
+export interface IntelReview {
+  id: string;
+  item_id: string;
+  reviewer_id: string;
+  status: 'APPROVED' | 'REJECTED';
+  comments?: string;
+  created_at: string;
+}
+
+export interface IntelItem {
+  id: string;
+  org_id: string;
+  type: IntelItemType;
+  title: string;
+  content_text: string;
+  source_url?: string;
+  source_name?: string;
+  author_id: string;
+  status: IntelItemStatus;
+  entities: IntelEntity[];
+  tags: IntelTag[];
+  reviews: IntelReview[];
+  published_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IntelCollection {
+  id: string;
+  org_id: string;
+  name: string;
+  description?: string;
+  filters: Record<string, unknown>;
+  created_by: string;
+  created_at: string;
+}
+
+export interface IntelSignalRule {
+  field: 'title' | 'content' | 'source' | 'tag' | 'entity';
+  operator: 'contains' | 'equals' | 'starts_with';
+  value: string;
+}
+
+export interface IntelSignal {
+  id: string;
+  org_id: string;
+  name: string;
+  rules: IntelSignalRule[];
+  is_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IntelSignalEvent {
+  id: string;
+  signal_id: string;
+  signal_name: string;
+  item_id: string;
+  item_title: string;
+  matched_rules: IntelSignalRule[];
+  created_at: string;
+}
