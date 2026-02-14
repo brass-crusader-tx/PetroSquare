@@ -442,3 +442,83 @@ export interface ControlCenterAssistResponse {
   confidence: number;
   sources: ControlCenterAssistSource[];
 }
+
+// --- Production & Reserves Types (Enhanced) ---
+
+export interface ProductionSeries {
+  asset_id: string;
+  series_id: string;
+  timestamp: string;
+  value: number;
+  measurement: 'OIL_RATE' | 'GAS_RATE' | 'WATER_RATE' | 'PRESSURE';
+  unit: string;
+  source_system: string;
+  ingested_at: string;
+  quality_flags: string[];
+  tags: Record<string, string>;
+}
+
+export interface DcaModel {
+  id: string;
+  asset_id: string;
+  type: 'EXPONENTIAL' | 'HYPERBOLIC';
+  params: {
+    qi: number; // Initial rate
+    di: number; // Initial decline rate
+    b?: number; // Hyperbolic exponent
+  };
+  goodness_of_fit: {
+    r2: number;
+    rmse: number;
+  };
+  created_at: string;
+}
+
+export interface Forecast {
+  asset_id: string;
+  model_id: string;
+  scenario_id?: string;
+  data: TimeSeriesPoint[];
+  p10?: TimeSeriesPoint[];
+  p50?: TimeSeriesPoint[];
+  p90?: TimeSeriesPoint[];
+  generated_at: string;
+}
+
+export interface Scenario {
+  id: string;
+  name: string;
+  base_scenario_id?: string;
+  asset_id: string;
+  modifications: {
+    decline_rate_multiplier?: number;
+    downtime_days?: string[]; // ISO dates
+    curtailment_percent?: number;
+    uplift_multiplier?: number;
+  };
+  is_committed: boolean;
+  created_at: string;
+  created_by: string;
+}
+
+export interface Anomaly {
+  id: string;
+  asset_id: string;
+  series_id: string;
+  timestamp: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH';
+  type: 'SPIKE' | 'DROP' | 'FLATLINE';
+  explanation: string;
+  created_at: string;
+}
+
+export interface JobStatus {
+  id: string;
+  type: 'MONTE_CARLO' | 'INGESTION';
+  status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+  progress: number; // 0-100
+  result?: unknown;
+  error?: string;
+  created_at: string;
+  updated_at: string;
+}
