@@ -66,6 +66,7 @@ MOCK_BASINS.forEach(b => {
     layer_id: 'l-basins',
     geometry: b.geometry as GeoJSON.Geometry,
     properties: {
+      type: 'BASIN',
       name: b.name,
       code: b.code,
       description: b.description

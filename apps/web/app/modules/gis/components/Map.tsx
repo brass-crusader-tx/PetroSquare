@@ -132,6 +132,12 @@ export default function GISMap({
         setHoverInfo(null);
     }, []);
 
+    // Sort layers by Z-Index (Polygons bottom, Lines middle, Points top)
+    const sortedLayers = [...activeLayers].sort((a, b) => {
+        const order = { 'POLYGON': 1, 'RASTER': 1, 'LINE': 2, 'POINT': 3, 'HEATMAP': 4 };
+        return (order[a.type as keyof typeof order] || 0) - (order[b.type as keyof typeof order] || 0);
+    });
+
     return (
         <div className="h-full w-full relative bg-slate-900">
              <Map
@@ -154,7 +160,7 @@ export default function GISMap({
                 <ScaleControl />
                 <FullscreenControl position="top-right" />
 
-                {activeLayers.map(layer => {
+                {sortedLayers.map(layer => {
                     const data = layerData[layer.id];
                     if (!data) return null;
 
