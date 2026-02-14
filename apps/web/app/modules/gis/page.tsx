@@ -148,14 +148,17 @@ export default function GISPage() {
 
            {/* Center - Map */}
            <div className="flex-1 relative bg-black">
-               <GISMap
-                  basins={basins}
-                  activeLayers={activeLayers}
-                  selectedAssetId={selectedAsset?.id}
-                  onAssetSelect={setSelectedAsset}
-                  center={center}
-                  zoom={selectedBasinId === 'b-permian' ? 6 : 5}
-               />
+               {/* Only render map if center is defined to prevent initial load flicker/misalignment */}
+               {center && (
+                   <GISMap
+                      basins={basins}
+                      activeLayers={activeLayers}
+                      selectedAssetId={selectedAsset?.id}
+                      onAssetSelect={setSelectedAsset}
+                      center={center}
+                      zoom={selectedBasinId === 'b-permian' ? 6 : 5}
+                   />
+               )}
 
                {/* Overlay Loading State */}
                {loadingLayers && (

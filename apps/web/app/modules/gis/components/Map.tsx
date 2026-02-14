@@ -36,6 +36,14 @@ export default function GISMap({
         }
     }, [center, zoom]);
 
+    // Load data when map is fully loaded
+    const onMapLoad = useCallback(() => {
+        if (center && mapRef.current) {
+            // Force fetch after load to ensure bounds are correct
+            setViewState(curr => ({ ...curr })); // Trigger update
+        }
+    }, [center]);
+
     // Fetch Data on Move (Debounced)
     useEffect(() => {
         const fetchData = async () => {
@@ -156,6 +164,7 @@ export default function GISMap({
                 mapStyle={mapStyle}
                 attributionControl={false}
                 onClick={onClick}
+                onLoad={onMapLoad}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
                 // Interactive layer IDs needed for hover/click
@@ -180,6 +189,7 @@ export default function GISMap({
                                     {/* Non-clustered points */}
                                     <Layer
                                         id={layer.id}
+                                        source={layer.id}
                                         type="circle"
                                         filter={['!', ['has', 'point_count']]}
                                         paint={layer.style_json || {
@@ -192,6 +202,7 @@ export default function GISMap({
                                     {/* Clusters */}
                                     <Layer
                                         id={`${layer.id}-clusters`}
+                                        source={layer.id}
                                         type="circle"
                                         filter={['has', 'point_count']}
                                         paint={{
@@ -206,6 +217,7 @@ export default function GISMap({
                                     />
                                     <Layer
                                         id={`${layer.id}-cluster-count`}
+                                        source={layer.id}
                                         type="symbol"
                                         filter={['has', 'point_count']}
                                         layout={{
@@ -220,6 +232,7 @@ export default function GISMap({
                             {layer.type === 'LINE' && (
                                 <Layer
                                     id={layer.id}
+                                    source={layer.id}
                                     type="line"
                                     paint={layer.style_json || {
                                         'line-color': '#F59E0B',
@@ -230,6 +243,7 @@ export default function GISMap({
                             {layer.type === 'POLYGON' && (
                                 <Layer
                                     id={layer.id}
+                                    source={layer.id}
                                     type="fill"
                                     paint={layer.style_json || {
                                         'fill-color': '#10B981',
