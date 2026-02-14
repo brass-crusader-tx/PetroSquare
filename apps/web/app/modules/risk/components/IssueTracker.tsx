@@ -4,7 +4,7 @@ import { Issue } from '@petrosquare/types';
 import { useData } from '../../../../lib/hooks';
 
 export function IssueTracker() {
-    const { data: issues, loading, mutate } = useData<Issue[]>('/api/risk/issues');
+    const { data: issues, loading, refresh } = useData<Issue[]>('/api/risk/issues');
     const [filter, setFilter] = useState<'ALL' | 'OPEN' | 'CLOSED'>('ALL');
 
     const filteredIssues = issues?.filter(i => {
@@ -29,7 +29,7 @@ export function IssueTracker() {
                 description: 'Created from Issue Tracker'
             })
         });
-        mutate();
+        refresh();
     };
 
     return (
@@ -55,7 +55,7 @@ export function IssueTracker() {
                         CLOSED
                     </button>
                 </div>
-                <Button size="sm" onClick={handleCreate}>+ New Issue</Button>
+                <Button onClick={handleCreate}>+ New Issue</Button>
             </div>
 
             <DataPanel title="Risk Issues & Tasks" loading={loading}>

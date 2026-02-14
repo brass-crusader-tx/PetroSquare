@@ -122,7 +122,7 @@ export function AssessmentFlow() {
                     </div>
 
                     <div className="pt-2">
-                        <Button type="submit" disabled={submitting} variant={success ? 'ghost' : 'primary'}>
+                        <Button type="submit" disabled={submitting} variant={success ? 'secondary' : 'primary'}>
                             {success ? 'Assessment Saved!' : submitting ? 'Saving...' : 'Submit Assessment'}
                         </Button>
                     </div>

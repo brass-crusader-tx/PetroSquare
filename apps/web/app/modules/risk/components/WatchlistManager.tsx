@@ -4,7 +4,7 @@ import { Watchlist, WatchlistEvent } from '@petrosquare/types';
 import { useData } from '../../../../lib/hooks';
 
 export function WatchlistManager() {
-    const { data: watchlists, loading: loadingLists, mutate } = useData<Watchlist[]>('/api/risk/watchlists');
+    const { data: watchlists, loading: loadingLists, refresh } = useData<Watchlist[]>('/api/risk/watchlists');
     const [selectedList, setSelectedList] = useState<Watchlist | null>(null);
 
     // Fetch events for selected list
@@ -30,14 +30,14 @@ export function WatchlistManager() {
                 created_by: 'user'
             })
         });
-        mutate();
+        refresh();
     };
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
             {/* List of Watchlists */}
             <div className="col-span-1">
-                <DataPanel title="Your Watchlists" action={<Button size="sm" onClick={handleCreate}>+ New</Button>}>
+                <DataPanel title="Your Watchlists" action={<Button onClick={handleCreate}>+ New</Button>}>
                     <div className="space-y-2">
                         {watchlists?.map(wl => (
                             <div

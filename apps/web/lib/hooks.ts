@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { DataEnvelope } from '@petrosquare/types';
 
-export function useData<T>(url: string) {
+export function useData<T>(url: string | null) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [provenance, setProvenance] = useState<any | null>(null);
+  const [version, setVersion] = useState(0);
+
+  const refresh = () => setVersion(v => v + 1);
 
   useEffect(() => {
+    if (!url) return;
     let mounted = true;
     setLoading(true);
     fetch(url)
@@ -29,7 +33,7 @@ export function useData<T>(url: string) {
       });
 
     return () => { mounted = false; };
-  }, [url]);
+  }, [url, version]);
 
-  return { data, loading, error, provenance };
+  return { data, loading, error, provenance, refresh };
 }
