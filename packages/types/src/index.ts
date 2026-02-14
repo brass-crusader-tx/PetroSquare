@@ -674,108 +674,87 @@ export interface MarketEvent {
     };
 }
 
-// --- Economics Engine Types ---
+// --- Intel Module Types ---
 
-export type ScenarioStatus = 'DRAFT' | 'LOCKED' | 'ARCHIVED';
-export type RunStatus = 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED';
-export type ExportType = 'CSV' | 'JSON' | 'PDF';
+export type IntelItemType = 'NOTE' | 'LINK' | 'REPORT';
+export type IntelItemStatus = 'DRAFT' | 'IN_REVIEW' | 'PUBLISHED' | 'ARCHIVED';
+export type IntelEntityType = 'COMPANY' | 'ASSET' | 'BASIN' | 'PERSON' | 'COMMODITY';
 
-export interface EconomicsScenario {
+export interface IntelTag {
   id: string;
   org_id: string;
-  created_by: string;
   name: string;
-  description?: string;
-  status: ScenarioStatus;
-  tags?: string[];
+  color?: string;
+}
+
+export interface IntelEntity {
+  id: string;
+  org_id: string;
+  type: IntelEntityType;
+  name: string;
+  external_refs?: Record<string, string>;
+  created_at: string;
+}
+
+export interface IntelReview {
+  id: string;
+  item_id: string;
+  reviewer_id: string;
+  status: 'APPROVED' | 'REJECTED';
+  comments?: string;
+  created_at: string;
+}
+
+export interface IntelItem {
+  id: string;
+  org_id: string;
+  type: IntelItemType;
+  title: string;
+  content_text: string;
+  source_url?: string;
+  source_name?: string;
+  author_id: string;
+  status: IntelItemStatus;
+  entities: IntelEntity[];
+  tags: IntelTag[];
+  reviews: IntelReview[];
+  published_at?: string;
   created_at: string;
   updated_at: string;
 }
 
-export interface EconomicsScenarioVersion {
+export interface IntelCollection {
   id: string;
-  scenario_id: string;
-  version: number;
-  name?: string;
+  org_id: string;
+  name: string;
   description?: string;
-  input_payload_json: EconomicsScenarioInput;
+  filters: Record<string, unknown>;
   created_by: string;
   created_at: string;
 }
 
-export interface EconomicsRun {
+export interface IntelSignalRule {
+  field: 'title' | 'content' | 'source' | 'tag' | 'entity';
+  operator: 'contains' | 'equals' | 'starts_with';
+  value: string;
+}
+
+export interface IntelSignal {
   id: string;
-  scenario_version_id: string;
-  status: RunStatus;
-  started_at?: string;
-  finished_at?: string;
-  engine_version?: string;
-  result_payload_json?: EconomicsRunResult;
-  warnings_json?: string[];
-  error_json?: any;
+  org_id: string;
+  name: string;
+  rules: IntelSignalRule[];
+  is_enabled: boolean;
   created_at: string;
+  updated_at: string;
 }
 
-export interface EconomicsExport {
+export interface IntelSignalEvent {
   id: string;
-  scenario_version_id: string;
-  run_id?: string;
-  type: ExportType;
-  storage_ref?: string;
-  created_by?: string;
+  signal_id: string;
+  signal_name: string;
+  item_id: string;
+  item_title: string;
+  matched_rules: IntelSignalRule[];
   created_at: string;
-}
-
-export interface EconomicsScenarioInput {
-  general: {
-    start_date: string; // ISO Date
-    project_duration_years: number;
-    currency: string;
-    discount_rate_percent: number;
-  };
-  production: {
-    curve_type: 'FLAT' | 'DECLINE' | 'CUSTOM';
-    initial_rate: number; // bbl/d
-    decline_rate_percent?: number; // annual
-    custom_profile?: TimeSeriesPoint[];
-  };
-  pricing: {
-    oil_price_model: 'FLAT' | 'CURVE';
-    flat_price?: number; // USD/bbl
-    price_curve?: TimeSeriesPoint[];
-    escalation_percent?: number; // annual
-  };
-  costs: {
-    opex_fixed_monthly: number;
-    opex_variable_per_bbl: number;
-    capex_initial: number;
-    capex_abandonment: number;
-    tax_rate_percent: number;
-    royalty_rate_percent: number;
-  };
-}
-
-export interface CashFlowRow {
-  period: string; // YYYY-MM or YYYY
-  revenue: number;
-  opex: number;
-  capex: number;
-  taxes: number;
-  royalties: number;
-  net_cash_flow: number;
-  cumulative_cash_flow: number;
-}
-
-export interface EconomicsRunResult {
-  kpis: {
-    npv: number;
-    irr_percent: number;
-    payout_period_months: number;
-    breakeven_price: number;
-    total_revenue: number;
-    total_capex: number;
-    total_opex: number;
-    roi_percent: number;
-  };
-  cashflows: CashFlowRow[];
 }
