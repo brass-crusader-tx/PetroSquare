@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Bell, Settings, Menu, X, ArrowRight, MapPin, BarChart2, FileText, Layers } from 'lucide-react';
+import { Search, Bell, Settings, X, ArrowRight, MapPin, BarChart2, FileText, Layers, Command } from 'lucide-react';
 import { IconButton } from './IconButton';
 import { SEARCH_INDEX, SearchItem } from './searchIndex';
 
@@ -72,26 +72,21 @@ export function TopHeader() {
 
   const getIcon = (type: string) => {
       switch(type) {
-          case 'MODULE': return <Layers size={14} className="text-primary" />;
-          case 'METRIC': return <BarChart2 size={14} className="text-data-positive" />;
-          case 'BASIN': return <MapPin size={14} className="text-data-warning" />;
-          case 'PAGE': return <FileText size={14} className="text-muted" />;
-          default: return <Search size={14} className="text-muted" />;
+          case 'MODULE': return <Layers size={16} className="text-primary" />;
+          case 'METRIC': return <BarChart2 size={16} className="text-data-positive" />;
+          case 'BASIN': return <MapPin size={16} className="text-data-warning" />;
+          case 'PAGE': return <FileText size={16} className="text-muted" />;
+          default: return <Search size={16} className="text-muted" />;
       }
   };
 
   return (
-    <header className="h-16 bg-surface border-b border-border flex items-center justify-between px-6 sticky top-0 z-30 shrink-0">
-        <div className="flex items-center lg:hidden mr-4">
-             <button className="text-white p-2">
-                 <Menu size={20} />
-             </button>
-        </div>
-
-        <div className="flex-1 max-w-xl relative" ref={wrapperRef}>
+    <header className="h-16 flex items-center justify-between px-6 max-w-7xl mx-auto w-full">
+        {/* Central Command Bar */}
+        <div className="flex-1 max-w-2xl relative mx-auto" ref={wrapperRef}>
             <div className="relative group">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors pointer-events-none">
-                    <Search size={16} />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors pointer-events-none">
+                    <Search size={18} />
                 </span>
                 <input
                     type="text"
@@ -99,70 +94,70 @@ export function TopHeader() {
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => { if(query.length > 1) setIsOpen(true); }}
-                    placeholder="Search assets, wells, or reports..."
-                    className="w-full bg-surface-highlight/20 border border-border rounded-full py-2 pl-10 pr-10 text-sm text-white focus:outline-none focus:border-primary transition-all placeholder:text-muted/50"
+                    placeholder="Ask anything or search..."
+                    className="w-full bg-surface-highlight/40 hover:bg-surface-highlight/60 focus:bg-surface-highlight border border-border/50 focus:border-primary/50 rounded-2xl py-2.5 pl-12 pr-12 text-sm text-white focus:outline-none transition-all placeholder:text-muted/60 shadow-sm"
                 />
-                {query && (
+                {query ? (
                     <button
                         onClick={() => { setQuery(''); setIsOpen(false); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-white"
                     >
-                        <X size={14} />
+                        <X size={16} />
                     </button>
+                ) : (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none opacity-50">
+                        <Command size={12} className="text-muted" />
+                        <span className="text-[10px] text-muted font-mono">K</span>
+                    </div>
                 )}
             </div>
 
             {/* Dropdown Results */}
             {isOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-border rounded-lg shadow-xl overflow-hidden z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl">
                     {results.length > 0 ? (
                         <ul className="py-2">
                             {results.map((item, index) => (
                                 <li key={item.id}>
                                     <a
                                         href={item.href}
-                                        className={`flex items-center px-4 py-3 hover:bg-surface-highlight/50 transition-colors ${index === selectedIndex ? 'bg-surface-highlight/50' : ''}`}
+                                        className={`flex items-center px-4 py-3 hover:bg-surface-highlight/50 transition-colors cursor-pointer ${index === selectedIndex ? 'bg-surface-highlight/50' : ''}`}
                                         onClick={(e) => { e.preventDefault(); handleSelect(item); }}
                                     >
-                                        <div className="w-8 h-8 rounded bg-surface-highlight/30 flex items-center justify-center mr-3 shrink-0 border border-border/50">
+                                        <div className="w-8 h-8 rounded-lg bg-surface-highlight/30 flex items-center justify-center mr-3 shrink-0 border border-border/50">
                                             {getIcon(item.type)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-bold text-white truncate flex items-center">
+                                            <div className="text-sm font-medium text-white truncate flex items-center">
                                                 {item.title}
-                                                <span className="ml-2 text-[10px] text-muted border border-border px-1 rounded bg-surface-highlight/20">{item.type}</span>
+                                                <span className="ml-2 text-[10px] text-muted border border-border/50 px-1.5 py-0.5 rounded bg-surface-highlight/20 font-mono uppercase tracking-wider">{item.type}</span>
                                             </div>
-                                            {item.subtitle && <div className="text-xs text-muted truncate">{item.subtitle}</div>}
+                                            {item.subtitle && <div className="text-xs text-muted truncate mt-0.5">{item.subtitle}</div>}
                                         </div>
-                                        <div className="text-muted/50">
-                                            <ArrowRight size={14} />
+                                        <div className="text-muted/30">
+                                            <ArrowRight size={16} />
                                         </div>
                                     </a>
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                        <div className="p-4 text-center text-sm text-muted">
-                            No results found for "<span className="text-white">{query}</span>".
-                            <br/>
-                            <span className="text-xs mt-1 block opacity-70">Try "Permian", "Price", or "Production".</span>
+                        <div className="p-8 text-center text-sm text-muted">
+                            <p>No results found for "<span className="text-white font-medium">{query}</span>".</p>
+                            <p className="text-xs mt-2 opacity-60">Try searching for assets, reports, or metrics.</p>
                         </div>
                     )}
                 </div>
             )}
         </div>
 
-        <div className="flex items-center space-x-4 ml-auto">
-            <div className="hidden md:flex items-center space-x-2">
-                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                 <span className="text-xs font-mono text-muted">SYSTEM ONLINE</span>
-            </div>
-            <div className="h-6 w-px bg-border mx-2 hidden md:block"></div>
-            <IconButton variant="ghost" size="sm" onClick={() => alert("No new notifications.")}>
-                <Bell size={18} />
+        {/* Right Actions */}
+        <div className="flex items-center space-x-2 ml-4">
+            <IconButton variant="ghost" size="sm" onClick={() => alert("No new notifications.")} className="text-muted hover:text-white">
+                <Bell size={20} />
             </IconButton>
-            <IconButton variant="ghost" size="sm" onClick={() => alert("Settings are restricted.")}>
-                <Settings size={18} />
+            <IconButton variant="ghost" size="sm" onClick={() => alert("Settings are restricted.")} className="text-muted hover:text-white">
+                <Settings size={20} />
             </IconButton>
         </div>
     </header>
