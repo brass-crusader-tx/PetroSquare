@@ -1,7 +1,7 @@
 export interface SearchItem {
   id: string;
   title: string;
-  type: 'MODULE' | 'METRIC' | 'BASIN' | 'LAYER' | 'PAGE';
+  type: 'MODULE' | 'METRIC' | 'BASIN' | 'LAYER' | 'PAGE' | 'ACTION';
   subtitle?: string;
   href: string;
   keywords: string[];
@@ -21,6 +21,12 @@ export const SEARCH_INDEX: SearchItem[] = [
     { id: 'page-cap', title: 'Platform Capabilities', type: 'PAGE', subtitle: 'System features', href: '/capabilities', keywords: ['feature', 'help'] },
     { id: 'page-arch', title: 'System Architecture', type: 'PAGE', subtitle: 'Technical design', href: '/architecture', keywords: ['tech', 'stack', 'cloud'] },
     { id: 'page-contract', title: 'Contracts API', type: 'PAGE', subtitle: 'Developer documentation', href: '/contracts', keywords: ['api', 'dev', 'sdk'] },
+
+    // Actions
+    { id: 'act-theme', title: 'Toggle Theme', type: 'ACTION', subtitle: 'Switch Light/Dark Mode', href: '#toggle-theme', keywords: ['theme', 'dark', 'light', 'mode'] },
+    { id: 'act-logout', title: 'Log Out', type: 'ACTION', subtitle: 'End Session', href: '#logout', keywords: ['logout', 'signout', 'exit'] },
+    { id: 'act-home', title: 'Go Home', type: 'ACTION', subtitle: 'Navigate to Dashboard', href: '/', keywords: ['home', 'start'] },
+    { id: 'act-help', title: 'Help & Support', type: 'ACTION', subtitle: 'View Documentation', href: '/capabilities', keywords: ['help', 'support', 'docs'] },
 
     // Basins
     { id: 'basin-permian', title: 'Permian Basin', type: 'BASIN', subtitle: 'West Texas / New Mexico', href: '/modules/gis?basin=b-permian', keywords: ['permian', 'midland', 'delaware', 'texas'] },
