@@ -39,7 +39,7 @@ export function RunResults({ result }: Props) {
               <YAxis yAxisId="right" orientation="right" stroke="#10B981" fontSize={12} tickFormatter={v => `$${v/1000}k`} />
               <Tooltip
                 contentStyle={{ backgroundColor: '#1E293B', borderColor: '#334155', color: '#fff' }}
-                formatter={(value: number) => f(value)}
+                formatter={(value: any) => typeof value === 'number' ? f(value) : value}
               />
               <Legend />
               <Bar yAxisId="left" dataKey="revenue" name="Revenue" fill="#3B82F6" stackId="a" />

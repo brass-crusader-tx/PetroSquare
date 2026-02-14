@@ -105,10 +105,6 @@ export default function ScenarioDetailPage({ params }: { params: { id: string } 
       <SectionHeader
         title={scenario.name}
         description={scenario.description}
-        breadcrumbs={[
-            { label: 'Economics', href: '/modules/economics' },
-            { label: scenario.name, href: `/modules/economics/${scenario.id}` }
-        ]}
       >
         <div className="flex gap-2">
             <select
