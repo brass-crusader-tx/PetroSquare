@@ -69,7 +69,7 @@ export function LeftNav({ currentPath }: LeftNavProps) {
         </div>
         {collapsed && <div className="h-4"></div>}
 
-        <NavItem href="/" active={currentPath === '/'} icon={<LayoutDashboard size={18} />} collapsed={collapsed}>Control Center</NavItem>
+        <NavItem href="/modules/control-center" active={isActive('/modules/control-center')} icon={<LayoutDashboard size={18} />} collapsed={collapsed}>Control Center</NavItem>
         <NavItem href="/modules/production" active={isActive('/modules/production')} icon={<Activity size={18} />} collapsed={collapsed}>Production</NavItem>
         <NavItem href="/modules/markets" active={isActive('/modules/markets')} icon={<LineChart size={18} />} collapsed={collapsed}>Markets</NavItem>
         <NavItem href="/modules/economics" active={isActive('/modules/economics')} icon={<DollarSign size={18} />} collapsed={collapsed}>Economics</NavItem>
