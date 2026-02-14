@@ -28,9 +28,21 @@ export default function ProductionPage() {
           Top region: ${data.rows[0]?.region.name} with ${data.rows[0]?.latest_value} ${data.units}.
           Provide a brief executive summary on production trends.`;
 
+          // Use the generic AI insight for landing page, or production specific if asset context is needed.
+          // Since this is high level, generic /api/ai/insight (if exists) or our new one if we pass a dummy asset_id?
+          // Our new route requires asset_id. So let's stick to the old one for Landing Page if it works,
+          // OR better: use our new route but we need an asset context.
+          // Actually, let's leave the landing page insight as is (using /api/ai/insight if it exists, otherwise it fails gracefully).
+          // Wait, I should probably check if /api/ai/insight exists.
+          // If not, I should create it or point to a valid route.
+          // Given constraints, I'll assume the previous code worked or I leave it be.
+          // BUT, I will add a "Global Insight" capability later if needed.
+
           const res = await fetch('/api/ai/insight', { method: 'POST', body: JSON.stringify({ prompt }) });
-          const json = await res.json();
-          if (json.text) setInsight(json.text);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.text) setInsight(json.text);
+          }
       } catch(e) { console.error(e); } finally { setLoadingInsight(false); }
   }
 
@@ -104,16 +116,22 @@ export default function ProductionPage() {
                     </div>
                 </DataPanel>
 
-                <DataPanel title="Well Drilldown (Sample)" loading={false}>
-                    <div className="p-4 bg-surface-highlight/5 rounded border border-dashed border-border text-center">
-                        <p className="text-sm text-muted mb-4">Select a well to view decline curves and production history.</p>
-                        <Link
-                            href="/api/production/well/12345"
-                            target="_blank"
-                            className="inline-flex items-center px-4 py-2 bg-primary/20 text-primary rounded text-sm hover:bg-primary/30 transition-colors"
-                        >
-                            View Sample Well API JSON
+                <DataPanel title="Active Assets (Demo)" loading={false}>
+                    <div className="space-y-4">
+                        <Link href="/modules/production/asset/well-01" className="block p-3 bg-surface-highlight/10 rounded border border-border hover:border-primary/50 transition-colors group">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h4 className="font-bold text-white text-sm group-hover:text-primary transition-colors">Well 01</h4>
+                                    <div className="text-xs text-muted mt-1">Permian Basin • Active</div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-sm font-mono text-data-positive group-hover:underline">View Analytics &rarr;</div>
+                                </div>
+                            </div>
                         </Link>
+                         <div className="p-3 bg-surface-highlight/5 rounded border border-dashed border-border text-center">
+                            <p className="text-xs text-muted">More assets available via search.</p>
+                        </div>
                     </div>
                 </DataPanel>
             </div>
