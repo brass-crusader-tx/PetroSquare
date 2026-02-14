@@ -674,6 +674,112 @@ export interface MarketEvent {
     };
 }
 
+// --- Economics Engine Types ---
+
+export type ScenarioStatus = 'DRAFT' | 'LOCKED' | 'ARCHIVED';
+export type RunStatus = 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+export type ExportType = 'CSV' | 'JSON' | 'PDF';
+
+export interface EconomicsScenario {
+  id: string;
+  org_id: string;
+  created_by: string;
+  name: string;
+  description?: string;
+  status: ScenarioStatus;
+  tags?: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EconomicsScenarioVersion {
+  id: string;
+  scenario_id: string;
+  version: number;
+  name?: string;
+  description?: string;
+  input_payload_json: EconomicsScenarioInput;
+  created_by: string;
+  created_at: string;
+}
+
+export interface EconomicsRun {
+  id: string;
+  scenario_version_id: string;
+  status: RunStatus;
+  started_at?: string;
+  finished_at?: string;
+  engine_version?: string;
+  result_payload_json?: EconomicsRunResult;
+  warnings_json?: string[];
+  error_json?: any;
+  created_at: string;
+}
+
+export interface EconomicsExport {
+  id: string;
+  scenario_version_id: string;
+  run_id?: string;
+  type: ExportType;
+  storage_ref?: string;
+  created_by?: string;
+  created_at: string;
+}
+
+export interface EconomicsScenarioInput {
+  general: {
+    start_date: string; // ISO Date
+    project_duration_years: number;
+    currency: string;
+    discount_rate_percent: number;
+  };
+  production: {
+    curve_type: 'FLAT' | 'DECLINE' | 'CUSTOM';
+    initial_rate: number; // bbl/d
+    decline_rate_percent?: number; // annual
+    custom_profile?: TimeSeriesPoint[];
+  };
+  pricing: {
+    oil_price_model: 'FLAT' | 'CURVE';
+    flat_price?: number; // USD/bbl
+    price_curve?: TimeSeriesPoint[];
+    escalation_percent?: number; // annual
+  };
+  costs: {
+    opex_fixed_monthly: number;
+    opex_variable_per_bbl: number;
+    capex_initial: number;
+    capex_abandonment: number;
+    tax_rate_percent: number;
+    royalty_rate_percent: number;
+  };
+}
+
+export interface CashFlowRow {
+  period: string; // YYYY-MM or YYYY
+  revenue: number;
+  opex: number;
+  capex: number;
+  taxes: number;
+  royalties: number;
+  net_cash_flow: number;
+  cumulative_cash_flow: number;
+}
+
+export interface EconomicsRunResult {
+  kpis: {
+    npv: number;
+    irr_percent: number;
+    payout_period_months: number;
+    breakeven_price: number;
+    total_revenue: number;
+    total_capex: number;
+    total_opex: number;
+    roi_percent: number;
+  };
+  cashflows: CashFlowRow[];
+}
+
 // --- Risk & Regulatory Types (Enhanced) ---
 
 export interface Jurisdiction {
