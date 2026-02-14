@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DataEnvelope } from '@petrosquare/types';
 
 export function useData<T>(url: string) {
@@ -6,19 +6,38 @@ export function useData<T>(url: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [provenance, setProvenance] = useState<any | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refresh = useCallback(() => {
+    setRefreshKey(prev => prev + 1);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
+
+    // Check if URL is API route or external.
+    // If it's internal API, it might return T directly or DataEnvelope<T>.
+    // My new economics APIs return T directly (arrays or objects).
+    // But existing hooks seem to expect DataEnvelope.
+    // Let's check my API implementation.
+
     fetch(url)
       .then(res => res.json())
-      .then((json: DataEnvelope<T>) => {
+      .then((json: any) => {
         if (!mounted) return;
-        if (json.status === 'ok' || (json.status === 'degraded' && json.data)) {
-          setData(json.data);
-          setProvenance(json.provenance);
+
+        // Handle DataEnvelope structure
+        if (json && typeof json === 'object' && 'status' in json && 'data' in json) {
+            if (json.status === 'ok' || (json.status === 'degraded' && json.data)) {
+                setData(json.data);
+                setProvenance(json.provenance);
+            } else {
+                setError(json.error?.message || 'Unknown error');
+            }
         } else {
-          setError(json.error?.message || 'Unknown error');
+            // Assume direct data return (which my new APIs do)
+            setData(json);
         }
         setLoading(false);
       })
@@ -29,7 +48,7 @@ export function useData<T>(url: string) {
       });
 
     return () => { mounted = false; };
-  }, [url]);
+  }, [url, refreshKey]);
 
-  return { data, loading, error, provenance };
+  return { data, loading, error, provenance, refresh, mutate: refresh };
 }
