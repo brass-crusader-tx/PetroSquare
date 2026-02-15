@@ -39,10 +39,6 @@ export default function AISummaryPanel({ summary, loading, onGenerate, title = "
 
   return (
     <DataPanel title={title} className="p-4 border-l-4 border-primary relative group">
-       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-           <span className="text-[10px] bg-surface-highlight px-1 rounded text-muted">v{summary.model_version}</span>
-       </div>
-
        <div className="prose prose-invert prose-sm max-w-none mb-4">
            {/* Simple markdown rendering (MVP: basic replacement or just render text) */}
            {summary.summary_markdown.split('\n').map((line, i) => {

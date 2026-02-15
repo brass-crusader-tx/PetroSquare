@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { DataPanel, Button } from '@petrosquare/ui';
-import { Send, Sparkles, Bot, AlertTriangle } from 'lucide-react';
+import { Send, Sparkles, AlertTriangle } from 'lucide-react';
 
 export function InsightPanel({ assetId }: { assetId: string }) {
   const [prompt, setPrompt] = useState('');
@@ -54,11 +54,6 @@ export function InsightPanel({ assetId }: { assetId: string }) {
                 }`}
               >
                 {m.role === 'system' && <AlertTriangle size={12} />}
-                {m.role === 'assistant' && (
-                    <div className="flex items-center gap-2 mb-2 text-primary text-xs font-bold uppercase tracking-wider">
-                        <Bot size={14} /> AI Analysis
-                    </div>
-                )}
                 {m.text}
               </div>
             </div>
@@ -103,11 +98,6 @@ export function InsightPanel({ assetId }: { assetId: string }) {
           </div>
         </div>
 
-        <div className="mt-3 flex justify-center">
-            <span className="text-[10px] text-muted/40 font-mono flex items-center gap-1.5">
-                <Bot size={10} /> AI grounded on live telemetry
-            </span>
-        </div>
       </div>
     </DataPanel>
   );

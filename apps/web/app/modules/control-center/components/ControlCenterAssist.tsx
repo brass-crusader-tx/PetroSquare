@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { ControlCenterAssistResponse } from '@petrosquare/types';
-import { MessageSquare, X, Send, Sparkles, Bot } from 'lucide-react';
+import { MessageSquare, X, Send, Sparkles } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -108,11 +108,6 @@ export function ControlCenterAssist() {
                 ? 'bg-surface-highlight text-white rounded-2xl rounded-br-none px-4 py-3 border border-white/5'
                 : 'text-muted-foreground'
             }`}>
-              {msg.role === 'assistant' && (
-                  <div className="flex items-center gap-2 mb-2 text-primary text-xs font-medium uppercase tracking-wider">
-                      <Bot size={14} /> AI Analysis
-                  </div>
-              )}
               <div className={msg.role === 'assistant' ? 'text-white' : ''}>{msg.content}</div>
             </div>
 
