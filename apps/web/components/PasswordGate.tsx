@@ -68,7 +68,8 @@ export function PasswordGate({ children }: PasswordGateProps) {
 
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-primary-hover text-background font-bold py-3.5 rounded-xl transition-all hover:scale-[1.02] text-sm uppercase tracking-wider shadow-lg shadow-primary/20"
+              className="w-full bg-white hover:bg-white/90 text-black font-bold py-3.5 rounded-xl transition-all hover:scale-[1.02] text-sm uppercase tracking-wider shadow-lg shadow-white/20"
+              style={{ color: '#000000', backgroundColor: '#ffffff' }}
             >
               Authenticate
             </button>
