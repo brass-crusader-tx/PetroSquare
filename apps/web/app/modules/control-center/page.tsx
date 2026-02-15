@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { KpiCard, PageContainer, DataPanel, Badge } from '@petrosquare/ui';
 import ControlCenterMap from './components/ControlCenterMap';
 import RecentActivityFeed from './components/RecentActivityFeed';
@@ -14,6 +15,7 @@ interface OverviewData {
 }
 
 export default function ControlCenterOverview() {
+  const router = useRouter();
   const [data, setData] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,21 +65,25 @@ export default function ControlCenterOverview() {
           label="Total Assets"
           value={data.totalAssets}
           trend="neutral"
+          onClick={() => router.push('/modules/control-center/assets')}
         />
         <KpiCard
           label="Avg Health Score"
           value={`${data.avgHealth}%`}
           trend={data.avgHealth > 90 ? 'positive' : data.avgHealth > 70 ? 'neutral' : 'negative'}
+          onClick={() => router.push('/modules/control-center/assets')}
         />
         <KpiCard
           label="Active Alerts"
           value={data.activeAlerts}
           trend={data.activeAlerts > 0 ? 'negative' : 'positive'}
+          onClick={() => router.push('/modules/control-center/alerts?status=ACTIVE')}
         />
         <KpiCard
           label="Critical Alerts"
           value={data.criticalAlerts}
           trend={data.criticalAlerts > 0 ? 'negative' : 'positive'}
+          onClick={() => router.push('/modules/control-center/alerts?status=ACTIVE&severity=CRITICAL')}
         />
       </div>
 
