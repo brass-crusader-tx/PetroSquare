@@ -31,12 +31,12 @@ export function LeftNav({ currentPath }: LeftNavProps) {
   return (
     <aside className={`${widthClass} flex flex-col h-full bg-surface border-r border-border/50 transition-all duration-300 z-50`}>
       {/* Header / Logo */}
-      <a href="/" className={`h-16 flex items-center ${collapsed ? 'justify-center' : 'px-6 justify-between'} border-b border-border/50 hover:bg-surface-highlight/50 transition-colors block`}>
+      <a href="/" className={`h-16 flex items-center ${collapsed ? 'justify-center' : 'px-3 justify-between'} border-b border-border/50 hover:bg-surface-highlight/50 transition-colors block`}>
         <div className="flex items-center gap-3 overflow-hidden">
              <img
                src="/logo/petrosquare-mark.svg"
                alt="PetroSquare"
-               className="w-10 h-10 shrink-0 invert brightness-0 grayscale opacity-90"
+               className="w-14 h-14 shrink-0 invert brightness-0 grayscale opacity-90"
              />
              <div className={`transition-opacity duration-300 ${collapsed ? 'opacity-0 w-0 hidden' : 'opacity-100'}`}>
                   <span className="text-sm font-bold tracking-tight text-white font-sans">PetroSquare</span>

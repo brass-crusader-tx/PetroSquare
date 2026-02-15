@@ -9,8 +9,8 @@ export function Footer() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Column 1: Brand & Support */}
             <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                    <img src="/logo/petrosquare-mark.svg" className="w-10 h-10 invert brightness-0 grayscale opacity-90" alt="PetroSquare" />
+                <div className="flex items-center gap-1">
+                    <img src="/logo/petrosquare-mark.svg" className="w-20 h-20 invert brightness-0 grayscale opacity-90" alt="PetroSquare" />
                     <span className="text-lg font-bold text-white tracking-tight">PetroSquare</span>
                 </div>
                 <p className="text-sm text-muted leading-relaxed">

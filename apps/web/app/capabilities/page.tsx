@@ -14,8 +14,8 @@ export default function CapabilitiesPage() {
     <main className="h-screen overflow-y-auto bg-background text-text scroll-smooth">
        <nav className="border-b border-white/5 bg-surface/50 backdrop-blur-md sticky top-0 z-30">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-             <img src="/logo/petrosquare-mark.svg" alt="PetroSquare" className="w-8 h-8 invert brightness-0 grayscale opacity-90 group-hover:opacity-100 transition-opacity" />
+          <Link href="/" className="flex items-center gap-2 group">
+             <img src="/logo/petrosquare-mark.svg" alt="PetroSquare" className="w-14 h-14 invert brightness-0 grayscale opacity-90 group-hover:opacity-100 transition-opacity" />
              <span className="text-xl font-bold tracking-tight text-white font-sans">PetroSquare</span>
           </Link>
           <div className="flex space-x-6">
