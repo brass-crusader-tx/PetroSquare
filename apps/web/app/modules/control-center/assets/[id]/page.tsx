@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ControlAsset, TelemetryPoint } from '@petrosquare/types';
 import { TelemetryChart } from '../../components/TelemetryChart';
 import { InspectDrawer } from '../../components/InspectDrawer';
+import { Badge, DataPanel } from '@petrosquare/ui';
 
 export default function AssetDetailPage({ params }: { params: { id: string } }) {
   const [asset, setAsset] = useState<ControlAsset | null>(null);
@@ -12,6 +13,7 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
   const [loading, setLoading] = useState(true);
   const [loadingTelemetry, setLoadingTelemetry] = useState(false);
   const [isInspectOpen, setIsInspectOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     // Fetch Asset + Initial Telemetry
@@ -36,54 +38,84 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
       .finally(() => setLoadingTelemetry(false));
   }, [params.id, window]);
 
-  if (loading) return <div className="p-8 text-center text-slate-400 animate-pulse">Loading Asset Details...</div>;
+  useEffect(() => {
+    // Attach scroll listener to the main layout container
+    const scrollContainer = document.querySelector('main');
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      setIsScrolled(scrollContainer.scrollTop > 20);
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    // Initial check
+    handleScroll();
+
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  if (loading) return <div className="p-8 text-center text-muted animate-pulse">Loading Asset Details...</div>;
   if (!asset) return <div className="p-8 text-center text-red-500">Asset Not Found</div>;
 
   return (
-    <div className="flex flex-col h-full bg-slate-950 text-slate-200">
+    <div className="flex flex-col h-full bg-background text-white font-sans">
       {/* Header */}
-      <div className="bg-slate-900 border-b border-slate-800 p-6 flex justify-between items-start">
+      {/* top-12 (48px) to account for the sticky ControlCenterLayout tabs */}
+      <div
+        className={`sticky top-12 z-10 transition-all duration-300 border-b border-white/5 backdrop-blur-md flex justify-between items-start ${
+          isScrolled ? 'bg-background/90 py-2 px-6 shadow-md' : 'bg-surface/50 p-6'
+        }`}
+      >
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-white tracking-tight">{asset.name}</h1>
-            <span className={`px-2 py-0.5 rounded text-xs font-bold border ${
-              asset.status === 'ACTIVE' ? 'bg-emerald-900/30 text-emerald-400 border-emerald-900' :
-              'bg-slate-800 text-slate-400 border-slate-700'
+            <h1 className={`font-bold text-white tracking-tight transition-all duration-300 ${
+              isScrolled ? 'text-lg' : 'text-3xl'
             }`}>
-              {asset.status}
-            </span>
+              {asset.name}
+            </h1>
+            <div className={`transition-all duration-300 ${isScrolled ? 'scale-90 origin-left opacity-0 w-0 overflow-hidden' : 'scale-100 opacity-100'}`}>
+              <Badge status={asset.status} />
+            </div>
           </div>
-          <div className="text-slate-500 font-mono text-sm mt-1">{asset.id} • {asset.type} • {asset.metadata?.basin as string}</div>
+          <div className={`text-muted font-mono text-sm mt-1 transition-all duration-300 ${
+              isScrolled ? 'opacity-0 h-0 overflow-hidden mt-0' : 'opacity-100 h-auto'
+          }`}>
+              {asset.id} • {asset.type} • {asset.metadata?.basin as string}
+          </div>
         </div>
         <div className="text-right">
-          <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Health Score</div>
-          <div className={`text-3xl font-mono font-bold ${
-            asset.healthScore > 90 ? 'text-emerald-400' : 'text-amber-400'
+          <div className={`text-xs text-muted uppercase tracking-wider mb-1 transition-all duration-300 ${
+              isScrolled ? 'opacity-0 h-0 overflow-hidden mb-0' : 'opacity-100 h-auto'
           }`}>
+              Health Score
+          </div>
+          <div className={`font-mono font-bold transition-all duration-300 ${
+            asset.healthScore > 90 ? 'text-emerald-500' : 'text-amber-500'
+          } ${isScrolled ? 'text-lg' : 'text-3xl'}`}>
             {asset.healthScore}%
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-6 overflow-auto space-y-6">
+      <div className="p-6 space-y-6">
         {/* Telemetry Section */}
-        <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6">
+        <div className="bg-surface border border-white/5 rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+            <h2 className="text-lg font-medium text-white flex items-center gap-2 tracking-tight">
               <span>Real-Time Telemetry</span>
-              {loadingTelemetry && <span className="text-xs text-slate-500 animate-pulse">(Updating...)</span>}
+              {loadingTelemetry && <span className="text-xs text-muted animate-pulse">(Updating...)</span>}
             </h2>
             <div className="flex items-center gap-2">
-              <div className="flex bg-slate-800 rounded-md p-1">
+              <div className="flex bg-surface-highlight/50 rounded-lg p-1 border border-white/5">
                 {(['1h', '24h', '7d'] as const).map((w) => (
                   <button
                     key={w}
                     onClick={() => setWindow(w)}
-                    className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                    className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
                       window === w
-                        ? 'bg-slate-700 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-surface-highlight text-white shadow-sm border border-white/10'
+                        : 'text-muted hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {w}
@@ -92,7 +124,7 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
               </div>
               <button
                 onClick={() => setIsInspectOpen(true)}
-                className="ml-4 px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded transition-colors flex items-center gap-1"
+                className="ml-4 px-3 py-1.5 text-xs bg-surface-highlight/50 hover:bg-surface-highlight text-muted hover:text-white border border-white/5 hover:border-white/10 rounded-lg transition-all flex items-center gap-1 shadow-sm"
               >
                 Inspect Raw Data
               </button>
@@ -106,22 +138,25 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
 
         {/* Other Details Placeholder */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 min-h-[200px]">
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Active Alerts</h3>
+          <DataPanel title="Active Alerts" className="min-h-[200px]">
             {asset.activeAlarms > 0 ? (
-              <div className="bg-red-900/20 border border-red-900/50 rounded p-4 text-red-400 text-sm">
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-400 text-sm flex items-start gap-2">
+                 <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 shrink-0 animate-pulse" />
                 {asset.activeAlarms} critical alarms active. Check Alerts Center.
               </div>
             ) : (
-              <div className="text-slate-500 text-sm">No active alerts.</div>
+              <div className="text-muted text-sm flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
+                No active alerts.
+              </div>
             )}
-          </div>
-          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 min-h-[200px]">
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Technical Specs</h3>
-            <pre className="text-xs font-mono text-slate-500 whitespace-pre-wrap">
+          </DataPanel>
+
+          <DataPanel title="Technical Specs" className="min-h-[200px]">
+            <pre className="text-xs font-mono text-muted whitespace-pre-wrap">
               {JSON.stringify(asset.metadata, null, 2)}
             </pre>
-          </div>
+          </DataPanel>
         </div>
       </div>
 

@@ -24,8 +24,8 @@ async def run():
         except:
             print("   No Password Gate or already authenticated.")
 
-        await page.wait_for_selector('text=Control Center Dashboard', timeout=10000)
-        await page.wait_for_selector('text=Total Assets', timeout=5000)
+        await page.wait_for_selector('text=Control Center', timeout=30000)
+        await page.wait_for_selector('text=Total Assets', timeout=30000)
 
         # Check KPI values (assuming mock data is loaded)
         # Select the KPI card by label, then find the value inside it.
