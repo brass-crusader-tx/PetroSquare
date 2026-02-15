@@ -20,31 +20,31 @@ export function InspectDrawer({ isOpen, onClose, asset, telemetry, window }: Ins
       label: 'Data Provenance',
       content: (
         <div className="space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded p-4">
-            <h4 className="text-sm font-semibold text-white mb-2">Source Information</h4>
-            <div className="space-y-2 text-xs text-slate-400">
-              <div className="flex justify-between">
-                <span>System:</span>
-                <span className="text-emerald-400 font-mono">SCADA_HISTORIAN_STUB</span>
+          <div className="bg-surface border border-white/5 rounded-xl p-4 shadow-sm">
+            <h4 className="text-sm font-semibold text-white mb-3 tracking-tight">Source Information</h4>
+            <div className="space-y-2 text-xs text-muted">
+              <div className="flex justify-between items-center py-1 border-b border-white/5 last:border-0">
+                <span>System</span>
+                <span className="text-emerald-500 font-mono bg-emerald-500/10 px-1.5 py-0.5 rounded">SCADA_HISTORIAN_STUB</span>
               </div>
-              <div className="flex justify-between">
-                <span>Protocol:</span>
-                <span className="text-slate-200">OPC-UA / MQTT Bridge</span>
+              <div className="flex justify-between items-center py-1 border-b border-white/5 last:border-0">
+                <span>Protocol</span>
+                <span className="text-white">OPC-UA / MQTT Bridge</span>
               </div>
-              <div className="flex justify-between">
-                <span>Last Contact:</span>
-                <span className="text-slate-200">{new Date(asset.lastContact).toISOString()}</span>
+              <div className="flex justify-between items-center py-1 border-b border-white/5 last:border-0">
+                <span>Last Contact</span>
+                <span className="text-white font-mono">{new Date(asset.lastContact).toISOString()}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Data Quality:</span>
-                <span className="text-emerald-400">100% GOOD</span>
+              <div className="flex justify-between items-center py-1 border-b border-white/5 last:border-0">
+                <span>Data Quality</span>
+                <span className="text-emerald-500 font-medium">100% GOOD</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded p-4">
-            <h4 className="text-sm font-semibold text-white mb-2">Transformations</h4>
-            <ul className="list-disc list-inside text-xs text-slate-400 space-y-1">
+          <div className="bg-surface border border-white/5 rounded-xl p-4 shadow-sm">
+            <h4 className="text-sm font-semibold text-white mb-3 tracking-tight">Transformations</h4>
+            <ul className="list-disc list-inside text-xs text-muted space-y-2 ml-1">
               <li>Raw value scaling (Linear, factor 1.0)</li>
               <li>Unit conversion (Bar -&gt; Psi)</li>
               <li>Outlier detection (3-sigma filter applied)</li>
@@ -58,34 +58,41 @@ export function InspectDrawer({ isOpen, onClose, asset, telemetry, window }: Ins
       label: 'Raw Payload',
       content: (
         <div className="space-y-4">
-          <div className="text-xs text-slate-500 mb-2">
-            Displaying raw telemetry points for window: <strong>{window}</strong>
+          <div className="text-xs text-muted mb-2 flex items-center gap-2">
+            Displaying raw telemetry points for window:
+            <span className="bg-surface-highlight px-1.5 py-0.5 rounded text-white font-mono">{window}</span>
           </div>
-          <div className="bg-slate-950 rounded border border-slate-800 overflow-auto max-h-[600px]">
-            <table className="w-full text-left text-xs text-slate-400">
-              <thead className="bg-slate-900 text-slate-300 font-bold sticky top-0">
-                <tr>
-                  <th className="p-2">Timestamp</th>
-                  <th className="p-2 text-right">Value</th>
-                  <th className="p-2">Unit</th>
-                  <th className="p-2">Quality</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800 font-mono">
-                {telemetry.map((point, i) => (
-                  <tr key={i} className="hover:bg-slate-900">
-                    <td className="p-2">{point.timestamp}</td>
-                    <td className="p-2 text-right text-emerald-400">{point.value}</td>
-                    <td className="p-2">{point.unit}</td>
-                    <td className="p-2">
-                      <span className={point.quality === 'GOOD' ? 'text-emerald-500' : 'text-amber-500'}>
-                        {point.quality}
-                      </span>
-                    </td>
+          <div className="bg-background rounded-xl border border-white/5 overflow-hidden max-h-[600px] shadow-inner">
+            <div className="overflow-auto max-h-[600px]">
+              <table className="w-full text-left text-xs text-muted">
+                <thead className="bg-surface text-white font-medium sticky top-0 z-10 shadow-sm">
+                  <tr>
+                    <th className="p-3 font-medium">Timestamp</th>
+                    <th className="p-3 text-right font-medium">Value</th>
+                    <th className="p-3 font-medium">Unit</th>
+                    <th className="p-3 font-medium">Quality</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-white/5 font-mono bg-background/50">
+                  {telemetry.map((point, i) => (
+                    <tr key={i} className="hover:bg-white/5 transition-colors">
+                      <td className="p-3 text-muted">{point.timestamp}</td>
+                      <td className="p-3 text-right text-emerald-500 font-medium">{point.value}</td>
+                      <td className="p-3 text-muted">{point.unit}</td>
+                      <td className="p-3">
+                        <span className={`px-1.5 py-0.5 rounded ${
+                          point.quality === 'GOOD'
+                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                            : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                        }`}>
+                          {point.quality}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )
@@ -94,7 +101,7 @@ export function InspectDrawer({ isOpen, onClose, asset, telemetry, window }: Ins
       id: 'json',
       label: 'JSON Object',
       content: (
-        <pre className="bg-slate-950 p-4 rounded text-xs text-emerald-400 font-mono overflow-auto border border-slate-800">
+        <pre className="bg-background p-4 rounded-xl text-xs text-emerald-500 font-mono overflow-auto border border-white/5 shadow-inner">
           {JSON.stringify({ asset, telemetry_sample: telemetry.slice(0, 5) }, null, 2)}
         </pre>
       )
