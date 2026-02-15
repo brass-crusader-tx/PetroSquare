@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NavItem } from './NavItem';
-import { LayoutDashboard, Activity, LineChart, DollarSign, Map, AlertTriangle, Globe, Layers, Cpu, FileCode, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, PieChart, Activity, LineChart, DollarSign, Map, AlertTriangle, Globe, Layers, Cpu, FileCode, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface LeftNavProps {
     currentPath?: string;
@@ -47,6 +47,7 @@ export function LeftNav({ currentPath }: LeftNavProps) {
       {/* Navigation Items */}
       <div className="flex-1 py-6 px-3 space-y-1 overflow-y-auto scrollbar-none">
         <NavItem href="/modules/control-center" active={isActive('/modules/control-center')} icon={<LayoutDashboard size={20} />} collapsed={collapsed}>Control Center</NavItem>
+        <NavItem href="/modules/portfolio" active={isActive('/modules/portfolio')} icon={<PieChart size={20} />} collapsed={collapsed}>Portfolio Strategy</NavItem>
         <NavItem href="/modules/production" active={isActive('/modules/production')} icon={<Activity size={20} />} collapsed={collapsed}>Production</NavItem>
         <NavItem href="/modules/markets" active={isActive('/modules/markets')} icon={<LineChart size={20} />} collapsed={collapsed}>Markets</NavItem>
         <NavItem href="/modules/economics" active={isActive('/modules/economics')} icon={<DollarSign size={20} />} collapsed={collapsed}>Economics</NavItem>

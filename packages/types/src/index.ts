@@ -758,3 +758,113 @@ export interface IntelSignalEvent {
   matched_rules: IntelSignalRule[];
   created_at: string;
 }
+
+// --- Portfolio Strategy & Capital Allocation Types ---
+
+export interface PortfolioScenarioInput {
+  oil_price_adjustment: number; // Percentage change (e.g. -20 for -20%)
+  gas_price_adjustment: number;
+  carbon_tax: number; // Absolute value USD/tonne
+  production_outage: number; // Percentage volume reduction
+  opex_inflation: number; // Percentage increase
+  capex_inflation: number; // Percentage increase
+  fiscal_regime_change: boolean;
+}
+
+export interface PortfolioConstraint {
+  max_capital_budget: number; // USD
+  min_liquidity: number; // USD
+  max_volatility: number; // Percentage (std dev)
+  max_carbon_intensity: number; // kgCO2e/boe
+  min_irr: number; // Percentage
+  mandatory_asset_ids: string[]; // Assets that cannot be divested
+}
+
+export interface OptimizationConfig {
+  constraints: PortfolioConstraint;
+  objective: 'MAX_NPV' | 'MAX_IRR' | 'MIN_VOLATILITY' | 'MIN_CARBON' | 'BALANCED';
+  scenario: PortfolioScenarioInput;
+  num_simulations?: number;
+}
+
+export interface PortfolioAsset {
+  id: string;
+  name: string;
+  type: 'CONVENTIONAL' | 'SHALE' | 'OFFSHORE' | 'RENEWABLE';
+  region: string;
+  country: string;
+
+  // Base Metrics
+  base_npv: number;
+  base_irr: number;
+  base_volatility: number;
+  base_carbon_intensity: number; // kgCO2e/boe
+  liquidity_impact: number; // Days to liquidate or cost to exit
+
+  // Scenario Metrics (dynamic)
+  scenario_npv?: number;
+  scenario_irr?: number;
+
+  // Scoring
+  risk_score: number; // 0-100 (100 = High Risk)
+  composite_score: number; // 0-100 (100 = Best Asset)
+  rank_change: 'UP' | 'DOWN' | 'SAME';
+}
+
+export interface EfficientFrontierPoint {
+  risk: number; // Volatility (std dev)
+  return: number; // NPV or IRR
+  sharpe_ratio: number;
+  allocation_id: string; // Link to specific allocation details
+}
+
+export interface CapitalAllocation {
+  asset_id: string;
+  allocation_amount: number; // USD
+  allocation_percentage: number; // 0-100
+}
+
+export interface OptimizationResult {
+  strategy_id: string;
+  timestamp: string;
+  config: OptimizationConfig;
+
+  // Portfolio Level Metrics
+  total_npv: number;
+  weighted_irr: number;
+  portfolio_volatility: number;
+  total_capex: number;
+  reserve_replacement_ratio: number;
+  portfolio_carbon_intensity: number;
+  var_95: number; // Value at Risk
+  liquidity_runway: number; // Months
+
+  efficient_frontier: EfficientFrontierPoint[];
+  optimal_allocation: CapitalAllocation[];
+
+  status: 'OPTIMAL' | 'FEASIBLE' | 'INFEASIBLE';
+}
+
+export interface PortfolioStrategy {
+  id: string;
+  name: string;
+  version: number;
+  author_id: string;
+  created_at: string;
+  status: 'DRAFT' | 'STAGED' | 'APPROVED' | 'ARCHIVED';
+  result: OptimizationResult;
+  parent_strategy_id?: string;
+  approval_trail?: {
+    user_id: string;
+    action: 'APPROVE' | 'REJECT';
+    timestamp: string;
+    comment?: string;
+  }[];
+}
+
+export interface PortfolioDashboardData {
+  current_strategy: PortfolioStrategy;
+  scenarios: PortfolioScenarioInput[];
+  assets: PortfolioAsset[];
+  alerts: number; // Count of strategic alerts
+}
