@@ -18,18 +18,18 @@ export default function MarketsPage() {
                     title="Markets & Trading Analytics"
                     description="Real-time market data, risk analytics, and strategic insights. (Blueprint v2)"
                 />
-                <div className="flex items-center gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700 mt-4 md:mt-0">
+                <div className="flex items-center gap-1 bg-surface/50 p-1 rounded-xl border border-border/50 backdrop-blur mt-4 md:mt-0 shadow-sm">
                     {(['TRADER', 'RISK', 'EXECUTIVE'] as Role[]).map(r => (
                         <button
                             key={r}
                             onClick={() => setRole(r)}
-                            className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                            className={`px-3 py-1.5 text-[10px] uppercase tracking-wider font-bold rounded-lg transition-all ${
                                 role === r
-                                ? 'bg-emerald-600 text-white shadow-sm'
-                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                                ? 'bg-primary text-surface shadow-md shadow-primary/10'
+                                : 'text-muted hover:text-white hover:bg-surface-highlight/50'
                             }`}
                         >
-                            {r} VIEW
+                            {r}
                         </button>
                     ))}
                 </div>

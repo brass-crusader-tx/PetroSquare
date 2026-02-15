@@ -90,28 +90,27 @@ export default function GISPage() {
   const center: [number, number] | undefined = selectedBasin ? selectedBasin.center : undefined;
 
   return (
-    <main className="h-screen w-screen bg-background text-text flex flex-col overflow-hidden">
+    <main className="h-[calc(100vh-100px)] w-full bg-background text-text flex flex-col overflow-hidden rounded-xl border border-border/50 shadow-2xl m-4">
        {/* Header */}
-       <header className="border-b border-border bg-surface sticky top-0 z-20 h-16 shrink-0 flex items-center justify-between px-4">
+       <header className="border-b border-border/50 bg-surface/50 backdrop-blur sticky top-0 z-20 h-14 shrink-0 flex items-center justify-between px-4">
            <div className="flex items-center space-x-4">
-             <Link href="/" className="text-muted hover:text-white font-mono">←</Link>
-             <h1 className="text-lg font-bold text-white font-sans">GIS & Asset Intelligence</h1>
+             <h1 className="text-sm font-bold text-white font-sans uppercase tracking-wider">GIS & Asset Intelligence</h1>
              <Badge status="live">Live</Badge>
            </div>
            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-4 text-xs font-mono text-muted">
-                  <span>Assets: {assets.length}</span>
-                  <span className="h-4 w-px bg-border"></span>
-                  <span>Latency: 12ms</span>
+              <div className="flex items-center space-x-4 text-[10px] font-mono text-muted uppercase tracking-wider">
+                  <span>Assets: <span className="text-white">{assets.length}</span></span>
+                  <span className="h-3 w-px bg-border/50"></span>
+                  <span>Latency: <span className="text-data-positive">12ms</span></span>
               </div>
            </div>
        </header>
 
        {/* Main Workspace */}
-       <div className="flex-1 flex relative">
+       <div className="flex-1 flex relative overflow-hidden">
 
            {/* Left Panel - Filters */}
-           <div className="w-80 bg-surface border-r border-border flex flex-col z-10 p-4 space-y-4 overflow-y-auto shrink-0">
+           <div className="w-72 bg-surface/50 backdrop-blur border-r border-border/50 flex flex-col z-10 p-4 space-y-4 overflow-y-auto shrink-0">
                <FilterPanel
                   basins={basins}
                   selectedBasinId={selectedBasinId}

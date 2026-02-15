@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { DataPanel } from '@petrosquare/ui';
+import { DataPanel, Button } from '@petrosquare/ui';
+import { Send, Sparkles, Bot, AlertTriangle } from 'lucide-react';
 
 export function InsightPanel({ assetId }: { assetId: string }) {
   const [prompt, setPrompt] = useState('');
@@ -40,49 +41,72 @@ export function InsightPanel({ assetId }: { assetId: string }) {
   return (
     <DataPanel title="Production Insights">
       <div className="flex flex-col h-[500px]">
-        <div className="flex-1 overflow-y-auto space-y-4 p-4 border border-border rounded bg-surface-highlight/5 mb-4">
+        <div className="flex-1 overflow-y-auto space-y-4 p-4 border border-white/5 rounded-xl bg-surface-highlight/5 mb-4 scroll-smooth">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[80%] p-3 rounded-lg text-sm ${
+                className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
                   m.role === 'user'
-                  ? 'bg-primary text-white rounded-br-none'
-                  : (m.role === 'system' ? 'bg-surface-highlight text-muted italic text-xs' : 'bg-surface-highlight text-white rounded-bl-none')
+                  ? 'bg-surface-highlight text-white rounded-br-sm border border-white/5'
+                  : (m.role === 'system'
+                      ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20 italic text-xs rounded-bl-sm flex items-center gap-2'
+                      : 'bg-surface-highlight/5 text-muted-foreground rounded-bl-sm border border-white/5')
                 }`}
               >
+                {m.role === 'system' && <AlertTriangle size={12} />}
+                {m.role === 'assistant' && (
+                    <div className="flex items-center gap-2 mb-2 text-primary text-xs font-bold uppercase tracking-wider">
+                        <Bot size={14} /> AI Analysis
+                    </div>
+                )}
                 {m.text}
               </div>
             </div>
           ))}
           {loading && (
              <div className="flex justify-start">
-               <div className="bg-surface-highlight text-white p-3 rounded-lg rounded-bl-none text-sm animate-pulse">
-                 Analyzing production data...
+               <div className="bg-surface-highlight/5 text-muted p-4 rounded-2xl rounded-bl-sm text-sm flex items-center gap-3 border border-white/5">
+                 <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></span>
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce delay-75"></span>
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce delay-150"></span>
+                 </div>
+                 <span className="text-xs font-medium">Analyzing production data...</span>
                </div>
              </div>
           )}
         </div>
 
-        <div className="flex space-x-2">
-          <input
-            type="text"
-            className="flex-1 bg-surface-highlight border border-border rounded px-4 py-2 text-white text-sm"
-            placeholder="Ask about production..."
-            value={prompt}
-            onChange={e => setPrompt(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && sendPrompt()}
-            disabled={loading}
-          />
-          <button
-            onClick={sendPrompt}
-            disabled={loading}
-            className="bg-primary text-white px-4 py-2 rounded text-sm disabled:opacity-50 hover:bg-primary/90 transition-colors"
-          >
-            Send
-          </button>
+        <div className="relative">
+          <div className="flex items-center bg-surface-highlight/10 border border-white/10 rounded-xl focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all p-1">
+            <div className="pl-3 text-primary">
+                <Sparkles size={16} />
+            </div>
+            <input
+                type="text"
+                className="flex-1 bg-transparent px-3 py-2.5 text-white text-sm focus:outline-none placeholder:text-muted/40"
+                placeholder="Ask about production trends..."
+                value={prompt}
+                onChange={e => setPrompt(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && sendPrompt()}
+                disabled={loading}
+            />
+            <Button
+                onClick={sendPrompt}
+                disabled={loading || !prompt.trim()}
+                variant="primary"
+                size="sm"
+                className="rounded-lg h-8 w-8 p-0"
+            >
+                <Send size={14} />
+            </Button>
+          </div>
         </div>
-        <div className="mt-2 text-xs text-muted text-center">
-            AI grounded on production stats, anomalies, and forecasts.
+
+        <div className="mt-3 flex justify-center">
+            <span className="text-[10px] text-muted/40 font-mono flex items-center gap-1.5">
+                <Bot size={10} /> AI grounded on live telemetry
+            </span>
         </div>
       </div>
     </DataPanel>

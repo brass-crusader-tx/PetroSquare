@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Badge } from './Badge';
-import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, Sparkles, Zap } from 'lucide-react';
 
 export interface InsightCardProps {
     insight: string | null;
@@ -14,52 +14,62 @@ export interface InsightCardProps {
 export function InsightCard({ insight, loading, enabled = true, className = "" }: InsightCardProps) {
     const [expanded, setExpanded] = useState(false);
 
-    // If disabled and no content, don't render.
-    // But if loading, we render skeleton.
     if (!enabled && !insight && !loading) return null;
 
     return (
-        <div className={`bg-surface-highlight/5 border border-border rounded-lg overflow-hidden transition-all duration-300 ${className}`}>
-             {/* Header */}
+        <div className={`relative group bg-surface-highlight/5 border border-primary/20 hover:border-primary/40 rounded-2xl p-5 transition-all duration-300 ${className}`}>
+
+             {/* Header / Title */}
              <div
-                className="flex items-center justify-between p-4 bg-surface-highlight/10 border-b border-border cursor-pointer hover:bg-surface-highlight/20 select-none"
+                className="flex items-center justify-between mb-3 cursor-pointer select-none"
                 onClick={() => setExpanded(!expanded)}
              >
-                 <div className="flex items-center space-x-2">
-                     <Sparkles size={16} className="text-primary shrink-0" />
-                     <h3 className="text-sm font-bold text-white uppercase tracking-wide truncate">Operational Insight</h3>
-                 </div>
-                 <div className="flex items-center space-x-3 shrink-0">
-                     <Badge status={enabled ? 'live' : 'offline'}>{enabled ? 'AI Enabled' : 'AI Disabled'}</Badge>
-                     {expanded ? <ChevronUp size={16} className="text-muted" /> : <ChevronDown size={16} className="text-muted" />}
-                 </div>
+                <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                        <Sparkles size={16} />
+                    </div>
+                    <span className="text-sm font-medium text-white tracking-wide">AI Analysis</span>
+                </div>
+                {/* Optional Badge or Status */}
+                {loading && (
+                    <span className="flex items-center text-xs text-muted animate-pulse">
+                        <Zap size={12} className="mr-1" /> Generating...
+                    </span>
+                )}
              </div>
 
              {/* Content */}
-             <div className={`relative transition-all duration-500 ease-in-out overflow-hidden ${expanded ? 'max-h-[1000px] opacity-100' : 'max-h-24 opacity-80'}`}>
-                 <div className="p-4 text-sm text-muted leading-relaxed prose prose-invert max-w-none">
+             <div className={`relative transition-all duration-500 ease-in-out overflow-hidden ${expanded ? 'max-h-[2000px]' : 'max-h-32'}`}>
+                 <div className="text-sm text-muted/90 leading-relaxed font-sans prose prose-invert max-w-none">
                      {loading ? (
-                         <div className="animate-pulse space-y-3">
-                             <div className="h-2 bg-surface-highlight rounded w-3/4"></div>
-                             <div className="h-2 bg-surface-highlight rounded w-full"></div>
-                             <div className="h-2 bg-surface-highlight rounded w-5/6"></div>
+                         <div className="space-y-3 py-2">
+                             <div className="h-2 bg-white/5 rounded w-3/4 animate-pulse"></div>
+                             <div className="h-2 bg-white/5 rounded w-full animate-pulse delay-75"></div>
+                             <div className="h-2 bg-white/5 rounded w-5/6 animate-pulse delay-150"></div>
                          </div>
                      ) : (
                          <div className="whitespace-pre-line">{insight || 'No insight generated.'}</div>
                      )}
                  </div>
 
-                 {/* Fade Overlay (only if collapsed and has content) */}
-                 {!expanded && !loading && insight && (
+                 {/* Fade Overlay (only if collapsed and has content and content is long) */}
+                 {!expanded && !loading && insight && insight.length > 150 && (
                      <div
-                        className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-surface via-surface/80 to-transparent flex items-end justify-center pb-3 cursor-pointer"
+                        className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent flex items-end justify-center pb-1 cursor-pointer"
                         onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
                      >
-                         <button
-                            className="text-xs font-bold text-primary hover:text-white uppercase tracking-wider bg-surface/90 px-4 py-1.5 rounded-full border border-border backdrop-blur-sm shadow-sm transition-transform hover:scale-105"
-                         >
-                             Read Analysis
-                         </button>
+                         <div className="bg-surface-highlight/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/5 text-xs text-primary font-medium hover:bg-surface-highlight transition-colors flex items-center gap-1">
+                             Show more <ChevronDown size={12} />
+                         </div>
+                     </div>
+                 )}
+
+                 {expanded && (
+                     <div
+                        className="flex justify-center mt-4 cursor-pointer text-xs text-muted hover:text-white transition-colors"
+                        onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
+                     >
+                        <span className="flex items-center gap-1"><ChevronUp size={12} /> Show less</span>
                      </div>
                  )}
              </div>

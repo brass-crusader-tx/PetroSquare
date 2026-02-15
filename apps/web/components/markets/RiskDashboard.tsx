@@ -22,7 +22,7 @@ export function RiskDashboard() {
                             ${(varValue / 1000000).toFixed(2)}M
                         </div>
                         <ConfidenceBadge confidence={0.95} />
-                        <div className="mt-4 text-xs text-slate-400 text-center">
+                        <div className="mt-4 text-xs text-muted text-center font-mono">
                             Parametric Method (Delta-Normal)
                         </div>
                     </div>
@@ -30,33 +30,33 @@ export function RiskDashboard() {
 
                 <DataPanel title="Stress Test (Scenario A)">
                     <div className="flex flex-col items-center justify-center py-6">
-                        <div className="text-4xl font-mono text-rose-400 mb-2">
+                        <div className="text-4xl font-mono text-data-critical mb-2">
                             -${(Math.abs(stressPnL) / 1000).toFixed(0)}k
                         </div>
-                        <div className="text-xs text-rose-300 bg-rose-900/30 px-2 py-1 rounded">
+                        <div className="text-[10px] uppercase tracking-wider font-bold text-data-critical bg-data-critical/20 px-2 py-1 rounded">
                             Price Shock -10%
                         </div>
                     </div>
                 </DataPanel>
 
                 <DataPanel title="Position Limits">
-                    <div className="space-y-3">
+                    <div className="space-y-4 pt-2">
                         <div>
-                            <div className="flex justify-between text-xs text-slate-300 mb-1">
+                            <div className="flex justify-between text-xs text-muted font-mono mb-1 uppercase tracking-wider">
                                 <span>Crude Book</span>
-                                <span>85%</span>
+                                <span className="text-white">85%</span>
                             </div>
-                            <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                                <div className="h-full bg-amber-500 w-[85%]"></div>
+                            <div className="h-1.5 bg-surface-highlight rounded-full overflow-hidden">
+                                <div className="h-full bg-data-warning w-[85%] shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                             </div>
                         </div>
                         <div>
-                            <div className="flex justify-between text-xs text-slate-300 mb-1">
+                            <div className="flex justify-between text-xs text-muted font-mono mb-1 uppercase tracking-wider">
                                 <span>Gas Book</span>
-                                <span>42%</span>
+                                <span className="text-white">42%</span>
                             </div>
-                            <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                                <div className="h-full bg-emerald-500 w-[42%]"></div>
+                            <div className="h-1.5 bg-surface-highlight rounded-full overflow-hidden">
+                                <div className="h-full bg-data-positive w-[42%] shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                             </div>
                         </div>
                     </div>
@@ -64,27 +64,29 @@ export function RiskDashboard() {
             </div>
 
             <DataPanel title="Active Risk Factors">
-                <table className="w-full text-sm text-left text-slate-400">
-                    <thead className="text-xs uppercase bg-slate-800/50 text-slate-500">
-                        <tr>
-                            <th className="px-4 py-2">Factor</th>
-                            <th className="px-4 py-2">Exposure</th>
-                            <th className="px-4 py-2">Contribution to VaR</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr className="border-b border-slate-700">
-                            <td className="px-4 py-3 text-white">WTI Spot Price</td>
-                            <td className="px-4 py-3">$14.2M Long</td>
-                            <td className="px-4 py-3">65%</td>
-                        </tr>
-                        <tr className="border-b border-slate-700">
-                            <td className="px-4 py-3 text-white">Henry Hub Basis</td>
-                            <td className="px-4 py-3">$2.1M Short</td>
-                            <td className="px-4 py-3">12%</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-muted">
+                        <thead className="text-[10px] uppercase tracking-wider bg-surface-highlight/30 text-muted font-mono">
+                            <tr>
+                                <th className="px-4 py-3 font-medium">Factor</th>
+                                <th className="px-4 py-3 font-medium">Exposure</th>
+                                <th className="px-4 py-3 font-medium">Contribution to VaR</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/50">
+                            <tr className="hover:bg-surface-highlight/5 transition-colors">
+                                <td className="px-4 py-3 text-white font-medium">WTI Spot Price</td>
+                                <td className="px-4 py-3 font-mono text-xs">$14.2M Long</td>
+                                <td className="px-4 py-3 font-mono text-xs text-white">65%</td>
+                            </tr>
+                            <tr className="hover:bg-surface-highlight/5 transition-colors">
+                                <td className="px-4 py-3 text-white font-medium">Henry Hub Basis</td>
+                                <td className="px-4 py-3 font-mono text-xs">$2.1M Short</td>
+                                <td className="px-4 py-3 font-mono text-xs text-white">12%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </DataPanel>
         </div>
     );

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { ReactNode, useState, useEffect, useCallback, useRef } from 'react';
-import { PanelLeftClose, MoveHorizontal } from 'lucide-react';
+import { PanelLeftClose, MoveHorizontal, Maximize2, Minimize2 } from 'lucide-react';
+import { IconButton } from './IconButton';
 
 export interface DetailDrawerProps {
   isOpen: boolean;
@@ -97,69 +98,78 @@ export function DetailDrawer({ isOpen, onClose, title, subtitle, source, timesta
   return (
     <>
         {/* Backdrop for mobile or explicit click-out */}
-        <div className="fixed inset-0 bg-black/20 z-30 lg:hidden" onClick={onClose}></div>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden transition-opacity" onClick={onClose}></div>
 
         <div
             ref={sidebarRef}
-            className={`fixed right-0 top-16 bottom-0 bg-surface border-l border-border z-40 shadow-2xl flex flex-col ${isResizing ? 'transition-none' : 'transition-[width,transform] duration-300'} ease-in-out`}
+            className={`fixed right-0 top-0 bottom-0 bg-surface border-l border-white/5 z-50 shadow-2xl flex flex-col ${isResizing ? 'transition-none' : 'transition-[width,transform] duration-300'} ease-in-out`}
             style={{ width: width }}
         >
             {/* Resize Handle */}
             <div
-                className="absolute left-0 top-0 bottom-0 w-1.5 -ml-0.5 cursor-col-resize hover:bg-primary/50 transition-colors z-50 flex items-center justify-center group"
+                className="absolute left-0 top-0 bottom-0 w-1.5 -ml-0.5 cursor-col-resize hover:bg-primary/50 transition-colors z-[60] flex items-center justify-center group"
                 onMouseDown={startResizing}
             >
                 {/* Visual handle indicator */}
-                <div className="h-8 w-1 bg-border group-hover:bg-primary rounded-full transition-colors"></div>
+                <div className="h-12 w-1 bg-white/10 group-hover:bg-primary rounded-full transition-colors"></div>
             </div>
 
             {/* Header */}
-            <div className="flex flex-col p-6 border-b border-border bg-surface shrink-0">
-                <div className="flex justify-between items-start mb-2">
-                    <div className="flex-1 min-w-0 pr-4">
-                        <h2 className="text-xl font-bold text-white font-sans truncate" title={title}>{title}</h2>
-                        {subtitle && <div className="text-sm text-muted mt-1 truncate">{subtitle}</div>}
+            <div className="flex flex-col p-6 border-b border-white/5 bg-surface/95 backdrop-blur-sm shrink-0">
+                <div className="flex justify-between items-start mb-2 gap-4">
+                    <div className="flex-1 min-w-0">
+                        <h2 className="text-xl font-bold text-white tracking-tight truncate" title={title}>{title}</h2>
+                        {subtitle && <div className="text-sm text-muted mt-1 truncate leading-relaxed">{subtitle}</div>}
                     </div>
-                    <div className="flex items-center space-x-1 shrink-0">
-                        <button
+                    <div className="flex items-center gap-1 shrink-0">
+                        <IconButton
                             onClick={resetWidth}
-                            className="text-muted hover:text-white p-1.5 rounded hover:bg-surface-highlight transition-colors"
+                            variant="ghost"
+                            size="sm"
                             title="Reset Width"
                         >
                             <MoveHorizontal size={16} />
-                        </button>
-                        <button
+                        </IconButton>
+                        <IconButton
                             onClick={onClose}
-                            className="text-muted hover:text-white p-1.5 rounded hover:bg-surface-highlight transition-colors"
+                            variant="ghost"
+                            size="sm"
                             title="Close"
                         >
                             <PanelLeftClose size={18} />
-                        </button>
+                        </IconButton>
                     </div>
                 </div>
-                <div className="flex items-center space-x-4 text-xs text-muted font-mono mt-2 truncate">
-                    {source && <span>Source: {source}</span>}
+                <div className="flex items-center gap-4 text-xs text-muted/60 font-mono mt-3 truncate">
+                    {source && <span className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-primary/50"></span>Source: {source}</span>}
                     {timestamp && <span>Updated: {timestamp}</span>}
                 </div>
             </div>
 
             {/* Tabs */}
             {tabs.length > 0 && (
-                <div className="flex border-b border-border bg-surface-highlight/5 px-6 shrink-0 overflow-x-auto no-scrollbar">
+                <div className="flex border-b border-white/5 bg-surface-highlight/5 px-6 shrink-0 overflow-x-auto no-scrollbar">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id ? 'border-primary text-white' : 'border-transparent text-muted hover:text-white'}`}
+                            className={`relative py-3 px-4 text-sm font-medium transition-colors whitespace-nowrap ${
+                                activeTab === tab.id
+                                ? 'text-white'
+                                : 'text-muted hover:text-white'
+                            }`}
                         >
                             {tab.label}
+                            {activeTab === tab.id && (
+                                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full shadow-[0_-1px_4px_rgba(45,212,191,0.5)]"></span>
+                            )}
                         </button>
                     ))}
                 </div>
             )}
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 scroll-smooth">
                 {tabs.length > 0 ? (
                     tabs.find(t => t.id === activeTab)?.content || children
                 ) : children}

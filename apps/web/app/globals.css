@@ -3,11 +3,38 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
   body {
-    @apply bg-background text-text font-sans antialiased;
+    @apply bg-background text-text font-sans antialiased leading-relaxed;
+    /* Perplexity-like subtle noise or texture could go here, but stick to clean for now */
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tight text-white;
+    @apply tracking-tighter text-white font-medium;
+  }
+
+  /* Custom scrollbar for modern feel */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-highlight rounded-full hover:bg-muted/50 transition-colors;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    @apply bg-surface/80 backdrop-blur-md border border-white/5 shadow-xl;
   }
 }

@@ -5,13 +5,17 @@ import { PageContainer, SectionHeader } from '@petrosquare/ui';
 import { useData } from '../../../../lib/hooks';
 import { IntelSignal, IntelSignalEvent } from '@petrosquare/types';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function IntelSignalsPage() {
+  const router = useRouter();
   const { data, loading, error } = useData<{ signals: IntelSignal[]; events: IntelSignalEvent[] }>('/api/intel/signals?include_events=true');
   const [showForm, setShowForm] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const [newSignal, setNewSignal] = useState({ name: '', field: 'tag', operator: 'equals', value: '' });
 
   const handleCreate = async () => {
+    setCreateError(null);
     try {
         const rules = [{ field: newSignal.field, operator: newSignal.operator, value: newSignal.value }];
         // @ts-ignore
@@ -21,10 +25,14 @@ export default function IntelSignalsPage() {
             body: JSON.stringify({ name: newSignal.name, rules })
         });
         if (res.ok) {
-            window.location.reload();
+            setShowForm(false);
+            setNewSignal({ name: '', field: 'tag', operator: 'equals', value: '' });
+            router.refresh();
+        } else {
+            setCreateError('Failed to create signal');
         }
     } catch (e) {
-        alert('Error');
+        setCreateError('Error: ' + (e as Error).message);
     }
   };
 
@@ -43,22 +51,25 @@ export default function IntelSignalsPage() {
             </button>
 
             {showForm && (
-                <div className="bg-surface p-4 rounded border border-border space-y-4 max-w-2xl">
-                    <h3 className="text-white font-bold">Define Signal Rules</h3>
+                <div className="bg-surface/50 p-6 rounded-xl border border-border/50 space-y-4 max-w-2xl shadow-xl backdrop-blur-sm">
+                    <h3 className="text-white font-bold text-sm uppercase tracking-wider">Define Signal Rules</h3>
+                    {createError && <div className="text-xs text-data-critical bg-data-critical/10 p-2 rounded border border-data-critical/20">{createError}</div>}
+
                     <div className="space-y-2">
-                        <label className="text-sm text-muted">Signal Name</label>
+                        <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Signal Name</label>
                         <input
                             type="text"
-                            className="w-full bg-surface-highlight/10 border border-border rounded px-3 py-2 text-white"
+                            className="w-full bg-surface border border-border/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary/50 text-sm transition-colors"
                             value={newSignal.name}
                             onChange={e => setNewSignal({...newSignal, name: e.target.value})}
+                            placeholder="e.g. High Priority Alerts"
                         />
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm text-muted">Field</label>
+                            <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Field</label>
                             <select
-                                className="w-full bg-surface-highlight/10 border border-border rounded px-3 py-2 text-white"
+                                className="w-full bg-surface border border-border/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary/50 text-sm transition-colors appearance-none"
                                 value={newSignal.field}
                                 onChange={e => setNewSignal({...newSignal, field: e.target.value})}
                             >
@@ -69,9 +80,9 @@ export default function IntelSignalsPage() {
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm text-muted">Operator</label>
+                            <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Operator</label>
                             <select
-                                className="w-full bg-surface-highlight/10 border border-border rounded px-3 py-2 text-white"
+                                className="w-full bg-surface border border-border/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary/50 text-sm transition-colors appearance-none"
                                 value={newSignal.operator}
                                 onChange={e => setNewSignal({...newSignal, operator: e.target.value})}
                             >
@@ -81,21 +92,24 @@ export default function IntelSignalsPage() {
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm text-muted">Value</label>
+                            <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Value</label>
                             <input
                                 type="text"
-                                className="w-full bg-surface-highlight/10 border border-border rounded px-3 py-2 text-white"
+                                className="w-full bg-surface border border-border/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary/50 text-sm transition-colors"
                                 value={newSignal.value}
                                 onChange={e => setNewSignal({...newSignal, value: e.target.value})}
+                                placeholder="Value..."
                             />
                         </div>
                     </div>
-                    <button
-                        onClick={handleCreate}
-                        className="bg-data-positive text-white px-4 py-2 rounded text-sm hover:bg-data-positive/80 transition-colors"
-                    >
-                        Create Signal
-                    </button>
+                    <div className="pt-2 flex justify-end">
+                        <button
+                            onClick={handleCreate}
+                            className="bg-data-positive text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-data-positive/80 transition-all shadow-lg shadow-data-positive/20"
+                        >
+                            Create Signal
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

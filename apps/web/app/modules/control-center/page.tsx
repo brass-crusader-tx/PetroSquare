@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { KpiCard } from '@petrosquare/ui';
+import { KpiCard, PageContainer, DataPanel, Badge } from '@petrosquare/ui';
 
 interface OverviewData {
   activeAlerts: number;
@@ -27,20 +27,36 @@ export default function ControlCenterOverview() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="p-8 text-slate-400 animate-pulse">Loading Control Center Overview...</div>;
-  if (error) return <div className="p-8 text-red-500">Error: {error}</div>;
+  if (loading) return (
+    <PageContainer>
+        <div className="p-8 text-muted animate-pulse">Loading Control Center Overview...</div>
+    </PageContainer>
+  );
+
+  if (error) return (
+    <PageContainer>
+        <div className="p-8 text-data-critical">Error: {error}</div>
+    </PageContainer>
+  );
+
   if (!data) return null;
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white tracking-tight">Control Center Dashboard</h1>
-        <div className="text-xs text-slate-500 font-mono">
-          Last Updated: {new Date(data.timestamp).toLocaleTimeString()}
+    <PageContainer>
+      <div className="flex justify-between items-end mb-8">
+        <div>
+            <h1 className="text-3xl font-medium text-white tracking-tight mb-2">Control Center</h1>
+            <p className="text-muted text-sm">Real-time operational oversight and system health monitoring.</p>
+        </div>
+        <div className="flex items-center gap-3">
+             <Badge status="live">System Active</Badge>
+             <div className="text-xs text-muted font-mono bg-surface-highlight/20 px-2 py-1 rounded">
+                Updated: {new Date(data.timestamp).toLocaleTimeString()}
+             </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <KpiCard
           label="Total Assets"
           value={data.totalAssets}
@@ -63,15 +79,19 @@ export default function ControlCenterOverview() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Placeholder for future widgets (e.g. Map, Feed) */}
-        <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 h-64 flex items-center justify-center text-slate-600">
-          GIS Map View (Coming Soon)
-        </div>
-        <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 h-64 flex items-center justify-center text-slate-600">
-          Alert Feed (See Alerts Tab)
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <DataPanel title="GIS Map View">
+            <div className="h-64 flex items-center justify-center text-muted/50 text-sm italic bg-surface-highlight/5 rounded-xl border border-white/5 border-dashed">
+                Interactive Map Component (Placeholder)
+            </div>
+        </DataPanel>
+
+        <DataPanel title="Recent Activity">
+            <div className="h-64 flex items-center justify-center text-muted/50 text-sm italic bg-surface-highlight/5 rounded-xl border border-white/5 border-dashed">
+                Alert Feed & System Logs (See Alerts Tab)
+            </div>
+        </DataPanel>
       </div>
-    </div>
+    </PageContainer>
   );
 }

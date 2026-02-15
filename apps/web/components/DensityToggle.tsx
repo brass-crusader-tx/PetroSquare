@@ -2,39 +2,31 @@
 
 import { useDensity } from '../context/DensityContext';
 import { IconButton } from '@petrosquare/ui';
+import { Monitor, Eye, Minimize2, Maximize2 } from 'lucide-react';
 
 export function DensityToggle() {
   const { density, toggleDensity, inspectMode, toggleInspectMode } = useDensity();
 
   return (
-    <div className="flex items-center space-x-2 border-l border-border pl-4">
+    <div className="flex items-center space-x-1 border-l border-white/5 pl-2">
       <IconButton
         onClick={toggleDensity}
         title={`Density: ${density}`}
         variant="ghost"
         size="sm"
+        className={density === 'compact' ? 'text-primary' : 'text-muted'}
       >
-        {density === 'compact' ? (
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        ) : (
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-          </svg>
-        )}
+        {density === 'compact' ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
       </IconButton>
 
       <IconButton
         onClick={toggleInspectMode}
         title={`Inspect Mode: ${inspectMode ? 'On' : 'Off'}`}
         variant={inspectMode ? 'surface' : 'ghost'}
-        className={inspectMode ? 'text-data-warning' : ''}
+        className={inspectMode ? 'text-data-warning bg-amber-500/10 border-amber-500/20' : 'text-muted'}
         size="sm"
       >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-        </svg>
+        <Eye size={16} />
       </IconButton>
     </div>
   );
