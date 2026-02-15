@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { KpiCard, PageContainer, DataPanel, Badge } from '@petrosquare/ui';
+import ControlCenterMap from './components/ControlCenterMap';
+import RecentActivityFeed from './components/RecentActivityFeed';
 
 interface OverviewData {
   activeAlerts: number;
@@ -81,15 +83,11 @@ export default function ControlCenterOverview() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DataPanel title="GIS Map View">
-            <div className="h-64 flex items-center justify-center text-muted/50 text-sm italic bg-surface-highlight/5 rounded-xl border border-white/5 border-dashed">
-                Interactive Map Component (Placeholder)
-            </div>
+            <ControlCenterMap />
         </DataPanel>
 
         <DataPanel title="Recent Activity">
-            <div className="h-64 flex items-center justify-center text-muted/50 text-sm italic bg-surface-highlight/5 rounded-xl border border-white/5 border-dashed">
-                Alert Feed & System Logs (See Alerts Tab)
-            </div>
+            <RecentActivityFeed />
         </DataPanel>
       </div>
     </PageContainer>
