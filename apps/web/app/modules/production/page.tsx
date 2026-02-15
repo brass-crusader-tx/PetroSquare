@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge, IconButton, DetailDrawer, getStandardTabs, InsightCard } from '@petrosquare/ui';
+import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Badge, IconButton, DetailDrawer, getStandardTabs, InsightCard, Button } from '@petrosquare/ui';
 import { useData } from '@/lib/hooks';
 import { TopProducersResponse } from '@petrosquare/types';
 import Link from 'next/link';
@@ -53,18 +53,20 @@ export default function ProductionPage() {
           description="Basin-level aggregates, decline curve analysis, and reserves reporting."
         >
           <div className="flex space-x-2">
-            <button
+            <Button
               onClick={() => setCountry('US')}
-              className={`px-3 py-1 text-xs font-mono rounded ${country === 'US' ? 'bg-primary text-white' : 'bg-surface-highlight text-muted'}`}
+              variant={country === 'US' ? 'primary' : 'secondary'}
+              size="sm"
             >
               US (States)
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setCountry('CA')}
-              className={`px-3 py-1 text-xs font-mono rounded ${country === 'CA' ? 'bg-primary text-white' : 'bg-surface-highlight text-muted'}`}
+              variant={country === 'CA' ? 'primary' : 'secondary'}
+              size="sm"
             >
               CA (Provinces)
-            </button>
+            </Button>
           </div>
         </SectionHeader>
 
