@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { DataPanel } from '@petrosquare/ui';
+import { DataPanel, NumberInput } from '@petrosquare/ui';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 export function MonteCarloPanel({ assetId }: { assetId: string }) {
@@ -58,11 +58,12 @@ export function MonteCarloPanel({ assetId }: { assetId: string }) {
     <DataPanel title="Monte Carlo Simulation">
       <div className="flex space-x-4 mb-4 items-center">
           <label className="text-sm text-muted">Iterations:</label>
-          <input
-            type="number"
+          <NumberInput
             value={iterations}
-            onChange={e => setIterations(Number(e.target.value))}
-            className="w-20 bg-surface-highlight border border-border rounded px-2 py-1 text-sm text-white"
+            onChange={val => setIterations(val)}
+            min={100}
+            step={100}
+            className="w-24"
           />
           <button
             onClick={runSimulation}

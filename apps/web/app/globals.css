@@ -27,6 +27,16 @@
   ::-webkit-scrollbar-thumb {
     @apply bg-surface-highlight rounded-full hover:bg-muted/50 transition-colors;
   }
+
+  /* Hide native number input spinners */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
 }
 
 @layer utilities {
