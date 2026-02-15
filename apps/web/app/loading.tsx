@@ -7,8 +7,8 @@ export default function Loading() {
         <img
           src="/logo/petrosquare-mark.svg"
           alt="PetroSquare"
-          width={160}
-          height={160}
+          width={320}
+          height={320}
           className="animate-[pulse_2s_ease-in-out_infinite]"
         />
       </div>

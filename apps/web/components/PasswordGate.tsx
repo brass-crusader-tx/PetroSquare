@@ -39,7 +39,7 @@ export function PasswordGate({ children }: PasswordGateProps) {
       <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 selection:bg-primary/20 selection:text-primary">
         <div className="max-w-md w-full bg-surface border border-white/5 rounded-2xl p-8 shadow-2xl">
           <div className="flex flex-col items-center mb-8">
-             <img src="/logo/petrosquare-mark.svg" alt="PetroSquare" width="64" height="64" className="mb-4" />
+             <img src="/logo/petrosquare-mark.svg" alt="PetroSquare" width="160" height="160" className="mb-1" />
              <h1 className="text-2xl font-bold text-white tracking-tight">PetroSquare</h1>
           </div>
 
