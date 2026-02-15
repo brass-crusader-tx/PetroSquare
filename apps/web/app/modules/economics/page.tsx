@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Button, InsightCard } from '@petrosquare/ui';
+import { PageContainer, SectionHeader, DataPanel, InlineMetricBlock, Button, InsightCard, NumberInput } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { EconScenario, EconResult, PortfolioItem } from '@petrosquare/types';
 import {
@@ -145,29 +145,36 @@ export default function EconomicsPage() {
 
                         <div>
                             <label className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1">CAPEX ($)</label>
-                            <input
-                                type="number"
+                            <NumberInput
                                 value={inputs.capex}
-                                onChange={e => setInputs({...inputs, capex: Number(e.target.value)})}
-                                className="w-full bg-surface-highlight/30 hover:bg-surface-highlight/50 focus:bg-surface-highlight transition-colors text-white p-2 rounded border border-border/50 focus:border-primary text-sm font-mono outline-none"
+                                onChange={val => setInputs({...inputs, capex: val})}
+                                min={0}
+                                step={100000}
+                                className="w-full"
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                              <div>
                                 <label className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1">Royalty %</label>
-                                <input
-                                    type="number" value={inputs.royalty}
-                                    onChange={e => setInputs({...inputs, royalty: Number(e.target.value)})}
-                                    className="w-full bg-surface-highlight/30 hover:bg-surface-highlight/50 focus:bg-surface-highlight transition-colors text-white p-2 rounded border border-border/50 focus:border-primary text-sm font-mono outline-none"
+                                <NumberInput
+                                    value={inputs.royalty}
+                                    onChange={val => setInputs({...inputs, royalty: val})}
+                                    min={0}
+                                    max={100}
+                                    step={0.5}
+                                    className="w-full"
                                 />
                              </div>
                              <div>
                                 <label className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1">Discount %</label>
-                                <input
-                                    type="number" value={inputs.discount}
-                                    onChange={e => setInputs({...inputs, discount: Number(e.target.value)})}
-                                    className="w-full bg-surface-highlight/30 hover:bg-surface-highlight/50 focus:bg-surface-highlight transition-colors text-white p-2 rounded border border-border/50 focus:border-primary text-sm font-mono outline-none"
+                                <NumberInput
+                                    value={inputs.discount}
+                                    onChange={val => setInputs({...inputs, discount: val})}
+                                    min={0}
+                                    max={100}
+                                    step={0.5}
+                                    className="w-full"
                                 />
                              </div>
                         </div>
