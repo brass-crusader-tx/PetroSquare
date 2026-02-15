@@ -13,6 +13,7 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
   const [loading, setLoading] = useState(true);
   const [loadingTelemetry, setLoadingTelemetry] = useState(false);
   const [isInspectOpen, setIsInspectOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     // Fetch Asset + Initial Telemetry
@@ -37,32 +38,67 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
       .finally(() => setLoadingTelemetry(false));
   }, [params.id, window]);
 
+  useEffect(() => {
+    // Attach scroll listener to the main layout container
+    const scrollContainer = document.querySelector('main');
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      setIsScrolled(scrollContainer.scrollTop > 20);
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    // Initial check
+    handleScroll();
+
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, []);
+
   if (loading) return <div className="p-8 text-center text-muted animate-pulse">Loading Asset Details...</div>;
   if (!asset) return <div className="p-8 text-center text-red-500">Asset Not Found</div>;
 
   return (
     <div className="flex flex-col h-full bg-background text-white font-sans">
       {/* Header */}
-      <div className="bg-surface/50 backdrop-blur-md border-b border-white/5 p-6 flex justify-between items-start sticky top-0 z-10">
+      {/* top-12 (48px) to account for the sticky ControlCenterLayout tabs */}
+      <div
+        className={`sticky top-12 z-10 transition-all duration-300 border-b border-white/5 backdrop-blur-md flex justify-between items-start ${
+          isScrolled ? 'bg-background/90 py-2 px-6 shadow-md' : 'bg-surface/50 p-6'
+        }`}
+      >
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-white tracking-tight">{asset.name}</h1>
-            <Badge status={asset.status} />
+            <h1 className={`font-bold text-white tracking-tight transition-all duration-300 ${
+              isScrolled ? 'text-lg' : 'text-3xl'
+            }`}>
+              {asset.name}
+            </h1>
+            <div className={`transition-all duration-300 ${isScrolled ? 'scale-90 origin-left opacity-0 w-0 overflow-hidden' : 'scale-100 opacity-100'}`}>
+              <Badge status={asset.status} />
+            </div>
           </div>
-          <div className="text-muted font-mono text-sm mt-1">{asset.id} • {asset.type} • {asset.metadata?.basin as string}</div>
+          <div className={`text-muted font-mono text-sm mt-1 transition-all duration-300 ${
+              isScrolled ? 'opacity-0 h-0 overflow-hidden mt-0' : 'opacity-100 h-auto'
+          }`}>
+              {asset.id} • {asset.type} • {asset.metadata?.basin as string}
+          </div>
         </div>
         <div className="text-right">
-          <div className="text-xs text-muted uppercase tracking-wider mb-1">Health Score</div>
-          <div className={`text-3xl font-mono font-bold ${
-            asset.healthScore > 90 ? 'text-emerald-500' : 'text-amber-500'
+          <div className={`text-xs text-muted uppercase tracking-wider mb-1 transition-all duration-300 ${
+              isScrolled ? 'opacity-0 h-0 overflow-hidden mb-0' : 'opacity-100 h-auto'
           }`}>
+              Health Score
+          </div>
+          <div className={`font-mono font-bold transition-all duration-300 ${
+            asset.healthScore > 90 ? 'text-emerald-500' : 'text-amber-500'
+          } ${isScrolled ? 'text-lg' : 'text-3xl'}`}>
             {asset.healthScore}%
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-6 overflow-auto space-y-6">
+      <div className="p-6 space-y-6">
         {/* Telemetry Section */}
         <div className="bg-surface border border-white/5 rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
