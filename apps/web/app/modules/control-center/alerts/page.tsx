@@ -2,16 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Alert } from '@petrosquare/types';
 import { ActionButtons } from '../components/ActionButtons';
 import { WorkflowManager } from '../components/WorkflowManager';
 
 export default function AlertsPage() {
+  const searchParams = useSearchParams();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [severityFilter, setSeverityFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'ALL');
+  const [severityFilter, setSeverityFilter] = useState(searchParams.get('severity') || 'ALL');
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
+
+  useEffect(() => {
+    const status = searchParams.get('status');
+    if (status) setStatusFilter(status);
+    const severity = searchParams.get('severity');
+    if (severity) setSeverityFilter(severity);
+  }, [searchParams]);
 
   const fetchAlerts = () => {
     setLoading(true);
