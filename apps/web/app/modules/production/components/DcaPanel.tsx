@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { DataPanel } from '@petrosquare/ui';
+import { DataPanel, Select } from '@petrosquare/ui';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 export function DcaPanel({ assetId }: { assetId: string }) {
@@ -34,21 +34,25 @@ export function DcaPanel({ assetId }: { assetId: string }) {
     }
   };
 
+  const modelOptions = [
+    { value: 'EXPONENTIAL', label: 'Exponential' },
+    { value: 'HYPERBOLIC', label: 'Hyperbolic' }
+  ];
+
   return (
-    <DataPanel title="Decline Curve Analysis">
+    <DataPanel title="Decline Curve Analysis" className="overflow-visible">
       <div className="flex space-x-4 mb-4 items-center">
-        <select
-          value={modelType}
-          onChange={(e) => setModelType(e.target.value)}
-          className="bg-surface-highlight text-white border border-border rounded px-2 py-1 text-sm"
-        >
-          <option value="EXPONENTIAL">Exponential</option>
-          <option value="HYPERBOLIC">Hyperbolic</option>
-        </select>
+        <div className="w-48">
+          <Select
+            value={modelType}
+            onChange={setModelType}
+            options={modelOptions}
+          />
+        </div>
         <button
           onClick={runFit}
           disabled={loading}
-          className="bg-primary text-white px-4 py-1 rounded text-sm disabled:opacity-50 hover:bg-primary/90 transition-colors"
+          className="bg-primary text-white px-4 py-2.5 rounded-xl text-sm disabled:opacity-50 hover:bg-primary/90 transition-colors"
         >
           {loading ? 'Fitting...' : 'Run Fit & Forecast'}
         </button>

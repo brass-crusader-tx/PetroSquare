@@ -1,6 +1,6 @@
 "use client";
 
-import { DataPanel, Button } from '@petrosquare/ui';
+import { DataPanel, Button, Select } from '@petrosquare/ui';
 import { Basin } from '@petrosquare/types';
 
 interface FilterPanelProps {
@@ -39,26 +39,22 @@ export default function FilterPanel({
       </div>
   );
 
+  const basinOptions = basins.map(basin => ({
+    label: basin.name,
+    value: basin.id
+  }));
+
   return (
     <div className="space-y-4">
-      <DataPanel title="Navigation" className="p-5">
+      <DataPanel title="Navigation" className="p-5 overflow-visible">
         <label className="block text-[10px] uppercase font-bold text-muted mb-2 tracking-wider">Basin Selection</label>
-        <div className="relative">
-            <select
+
+        <Select
             value={selectedBasinId}
-            onChange={(e) => onSelectBasin(e.target.value)}
-            className="w-full bg-surface-highlight/50 border border-white/10 text-white text-sm rounded-lg p-2.5 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none appearance-none cursor-pointer hover:bg-surface-highlight transition-colors"
-            >
-            {basins.map(basin => (
-                <option key={basin.id} value={basin.id}>{basin.name}</option>
-            ))}
-            </select>
-            <div className="absolute right-3 top-3 pointer-events-none text-muted">
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-            </div>
-        </div>
+            onChange={onSelectBasin}
+            options={basinOptions}
+            placeholder="Select Basin..."
+        />
 
         <div className="mt-5 pt-5 border-t border-white/5">
           <Button variant="secondary" size="sm" className="w-full" onClick={onRefresh}>

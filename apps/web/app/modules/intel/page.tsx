@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PageContainer, SectionHeader } from '@petrosquare/ui';
+import { PageContainer, SectionHeader, Select } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { IntelItem, IntelItemType } from '@petrosquare/types';
 import { IntelItemCard } from './components/IntelItemCard';
@@ -26,6 +26,13 @@ export default function IntelFeedPage() {
     }
     return true;
   });
+
+  const typeOptions = [
+    { value: 'ALL', label: 'All Types' },
+    { value: 'NOTE', label: 'Note' },
+    { value: 'LINK', label: 'Link' },
+    { value: 'REPORT', label: 'Report' },
+  ];
 
   return (
     <main className="min-h-screen bg-background text-text">
@@ -52,7 +59,7 @@ export default function IntelFeedPage() {
             </Link>
           </div>
 
-          <div className="flex gap-2 w-full md:w-auto">
+          <div className="flex gap-2 w-full md:w-auto items-center">
              <input
                 type="text"
                 placeholder="Search..."
@@ -60,16 +67,13 @@ export default function IntelFeedPage() {
                 onChange={e => setQuery(e.target.value)}
                 className="bg-surface/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 focus:bg-surface w-full md:w-64 placeholder:text-muted transition-colors"
              />
-             <select
-                value={typeFilter}
-                onChange={e => setTypeFilter(e.target.value as any)}
-                className="bg-surface/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 focus:bg-surface transition-colors"
-             >
-                <option value="ALL">All Types</option>
-                <option value="NOTE">Note</option>
-                <option value="LINK">Link</option>
-                <option value="REPORT">Report</option>
-             </select>
+             <div className="w-40">
+                <Select
+                    value={typeFilter}
+                    onChange={(val) => setTypeFilter(val as any)}
+                    options={typeOptions}
+                />
+             </div>
           </div>
         </div>
 

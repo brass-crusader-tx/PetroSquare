@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Alert } from '@petrosquare/types';
+import { Select } from '@petrosquare/ui';
 import { ActionButtons } from '../components/ActionButtons';
 import { WorkflowManager } from '../components/WorkflowManager';
 
@@ -30,32 +31,40 @@ export default function AlertsPage() {
     fetchAlerts();
   }, [statusFilter, severityFilter]);
 
+  const statusOptions = [
+    { value: 'ALL', label: 'All Status' },
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'ACKNOWLEDGED', label: 'Acknowledged' },
+    { value: 'RESOLVED', label: 'Resolved' },
+  ];
+
+  const severityOptions = [
+    { value: 'ALL', label: 'All Severity' },
+    { value: 'CRITICAL', label: 'Critical' },
+    { value: 'HIGH', label: 'High' },
+    { value: 'MEDIUM', label: 'Medium' },
+    { value: 'LOW', label: 'Low' },
+  ];
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-white tracking-tight">Alerts Center</h1>
         <div className="flex space-x-4">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 text-slate-200 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-          >
-            <option value="ALL">All Status</option>
-            <option value="ACTIVE">Active</option>
-            <option value="ACKNOWLEDGED">Acknowledged</option>
-            <option value="RESOLVED">Resolved</option>
-          </select>
-          <select
-            value={severityFilter}
-            onChange={(e) => setSeverityFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 text-slate-200 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-          >
-            <option value="ALL">All Severity</option>
-            <option value="CRITICAL">Critical</option>
-            <option value="HIGH">High</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="LOW">Low</option>
-          </select>
+          <div className="w-48">
+            <Select
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={statusOptions}
+            />
+          </div>
+          <div className="w-48">
+             <Select
+              value={severityFilter}
+              onChange={setSeverityFilter}
+              options={severityOptions}
+            />
+          </div>
         </div>
       </div>
 

@@ -14,3 +14,4 @@ export * from './KpiCard';
 export * from './DetailDrawer';
 export * from './StandardDrawerContent';
 export * from './InsightCard';
+export * from './Select';
