@@ -10,7 +10,7 @@ export function Footer() {
             {/* Column 1: Brand & Support */}
             <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                    <img src="/logo/petrosquare-mark.svg" width="32" height="32" alt="PetroSquare" className="opacity-90" />
+                    <img src="/logo/petrosquare-mark.svg" className="w-10 h-10 invert brightness-0 grayscale opacity-90" alt="PetroSquare" />
                     <span className="text-lg font-bold text-white tracking-tight">PetroSquare</span>
                 </div>
                 <p className="text-sm text-muted leading-relaxed">

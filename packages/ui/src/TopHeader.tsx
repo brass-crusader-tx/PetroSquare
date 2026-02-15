@@ -85,7 +85,7 @@ export function TopHeader() {
         {/* Central Command Bar */}
         <div className="flex-1 max-w-2xl relative mx-auto" ref={wrapperRef}>
             <div className="relative group">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors pointer-events-none">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors pointer-events-none z-10">
                     <Search size={18} />
                 </span>
                 <input
@@ -95,17 +95,21 @@ export function TopHeader() {
                     onKeyDown={handleKeyDown}
                     onFocus={() => { if(query.length > 1) setIsOpen(true); }}
                     placeholder="Ask anything or search..."
-                    className="w-full bg-surface-highlight/40 hover:bg-surface-highlight/60 focus:bg-surface-highlight border border-border/50 focus:border-primary/50 rounded-2xl py-2.5 pl-12 pr-12 text-sm text-white focus:outline-none transition-all placeholder:text-muted/60 shadow-sm"
+                    className="w-full bg-white/5 hover:bg-white/10 focus:bg-white/15 backdrop-blur-md border-0 rounded-2xl py-2.5 pl-12 pr-12 text-sm text-white focus:outline-none transition-all placeholder:text-muted/60 shadow-inner group-hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+                    style={{
+                        background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))',
+                        boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
+                    }}
                 />
                 {query ? (
                     <button
                         onClick={() => { setQuery(''); setIsOpen(false); }}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-white"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-white z-10"
                     >
                         <X size={16} />
                     </button>
                 ) : (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none opacity-50">
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none opacity-50 z-10">
                         <Command size={12} className="text-muted" />
                         <span className="text-[10px] text-muted font-mono">K</span>
                     </div>
@@ -114,7 +118,7 @@ export function TopHeader() {
 
             {/* Dropdown Results */}
             {isOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-surface/80 border border-white/5 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl">
                     {results.length > 0 ? (
                         <ul className="py-2">
                             {results.map((item, index) => (
@@ -153,18 +157,30 @@ export function TopHeader() {
 
         {/* Right Actions */}
         <div className="flex items-center space-x-2 ml-4">
-            <IconButton variant="ghost" size="sm" className="text-muted hover:text-white" disabled>
-                <Bell size={20} />
-            </IconButton>
-            <IconButton
-                variant="ghost"
-                size="sm"
-                onClick={() => window.dispatchEvent(new Event('petrosquare-open-inspector'))}
-                className="text-muted hover:text-white"
-                title="System Inspector"
-            >
-                <Settings size={20} />
-            </IconButton>
+            <div className="group relative">
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-full blur-md transition-all duration-300"></div>
+                <IconButton
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted hover:text-white relative bg-white/5 border-0 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 shadow-inner group-hover:shadow-[0_0_10px_rgba(255,255,255,0.1)]"
+                    disabled
+                >
+                    <Bell size={18} />
+                </IconButton>
+            </div>
+
+            <div className="group relative">
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-full blur-md transition-all duration-300"></div>
+                <IconButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.dispatchEvent(new Event('petrosquare-open-inspector'))}
+                    className="text-muted hover:text-white relative bg-white/5 border-0 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 shadow-inner group-hover:shadow-[0_0_10px_rgba(255,255,255,0.1)]"
+                    title="System Inspector"
+                >
+                    <Settings size={18} />
+                </IconButton>
+            </div>
         </div>
     </header>
   );
