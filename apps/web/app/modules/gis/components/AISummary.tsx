@@ -13,7 +13,7 @@ interface AISummaryProps {
 export default function AISummaryPanel({ summary, loading, onGenerate, title = "AI Insights" }: AISummaryProps) {
   if (loading) {
     return (
-      <DataPanel title={title} className="p-4 border-l-4 border-primary">
+      <DataPanel title={title} className="p-5 shrink-0">
          <div className="animate-pulse space-y-3">
              <div className="h-4 bg-surface-highlight rounded w-3/4"></div>
              <div className="h-3 bg-surface-highlight rounded w-full"></div>
@@ -25,7 +25,7 @@ export default function AISummaryPanel({ summary, loading, onGenerate, title = "
 
   if (!summary) {
     return (
-      <DataPanel title={title} className="p-4 flex flex-col items-center justify-center text-center space-y-3 border-dashed border-2 border-border">
+      <DataPanel title={title} className="p-5 flex flex-col items-center justify-center text-center space-y-3 border-dashed border-2 border-border shrink-0">
           <p className="text-muted text-sm">No summary generated for this context.</p>
           <button
              onClick={onGenerate}
@@ -38,7 +38,7 @@ export default function AISummaryPanel({ summary, loading, onGenerate, title = "
   }
 
   return (
-    <DataPanel title={title} className="p-4 border-l-4 border-primary relative group">
+    <DataPanel title={title} className="p-5 relative group shrink-0">
        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
            <span className="text-[10px] bg-surface-highlight px-1 rounded text-muted">v{summary.model_version}</span>
        </div>
