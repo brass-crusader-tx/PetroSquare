@@ -1,5 +1,5 @@
-import React from 'react';
-import { DataPanel } from '@petrosquare/ui';
+import React, { useState } from 'react';
+import { DataPanel, DetailDrawer, getStandardTabs } from '@petrosquare/ui';
 import { useData } from '../../lib/hooks';
 import { Instrument } from '@petrosquare/types';
 import { ProvenanceList } from './ProvenanceList';
@@ -7,7 +7,14 @@ import { StalenessPill } from './StalenessPill';
 
 export function TraderDashboard() {
     const { data: instruments, loading, provenance } = useData<Instrument[]>('/api/markets/instruments');
+    const [selectedInstrument, setSelectedInstrument] = useState<Instrument | null>(null);
     const list = instruments || [];
+
+    const getPrice = (symbol: string) => {
+        if (symbol.includes('CL')) return '75.42';
+        if (symbol.includes('NG')) return '2.84';
+        return '80.12';
+    };
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -15,7 +22,11 @@ export function TraderDashboard() {
                 <DataPanel title="Live Market Watchlist" loading={loading}>
                     <div className="space-y-3">
                         {list.map(inst => (
-                            <div key={inst.id} className="flex justify-between items-center p-4 bg-surface-highlight/10 rounded-xl border border-white/5 hover:border-white/10 hover:bg-surface-highlight/20 transition-all cursor-pointer group">
+                            <div
+                                key={inst.id}
+                                className="flex justify-between items-center p-4 bg-surface-highlight/10 rounded-xl border border-white/5 hover:border-white/10 hover:bg-surface-highlight/20 transition-all cursor-pointer group"
+                                onClick={() => setSelectedInstrument(inst)}
+                            >
                                 <div>
                                     <div className="font-bold text-white flex items-center gap-2">
                                         {inst.symbol}
@@ -25,7 +36,7 @@ export function TraderDashboard() {
                                 </div>
                                 <div className="text-right">
                                     <div className="font-mono text-data-positive text-lg font-medium tracking-tight">
-                                        {inst.symbol.includes('CL') ? '75.42' : inst.symbol.includes('NG') ? '2.84' : '80.12'}
+                                        {getPrice(inst.symbol)}
                                         <span className="text-xs text-muted ml-1 font-sans">{inst.currency}</span>
                                     </div>
                                     <StalenessPill asOf={new Date().toISOString()} />
@@ -66,6 +77,20 @@ export function TraderDashboard() {
                     </DataPanel>
                 </div>
             </div>
+
+            <DetailDrawer
+                isOpen={!!selectedInstrument}
+                onClose={() => setSelectedInstrument(null)}
+                title={selectedInstrument?.name || 'Instrument Details'}
+                subtitle={selectedInstrument ? `${selectedInstrument.symbol} • ${selectedInstrument.region}` : ''}
+                source="Market Data Feed"
+                timestamp={new Date().toLocaleTimeString()}
+                tabs={selectedInstrument ? getStandardTabs({
+                    ...selectedInstrument,
+                    value: getPrice(selectedInstrument.symbol),
+                    units: selectedInstrument.unit || 'USD',
+                }) : []}
+            />
         </div>
     );
 }
