@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PageContainer, SectionHeader } from '@petrosquare/ui';
+import { PageContainer, SectionHeader, getButtonClassName } from '@petrosquare/ui';
 import { useData } from '../../../lib/hooks';
 import { IntelItem, IntelItemType } from '@petrosquare/types';
 import { IntelItemCard } from './components/IntelItemCard';
@@ -38,16 +38,16 @@ export default function IntelFeedPage() {
         {/* Action Bar */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div className="flex gap-4 flex-wrap">
-            <Link href="/modules/intel/workspace" className="bg-primary text-white px-4 py-2 rounded text-sm hover:bg-primary-hover transition-colors">
+            <Link href="/modules/intel/workspace" className={getButtonClassName('primary', 'md')}>
               + New Item
             </Link>
-            <Link href="/modules/intel/review" className="bg-surface text-white px-4 py-2 rounded text-sm hover:bg-surface-highlight transition-colors border border-border">
+            <Link href="/modules/intel/review" className={getButtonClassName('secondary', 'md')}>
               Review Queue
             </Link>
-            <Link href="/modules/intel/signals" className="bg-surface text-white px-4 py-2 rounded text-sm hover:bg-surface-highlight transition-colors border border-border">
+            <Link href="/modules/intel/signals" className={getButtonClassName('secondary', 'md')}>
               Signals
             </Link>
-            <Link href="/modules/intel/dashboard" className="bg-surface text-white px-4 py-2 rounded text-sm hover:bg-surface-highlight transition-colors border border-border">
+            <Link href="/modules/intel/dashboard" className={getButtonClassName('secondary', 'md')}>
               Legacy Dashboard
             </Link>
           </div>
