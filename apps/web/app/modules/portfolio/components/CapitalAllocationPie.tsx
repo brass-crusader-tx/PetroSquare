@@ -43,7 +43,10 @@ export function CapitalAllocationPie({ allocations }: CapitalAllocationPieProps)
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a' }} formatter={(value: number) => `${value.toFixed(1)}%`} />
+                    <Tooltip
+                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a' }}
+                        formatter={(value: number | undefined) => [`${(value || 0).toFixed(1)}%`, 'Allocation']}
+                    />
                 </PieChart>
             </ResponsiveContainer>
         </div>
