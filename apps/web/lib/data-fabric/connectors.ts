@@ -5,7 +5,8 @@ import {
   IntelDeal, IntelInfrastructure, IntelRigCount,
   RiskEvent, RiskAlert, MapOverlay,
   RegionKind,
-  TopProducerRow
+  TopProducerRow,
+  PortfolioScenarioInput
 } from '@petrosquare/types';
 import { DATA_SOURCES } from './registry';
 import { globalCache } from './cache';
@@ -62,6 +63,18 @@ export const MarketsConnector = {
 // --- Production Connector ---
 
 export const ProductionConnector = {
+  async getForecast(scenario: PortfolioScenarioInput): Promise<any> {
+       // Mock forecast data
+       return {
+           total_production: 1250000 * (1 - (scenario.production_outage || 0) / 100),
+           unit: 'boe/d',
+           forecast_series: Array.from({length: 12}).map((_, i) => ({
+               period: `2024-${String(i+1).padStart(2, '0')}`,
+               value: 1250000 * (1 - (scenario.production_outage || 0) / 100) * (1 - i * 0.02) // Decline
+           }))
+       };
+  },
+
   async getRegions(country: 'US' | 'CA'): Promise<TopProducersResponse> {
     const kind: RegionKind = country === 'US' ? 'US_STATE' : 'CA_PROVINCE';
     const regions = country === 'US'
@@ -134,6 +147,23 @@ export const ProductionConnector = {
 // --- Economics Connector ---
 
 export const EconomicsConnector = {
+  async runCustomScenario(inputs: PortfolioScenarioInput): Promise<PortfolioItem[]> {
+      const basePortfolio = await this.getPortfolio();
+      // Apply shocks
+      return basePortfolio.map(item => {
+          let npvImpact = 1.0;
+          if (inputs.oil_price_adjustment !== 0) npvImpact += (inputs.oil_price_adjustment / 100) * 1.5; // Sensitivity
+          if (inputs.carbon_tax > 0) npvImpact -= (inputs.carbon_tax / 100) * 0.1;
+          if (inputs.production_outage > 0) npvImpact -= (inputs.production_outage / 100);
+
+          return {
+              ...item,
+              npv: item.npv * npvImpact,
+              roi: item.roi * npvImpact // Simplification
+          };
+      });
+  },
+
   async getScenarios(): Promise<EconScenario[]> {
     return [
       {
@@ -210,6 +240,14 @@ export const IntelConnector = {
 // --- Risk Connector ---
 
 export const RiskConnector = {
+    async getRiskMetrics(): Promise<Record<string, number>> {
+      return {
+          'p-1': 25,
+          'w-1': 45,
+          'g-1': 80
+      };
+    },
+
     async getEvents(): Promise<RiskEvent[]> {
         return [
             { id: 'evt-1', title: 'EPA Methane Rule Finalized', severity: 'HIGH', date: '2023-12-02', source: 'EPA Press Release', description: 'New standards for methane emissions from oil and gas operations.', affected_regions: ['US'] },
